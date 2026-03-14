@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - petclinic
+
+  backend:
+    # Replace with your backend image/service
+    image: your-backend-image:latest
+    ports:
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - petclinic
+
+networks:
+  petclinic:
+    driver: bridge
