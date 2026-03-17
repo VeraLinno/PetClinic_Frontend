@@ -7,6 +7,12 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "types": ["vite/client", "vue"],
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true
   }
 }

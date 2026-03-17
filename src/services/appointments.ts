@@ -3,26 +3,56 @@ import api from './api'
 export interface Appointment {
   id: string
   petId: string
-  vetId: string
-  ownerId: string
-  date: string
-  status: string
+  petName?: string
+  veterinarianId: string
+  veterinarianName?: string
+  ownerId?: string
+  ownerName?: string
+  startAt: string
+  endAt: string
+  status: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled'
   notes?: string
+  dateTime?: string
 }
 
 export interface Visit {
   id: string
   appointmentId: string
   notes: string
-  invoice?: any
+  diagnosis?: string
+  treatments?: string[]
+  prescriptions?: Prescription[]
+  invoice?: Invoice
+}
+
+export interface Invoice {
+  id: string
+  visitId: string
+  items: InvoiceItem[]
+  total: number
+  status: 'Paid' | 'Pending' | 'Overdue'
+  createdAt: string
+}
+
+export interface InvoiceItem {
+  description: string
+  quantity: number
+  price: number
+}
+
+export interface Prescription {
+  medication: string
+  dosage: string
+  quantity: number
+  instructions?: string
 }
 
 export const appointmentsService = {
-  async getAppointments(params?: { ownerId?: string; vetId?: string; date?: string }) {
+  async getAppointments(params?: { ownerId?: string; vetId?: string; date?: string; status?: string }) {
     const response = await api.get('/appointments', { params })
     return response.data
   },
-  async createAppointment(appointment: Omit<Appointment, 'id'>) {
+  async createAppointment(appointment: Partial<Appointment>) {
     const response = await api.post('/appointments', appointment)
     return response.data
   },
@@ -30,12 +60,28 @@ export const appointmentsService = {
     const response = await api.put(`/appointments/${id}`, appointment)
     return response.data
   },
+  async cancelAppointment(id: string) {
+    const response = await api.patch(`/appointments/${id}/cancel`)
+    return response.data
+  },
+  async getAppointmentById(id: string) {
+    const response = await api.get(`/appointments/${id}`)
+    return response.data
+  },
   async getVisit(id: string) {
     const response = await api.get(`/visits/${id}`)
     return response.data
   },
-  async completeVisit(id: string, data: { notes: string }) {
+  async completeVisit(id: string, data: { notes?: string, diagnosis?: string, treatments?: string[], prescriptions?: Prescription[] }) {
     const response = await api.patch(`/visits/${id}/complete`, data)
+    return response.data
+  },
+  async getInvoice(visitId: string) {
+    const response = await api.get(`/visits/${visitId}/invoice`)
+    return response.data
+  },
+  async payInvoice(invoiceId: string) {
+    const response = await api.post(`/invoices/${invoiceId}/pay`)
     return response.data
   }
 }

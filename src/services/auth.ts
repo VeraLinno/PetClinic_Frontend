@@ -1,15 +1,22 @@
 import api from './api'
 import { useAuthStore } from '@/stores/auth'
 
-export const authService = {
+interface AuthService {
+  login(email: string, password: string): Promise<any>
+  register(email: string, password: string, roles: string[]): Promise<any>
+  refresh(): Promise<any>
+  logout(): Promise<void>
+}
+
+export const authService: AuthService = {
   async login(email: string, password: string) {
     const response = await api.post('/auth/login', { email, password })
     const authStore = useAuthStore()
     authStore.setAccessToken(response.data.accessToken)
     return response.data
   },
-  async register(email: string, password: string, name: string) {
-    const response = await api.post('/auth/register', { email, password, name })
+  async register(email: string, password: string, roles: string[]) {
+    const response = await api.post('/auth/register', { email, password, roles })
     return response.data
   },
   async refresh() {

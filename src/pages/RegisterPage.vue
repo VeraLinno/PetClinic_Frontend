@@ -85,7 +85,7 @@ const handleRegister = async () => {
   loading.value = true
   error.value = ''
   try {
-    await authService.register(form.value.email, form.value.password, form.value.name)
+    await authService.register(form.value.email, form.value.password, ['owner'])
     router.push('/login')
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Registration failed'

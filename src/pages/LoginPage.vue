@@ -54,21 +54,32 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authService } from '@/services/auth'
+import { useAuthStore } from '@/stores/auth'
 
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
 const router = useRouter()
+const authStore = useAuthStore()
 
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
   try {
     await authService.login(email.value, password.value)
-    router.push('/owner') // or based on role
+
+    // Redirect based on user role
+    const userRoles = authStore.roles
+    if (userRoles.includes('Vet')) {
+      router.push('/vet')
+    } else if (userRoles.includes('Owner')) {
+      router.push('/owner')
+    } else {
+      router.push('/owner') // fallback
+    }
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Login failed'
+    error.value = err.response?.data?.error || 'Login failed'
   } finally {
     loading.value = false
   }

@@ -1,3 +1,204 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Pet Clinic Styles */
+@import './styles/reset.css';
+@import './styles/tokens.css';
+
+
+/* Base styles */
+@layer base {
+  html {
+    font-family: var(--font-family);
+    font-size: 16px;
+    line-height: 1.5;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #f9fafb; /* bg-gray-50 */
+    color: #1a202c; /* text-gray-900 */
+  }
+
+  /* Focus visible styles for accessibility */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary, #3b82f6); /* ring-2 ring-primary */
+    /* ring-offset-2: add offset shadow */
+    box-shadow: 0 0 0 4px #fff, 0 0 0 2px var(--color-primary, #3b82f6);
+  }
+
+  /* Dark mode focus */
+  .dark :focus-visible {
+    box-shadow: 0 0 0 4px #1f2937, 0 0 0 2px var(--color-primary, #3b82f6); /* ring-offset-gray-800 */
+  }
+}
+
+/* Component utilities */
+@layer components {
+  /* Container for main content */
+    .container-main {
+      max-width: 72rem;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    @media (min-width: 640px) {
+      .container-main {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+    }
+    @media (min-width: 1024px) {
+      .container-main {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+    }
+
+  /* Skeleton loader animation */
+    .skeleton {
+      animation: pulse 1.5s infinite;
+      background-color: #e5e7eb;
+      border-radius: 0.5rem;
+    }
+    .dark .skeleton {
+      background-color: #374151;
+    }
+
+    .skeleton-text {
+      height: 1rem;
+      background-color: #e5e7eb;
+      border-radius: 0.5rem;
+    }
+    .dark .skeleton-text {
+      background-color: #374151;
+    }
+
+    .skeleton-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      background-color: #e5e7eb;
+    }
+    .dark .skeleton-avatar {
+      background-color: #374151;
+    }
+
+    .skeleton-card {
+      height: 8rem;
+      background-color: #e5e7eb;
+      border-radius: 0.75rem;
+    }
+    .dark .skeleton-card {
+      background-color: #374151;
+    }
+
+  /* Shimmer effect for loading rows */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      theme('colors.gray.200') 0%,
+      theme('colors.gray.100') 50%,
+      theme('colors.gray.200') 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .dark .shimmer {
+    background: linear-gradient(
+      90deg,
+      theme('colors.gray.700') 0%,
+      theme('colors.gray.600') 50%,
+      theme('colors.gray.700') 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Status badge variants */
+    .status-scheduled {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    .dark .status-scheduled {
+      background-color: rgba(30, 58, 138, 0.3);
+      color: #60a5fa;
+    }
+
+    .status-completed {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    .dark .status-completed {
+      background-color: rgba(6, 95, 70, 0.3);
+      color: #34d399;
+    }
+
+    .status-cancelled {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+    .dark .status-cancelled {
+      background-color: rgba(153, 27, 27, 0.3);
+      color: #f87171;
+    }
+
+    .status-pending {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+    .dark .status-pending {
+      background-color: rgba(146, 64, 14, 0.3);
+      color: #facc15;
+    }
+
+    .status-in-progress {
+      background-color: #ede9fe;
+      color: #6d28d9;
+    }
+    .dark .status-in-progress {
+      background-color: rgba(109, 40, 217, 0.3);
+      color: #a78bfa;
+    }
+}
+
+/* Utility overrides */
+@layer utilities {
+  /* Prevent text selection on interactive elements */
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+      scrollbar-color: #9ca3af transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background-color: #d1d5db;
+      border-radius: 9999px;
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+      background-color: #4b5563;
+    }
+}
