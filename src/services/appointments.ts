@@ -4,13 +4,13 @@ export interface Appointment {
   id: string
   petId: string
   petName?: string
-  veterinarianId: string
+  veterinarianId?: string | null
   veterinarianName?: string
   ownerId?: string
   ownerName?: string
   startAt: string
   endAt: string
-  status: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled'
+  status: 'Pending' | 'Confirmed' | 'Scheduled' | 'Completed' | 'Cancelled'
   notes?: string
   dateTime?: string
 }
@@ -62,6 +62,10 @@ export const appointmentsService = {
   },
   async cancelAppointment(id: string) {
     const response = await api.patch(`/appointments/${id}/cancel`)
+    return response.data
+  },
+  async confirmAppointment(id: string) {
+    const response = await api.patch(`/appointments/${id}/confirm`)
     return response.data
   },
   async getAppointmentById(id: string) {

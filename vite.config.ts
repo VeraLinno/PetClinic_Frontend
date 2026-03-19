@@ -5,6 +5,8 @@ import path from 'path'
 export default defineConfig(({ mode }) => {
   // Load environment variables from .env files
   const env = loadEnv(mode, process.cwd(), '')
+  const baseApiUrl = env.VITE_API_BASE_URL
+  const apiProxyTarget = env.VITE_API_PROXY_TARGET || (baseApiUrl ? new URL(baseApiUrl).origin : 'http://127.0.0.1:5001')
   
   return {
     plugins: [vue()],
@@ -16,7 +18,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api/v1': {
-          target: 'http://localhost:5023',
+          target: apiProxyTarget,
           changeOrigin: true
         }
       }

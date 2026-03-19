@@ -1,67 +1,198 @@
 /* CSS Variables / Design Tokens */
 :root {
-  /* Colors */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-light: #3b82f6;
-  --color-accent: #06b6d4;
-  --color-accent-hover: #0891b2;
-  --color-success: #16a34a;
-  --color-success-hover: #15803d;
-  --color-warning: #f59e0b;
-  --color-warning-hover: #d97706;
-  --color-danger: #ef4444;
-  --color-danger-hover: #dc2626;
+  /* ─── Primary Palette (Cyan light tints × Sky deep shades) ─── */
+  --color-primary-50:  #ecfeff;   /* Lightest tint, backgrounds */
+  --color-primary-100: #cffafe;   /* Light hover backgrounds */
+  --color-primary-200: #a5f3fc;   /* Focus rings, light accents */
+  --color-primary-300: #67e8f9;   /* Decorative, icons, light text on dark */
+  --color-primary-400: #22d3ee;   /* Hover states, interactive elements */
+  --color-primary-500: #0ea5e9;   /* ★ PRIMARY — buttons, links, active states */
+  --color-primary-600: #0284c7;   /* Hover on primary buttons */
+  --color-primary-700: #0369a1;   /* Active/pressed states */
+  --color-primary-800: #075985;   /* Dark background accent */
+  --color-primary-900: #0c4a6e;   /* Headings on light backgrounds */
+  --color-primary-950: #082f49;   /* Darkest, rarely used */
 
-  /* Neutrals */
-  --color-white: #ffffff;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
+  /* Semantic aliases */
+  --color-primary:       var(--color-primary-500);
+  --color-primary-hover: var(--color-primary-600);
+  --color-primary-light: var(--color-primary-400);
 
-  /* Border Radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
+  /* ─── Secondary Palette (Teal) ─── */
+  --color-secondary-50:  #f0fdfa;
+  --color-secondary-100: #ccfbf1;
+  --color-secondary-200: #99f6e4;
+  --color-secondary-300: #5eead4;
+  --color-secondary-400: #2dd4bf;
+  --color-secondary-500: #14b8a6;   /* ★ Accents, secondary actions */
+  --color-secondary-600: #0d9488;   /* Hover */
+  --color-secondary-700: #0f766e;   /* Active */
+  --color-secondary-800: #115e59;
+  --color-secondary-900: #134e4a;
+  --color-secondary-950: #042f2e;
+
+  --color-secondary:       var(--color-secondary-500);
+  --color-secondary-hover: var(--color-secondary-600);
+
+  /* ─── Success (Green) ─── */
+  --color-success-50:  #f0fdf4;   /* Success background */
+  --color-success-100: #dcfce7;   /* Light success */
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;   /* ★ Success icon, badge */
+  --color-success-600: #16a34a;   /* Hover */
+  --color-success-700: #15803d;   /* Text on light bg */
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+  --color-success-950: #052e16;
+
+  --color-success:       var(--color-success-500);
+  --color-success-hover: var(--color-success-600);
+
+  /* ─── Warning (Amber) ─── */
+  --color-warning-50:  #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;   /* ★ Warning icon, badge */
+  --color-warning-600: #d97706;   /* Hover */
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+  --color-warning-950: #451a03;
+
+  --color-warning:       var(--color-warning-500);
+  --color-warning-hover: var(--color-warning-600);
+
+  /* ─── Danger (Red) ─── */
+  --color-danger-50:  #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;   /* ★ Delete buttons, errors */
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+  --color-danger-950: #450a0a;
+
+  --color-danger:       var(--color-danger-600);
+  --color-danger-hover: var(--color-danger-700);
+
+  /* ─── Neutral / Slate ─── */
+  --color-neutral-50:  #f8fafc;   /* Page background */
+  --color-neutral-100: #f1f5f9;   /* Card hover bg, alternate rows */
+  --color-neutral-200: #e2e8f0;   /* Borders, dividers */
+  --color-neutral-300: #cbd5e1;   /* Input borders, disabled */
+  --color-neutral-400: #94a3b8;   /* Placeholder text, icons */
+  --color-neutral-500: #64748b;   /* Secondary text */
+  --color-neutral-600: #475569;   /* Body text, labels */
+  --color-neutral-700: #334155;   /* Headings, strong text */
+  --color-neutral-800: #1e293b;   /* Dark mode card bg */
+  --color-neutral-900: #0f172a;   /* Dark mode page bg */
+  --color-neutral-950: #020617;   /* Darkest */
+
+  /* Convenience slate aliases (backward-compat) */
+  --color-white:      #ffffff;
+  --color-slate-50:   var(--color-neutral-50);
+  --color-slate-100:  var(--color-neutral-100);
+  --color-slate-200:  var(--color-neutral-200);
+  --color-slate-300:  var(--color-neutral-300);
+  --color-slate-400:  var(--color-neutral-400);
+  --color-slate-500:  var(--color-neutral-500);
+  --color-slate-600:  var(--color-neutral-600);
+  --color-slate-700:  var(--color-neutral-700);
+  --color-slate-800:  var(--color-neutral-800);
+  --color-slate-900:  var(--color-neutral-900);
+
+  /* ─── Border Radius ─── */
+  --radius-sm:   0.25rem;   /*  4px */
+  --radius-md:   0.5rem;    /*  8px */
+  --radius-lg:   0.75rem;   /* 12px */
+  --radius-xl:   1rem;      /* 16px */
+  --radius-2xl:  1.25rem;   /* 20px */
   --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* ─── Shadows ─── */
+  --shadow-sm:         0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md:         0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg:         0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl:         0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-overlay:    0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-card:       0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
-  /* Spacing */
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-3: 0.75rem;
-  --spacing-4: 1rem;
-  --spacing-5: 1.25rem;
-  --spacing-6: 1.5rem;
-  --spacing-8: 2rem;
+  /* ─── Spacing ─── */
+  --spacing-1:  0.25rem;
+  --spacing-2:  0.5rem;
+  --spacing-3:  0.75rem;
+  --spacing-4:  1rem;
+  --spacing-5:  1.25rem;
+  --spacing-6:  1.5rem;
+  --spacing-8:  2rem;
   --spacing-10: 2.5rem;
   --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
 
-  /* Typography */
-  --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
+  /* ─── Typography ─── */
+  --font-family:         'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-heading: 'Inter', system-ui, sans-serif;
+  --font-family-mono:    'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 
-  /* Transitions */
-  --transition-fast: 150ms ease;
+  /* Size scale */
+  --font-size-xs:   0.75rem;    /* 12px */
+  --font-size-sm:   0.875rem;   /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg:   1.125rem;   /* 18px */
+  --font-size-xl:   1.25rem;    /* 20px */
+  --font-size-2xl:  1.5rem;     /* 24px */
+  --font-size-3xl:  1.875rem;   /* 30px */
+  --font-size-4xl:  2.25rem;    /* 36px */
+  --font-size-5xl:  2.75rem;    /* 44px */
+  --font-size-6xl:  3.5rem;     /* 56px */
+
+  /* Weight scale */
+  --font-weight-light:     300;
+  --font-weight-normal:    400;
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+  --font-weight-extrabold: 800;
+
+  /* Line heights */
+  --line-height-tight:   1.2;
+  --line-height-snug:    1.375;
+  --line-height-normal:  1.5;
+  --line-height-relaxed: 1.6;
+
+  /* Letter spacing */
+  --letter-spacing-tight:  -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide:   0.025em;
+  --letter-spacing-wider:  0.05em;
+
+  /* ─── Transitions ─── */
+  --transition-fast:   150ms ease;
   --transition-normal: 200ms ease;
-  --transition-slow: 300ms ease;
+  --transition-slow:   300ms ease;
+  --transition-slower: 500ms ease;
+}
+
+/* ─── Dark mode overrides ─── */
+.dark {
+  --color-primary:       var(--color-primary-400);
+  --color-primary-hover: var(--color-primary-300);
+  --color-primary-light: var(--color-primary-300);
+
+  --color-success:       var(--color-success-400);
+  --color-success-hover: var(--color-success-300);
+  --color-warning:       var(--color-warning-400);
+  --color-warning-hover: var(--color-warning-300);
+  --color-danger:        var(--color-danger-400);
+  --color-danger-hover:  var(--color-danger-300);
 }

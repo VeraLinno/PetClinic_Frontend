@@ -1,156 +1,158 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+  <div class="min-h-screen bg-slate-50 transition-colors duration-300 dark:bg-slate-900">
     <!-- Sidebar -->
     <aside
+      id="main-sidebar"
       :class="sidebarClasses"
-      class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
+      class="fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-200 bg-white transition-transform duration-300 ease-in-out dark:border-slate-700 dark:bg-slate-800 lg:translate-x-0"
       role="navigation"
       aria-label="Main navigation"
     >
-      <!-- Logo -->
-      <div class="flex items-center justify-center h-16 px-4 bg-primary">
-        <h1 class="text-xl font-bold text-white">Pet Clinic</h1>
+      <div class="flex h-16 items-center justify-between border-b border-slate-200 bg-primary-500 px-4 dark:border-slate-700">
+        <h1 class="text-xl font-semibold tracking-wide text-white">Pet Clinic</h1>
+        <button
+          class="rounded-md p-1 text-white/80 hover:bg-white/20 hover:text-white lg:hidden"
+          @click="closeSidebar"
+          aria-label="Close sidebar"
+        >
+          <XMarkIcon class="h-5 w-5" aria-hidden="true" />
+        </button>
       </div>
-      
-      <!-- User Info Section -->
-      <div class="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
-        <div class="flex items-center space-x-3">
+
+      <div class="border-b border-slate-200 px-4 py-4 dark:border-slate-700">
+        <div class="flex items-center gap-3">
           <div 
-            class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold"
+            class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-500 font-semibold text-white ring-2 ring-primary-100 dark:ring-primary-900/30"
             aria-hidden="true"
           >
             {{ userInitials }}
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ userName }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ userRole }}</p>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{{ userName }}</p>
+            <p class="truncate text-xs text-slate-500 dark:text-slate-400">{{ userRole }}</p>
           </div>
         </div>
       </div>
 
-      <!-- Navigation Links -->
-      <nav class="mt-4 px-4 space-y-1" role="menubar">
+      <nav class="mt-3 px-3" role="menubar">
         <router-link
           v-for="item in menuItems"
           :key="item.path"
           :to="item.path"
-          class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-          active-class="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-l-4 border-primary"
+          custom
+          v-slot="{ href, navigate, isActive }"
           role="menuitem"
         >
-          <span class="mr-3 text-lg" aria-hidden="true">{{ item.icon }}</span>
-          <span class="text-sm font-medium">{{ item.label }}</span>
+          <a
+            :href="href"
+            @click="navigate"
+            :class="[
+              'group mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+              isActive
+                ? 'border-l-4 border-primary-500 bg-primary-50 text-primary-800 dark:bg-primary-950/30 dark:text-primary-300'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-slate-100'
+            ]"
+          >
+            <component
+              :is="item.icon"
+              class="h-5 w-5 flex-shrink-0"
+              :class="isActive ? 'text-primary-600 dark:text-primary-300' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'"
+              aria-hidden="true"
+            />
+            <span>{{ item.label }}</span>
+          </a>
         </router-link>
       </nav>
 
-      <!-- Sidebar Footer - Logout -->
-      <div class="absolute bottom-0 w-full p-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="absolute bottom-0 w-full border-t border-slate-200 p-3 dark:border-slate-700">
         <button
           @click="logout"
-          class="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
           aria-label="Logout from your account"
         >
-          <span class="mr-3" aria-hidden="true">🚪</span>
-          <span class="text-sm font-medium">Logout</span>
+          <ArrowRightStartOnRectangleIcon class="h-5 w-5 text-slate-400" aria-hidden="true" />
+          <span>Logout</span>
         </button>
       </div>
     </aside>
 
-    <!-- Mobile sidebar overlay -->
     <div
       v-if="sidebarOpen"
-      class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+      class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden"
       @click="closeSidebar"
       aria-hidden="true"
       role="presentation"
-    ></div>
+    />
 
-    <!-- Main content area -->
     <div :class="mainClasses">
-      <!-- Topbar -->
-      <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-          <!-- Left: Hamburger + Search -->
+      <header class="border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95">
+        <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div class="flex items-center">
-            <!-- Mobile hamburger button -->
             <button
               @click="toggleSidebar"
-              class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+              class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 lg:hidden"
               :aria-label="sidebarOpen ? 'Close sidebar' : 'Open sidebar'"
               :aria-expanded="sidebarOpen"
-              aria-controls="sidebar"
+              aria-controls="main-sidebar"
             >
-              <span class="sr-only">Open sidebar</span>
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <Bars3Icon class="h-6 w-6" aria-hidden="true" />
             </button>
-            
-            <!-- Search Bar - Full width on mobile, inline on desktop -->
-            <div class="ml-4 lg:ml-6 w-full max-w-md">
+
+            <div class="ml-4 w-full max-w-md lg:ml-6">
               <label for="search" class="sr-only">Search</label>
               <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <MagnifyingGlassIcon class="h-5 w-5 text-slate-400" aria-hidden="true" />
                 </div>
                 <input
                   id="search"
                   type="text"
                   v-model="searchQuery"
                   placeholder="Search pets, appointments..."
-                  class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  class="h-10 w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-500 transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400"
                   aria-label="Search pets and appointments"
                 />
               </div>
             </div>
           </div>
 
-          <!-- Right: Actions + User -->
-          <div class="flex items-center space-x-3">
-            <!-- Dark Mode Toggle -->
+          <div class="flex items-center gap-2">
             <button
               @click="toggleDarkMode"
-              class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+              class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
               :aria-label="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
             >
-              <svg v-if="isDarkMode" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              <svg v-else class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
+              <SunIcon v-if="isDarkMode" class="h-5 w-5" aria-hidden="true" />
+              <MoonIcon v-else class="h-5 w-5" aria-hidden="true" />
             </button>
 
-            <!-- Notifications -->
             <button
-              class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary relative"
+              class="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
               aria-label="View notifications"
             >
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              <span v-if="unreadNotifications > 0" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true"></span>
+              <BellIcon class="h-5 w-5" aria-hidden="true" />
+              <span
+                v-if="unreadNotifications > 0"
+                class="absolute right-1 top-1 h-2 w-2 rounded-full bg-danger-500"
+                aria-hidden="true"
+              />
             </button>
 
-            <!-- User Profile -->
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1 dark:border-slate-700 dark:bg-slate-800">
               <div 
-                class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-semibold"
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500 text-sm font-semibold text-white"
                 aria-hidden="true"
               >
                 {{ userInitials }}
               </div>
-              <span class="hidden md:block text-sm text-gray-700 dark:text-gray-300">{{ user?.email }}</span>
+              <span class="hidden text-sm text-slate-700 dark:text-slate-300 md:block">{{ user?.email }}</span>
             </div>
           </div>
         </div>
       </header>
 
-      <!-- Page content -->
       <main 
-        class="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900"
+        class="flex-1 bg-slate-50 p-4 dark:bg-slate-900 sm:p-6 lg:p-8"
         role="main"
       >
         <div class="container-main">
@@ -165,6 +167,25 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import {
+  ArrowRightStartOnRectangleIcon,
+  Bars3Icon,
+  BellIcon,
+  CalendarDaysIcon,
+  CreditCardIcon,
+  DocumentTextIcon,
+  HeartIcon,
+  HomeIcon,
+  ListBulletIcon,
+  MagnifyingGlassIcon,
+  MoonIcon,
+  PlusCircleIcon,
+  ShoppingBagIcon,
+  SparklesIcon,
+  SunIcon,
+  UsersIcon,
+  XMarkIcon
+} from '@heroicons/vue/24/outline'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -194,26 +215,27 @@ const userRole = computed(() => {
 })
 
 const menuItems = computed(() => {
-  const items = []
+  const items: Array<{ path: string; label: string; icon: unknown }> = []
 
   if (authStore.roles.includes('Owner')) {
     items.push(
-      { path: '/owner', label: 'Dashboard', icon: '🏠' },
-      { path: '/booking', label: 'Book Appointment', icon: '📅' },
-      { path: '/owner/pets', label: 'My Pets', icon: '🐾' },
-      { path: '/owner/appointments', label: 'Appointments', icon: '📋' },
-      { path: '/owner/history', label: 'Visit History', icon: '📜' },
-      { path: '/owner/invoices', label: 'Invoices', icon: '💳' },
-      { path: '/owner/health', label: 'Health Records', icon: '🏥' }
+      { path: '/owner', label: 'Dashboard', icon: HomeIcon },
+      { path: '/booking', label: 'Book Appointment', icon: PlusCircleIcon },
+      { path: '/owner/pets', label: 'My Pets', icon: SparklesIcon },
+      { path: '/owner/appointments', label: 'Appointments', icon: ListBulletIcon },
+      { path: '/owner/history', label: 'Visit History', icon: DocumentTextIcon },
+      { path: '/owner/invoices', label: 'Invoices', icon: CreditCardIcon },
+      { path: '/owner/health', label: 'Health Records', icon: HeartIcon }
     )
   }
 
   if (authStore.roles.includes('Vet')) {
     items.push(
-      { path: '/vet', label: 'Dashboard', icon: '🏥' },
-      { path: '/vet/appointments', label: "Today's Appointments", icon: '📅' },
-      { path: '/vet/inventory', label: 'Inventory', icon: '💊' },
-      { path: '/vet/patients', label: 'Patients', icon: '🐾' }
+      { path: '/vet', label: 'Dashboard', icon: HomeIcon },
+      { path: '/booking', label: 'New Appointment', icon: PlusCircleIcon },
+      { path: '/vet/appointments', label: "Today's Appointments", icon: CalendarDaysIcon },
+      { path: '/vet/inventory', label: 'Inventory', icon: ShoppingBagIcon },
+      { path: '/vet/patients', label: 'Patients', icon: UsersIcon }
     )
   }
 
@@ -221,11 +243,11 @@ const menuItems = computed(() => {
 })
 
 const sidebarClasses = computed(() => {
-  return sidebarOpen.value ? 'translate-x-0' : '-translate-x-full'
+  return sidebarOpen.value ? 'translate-x-0 shadow-overlay' : '-translate-x-full'
 })
 
 const mainClasses = computed(() => {
-  return 'lg:pl-64 flex flex-col min-h-screen transition-colors duration-300'
+  return 'lg:pl-72 flex min-h-screen flex-col transition-colors duration-300'
 })
 
 const toggleSidebar = () => {

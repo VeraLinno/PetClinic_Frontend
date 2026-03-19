@@ -1,26 +1,32 @@
 <template>
-  <div class="relative">
-    <label v-if="label" :for="id" class="block text-sm font-medium text-gray-700 mb-1">
+  <div class="relative space-y-1.5">
+    <label v-if="label" :for="inputId" class="block text-sm font-medium text-slate-700 dark:text-slate-200">
       {{ label }}
     </label>
     <input
-      :id="id"
+      :id="inputId"
       :type="type"
       :value="modelValue"
       :placeholder="placeholder"
       :disabled="disabled"
       :class="inputClasses"
+      v-bind="$attrs"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       @blur="$emit('blur')"
     />
-    <div v-if="error" class="mt-1 text-sm text-red-600">
+    <p v-if="error" class="text-sm text-danger-600 dark:text-danger-400">
       {{ error }}
-    </div>
+    </p>
+    <p v-else-if="helpText" class="text-sm text-slate-500 dark:text-slate-400">
+      {{ helpText }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+
+defineOptions({ inheritAttrs: false })
 
 interface Props {
   id?: string
@@ -29,12 +35,14 @@ interface Props {
   placeholder?: string
   disabled?: boolean
   error?: string
-  modelValue: string
+  helpText?: string
+  modelValue?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'text',
-  disabled: false
+  disabled: false,
+  modelValue: ''
 })
 
 defineEmits<{
@@ -42,13 +50,15 @@ defineEmits<{
   blur: []
 }>()
 
+const inputId = computed(() => props.id || `input-${Math.random().toString(36).slice(2, 9)}`)
+
 const inputClasses = computed(() => {
-  const base = 'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm'
+  const base = 'block h-10 w-full rounded-lg border bg-white px-3 text-sm text-slate-900 shadow-sm transition-colors duration-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-60'
 
   if (props.error) {
-    return `${base} border-red-300 focus:ring-red-500 focus:border-red-500`
+    return `${base} border-danger-400 bg-danger-50 focus:ring-danger-500 dark:border-danger-600 dark:bg-danger-950/20`
   }
 
-  return base
+  return `${base} border-slate-300 focus:ring-primary-500 dark:border-slate-600`
 })
 </script>

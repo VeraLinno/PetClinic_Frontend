@@ -1,128 +1,213 @@
 <template>
   <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-900">Visit Details</h1>
-      <Button variant="secondary" @click="$router.go(-1)">
-        Back
-      </Button>
+    <Breadcrumb :items="breadcrumbItems" />
+
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-card dark:border-slate-700 dark:bg-slate-800">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-start gap-3">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 text-xl dark:bg-primary-900/30" aria-hidden="true">
+            {{ petEmoji }}
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Visit Details</h1>
+            <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+              <span>Visit #{{ visitId }}</span>
+              <span>•</span>
+              <span>{{ visitStatus }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <Badge :variant="isCompleted ? 'success' : 'warning'" size="sm">
+            {{ isCompleted ? 'Completed' : 'In Progress' }}
+          </Badge>
+          <Button variant="outline" @click="$router.go(-1)">
+            Back
+          </Button>
+        </div>
+      </div>
     </div>
 
-    <!-- Pet Information -->
-    <Card v-if="pet">
-      <template #header>
-        <h2 class="text-xl font-semibold text-gray-900">Pet Information</h2>
-      </template>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <strong>Name:</strong> {{ pet.name }}
-        </div>
-        <div>
-          <strong>Species:</strong> {{ pet.species }}
-        </div>
-        <div>
-          <strong>Breed:</strong> {{ pet.breed }}
-        </div>
-        <div>
-          <strong>Date of Birth:</strong> {{ formatDate(pet.dateOfBirth) }}
-        </div>
-      </div>
-    </Card>
-
-    <!-- Visit Notes -->
-    <Card>
-      <template #header>
-        <h2 class="text-xl font-semibold text-gray-900">Visit Notes</h2>
-      </template>
-      <div v-if="canEdit">
-        <textarea
-          v-model="visitNotes"
-          rows="4"
-          class="w-full border border-gray-300 rounded-md p-3"
-          placeholder="Enter visit notes..."
-        />
-      </div>
-      <div v-else>
-        <p v-if="visitNotes" class="text-gray-700">{{ visitNotes }}</p>
-        <p v-else class="text-gray-500">No notes recorded yet.</p>
-      </div>
-    </Card>
-
-    <!-- Treatments -->
-    <Card v-if="canEdit">
-      <template #header>
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-semibold text-gray-900">Treatments</h2>
-          <Button variant="primary" size="sm" @click="addTreatment">
-            Add Treatment
-          </Button>
-        </div>
-      </template>
-      <div v-if="treatments.length === 0" class="text-gray-500">
-        No treatments added yet.
-      </div>
-      <div v-else class="space-y-3">
-        <div
-          v-for="(treatment, index) in treatments"
-          :key="index"
-          class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
-        >
-          <div>
-            <strong>{{ treatment.name }}</strong> - {{ treatment.description }}
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-5">
+      <div class="space-y-6 lg:col-span-3">
+        <Card>
+          <template #header>
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Visit Summary</h2>
+          </template>
+          <div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+            <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+              <p class="text-slate-500 dark:text-slate-400">Pet</p>
+              <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ pet?.name || appointment?.petName || 'Unknown' }}</p>
+            </div>
+            <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+              <p class="text-slate-500 dark:text-slate-400">Species</p>
+              <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ pet?.species || 'Unknown' }}</p>
+            </div>
+            <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+              <p class="text-slate-500 dark:text-slate-400">Scheduled Time</p>
+              <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ visitTimeRange }}</p>
+            </div>
+            <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+              <p class="text-slate-500 dark:text-slate-400">Veterinarian</p>
+              <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ appointment?.veterinarianName || 'Assigned Veterinary Team' }}</p>
+            </div>
+            <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60 sm:col-span-2">
+              <p class="text-slate-500 dark:text-slate-400">Visit Notes</p>
+              <p class="mt-1 text-slate-700 dark:text-slate-300">
+                {{ visitNotes || 'No recorded summary available yet.' }}
+              </p>
+            </div>
           </div>
-          <Button variant="danger" size="sm" @click="removeTreatment(index)">
-            Remove
-          </Button>
-        </div>
-      </div>
-    </Card>
+        </Card>
 
-    <!-- Prescriptions -->
-    <Card v-if="canEdit">
-      <template #header>
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-semibold text-gray-900">Prescriptions</h2>
-          <Button variant="primary" size="sm" @click="addPrescription">
-            Add Prescription
-          </Button>
-        </div>
-      </template>
-      <div v-if="prescriptions.length === 0" class="text-gray-500">
-        No prescriptions added yet.
-      </div>
-      <div v-else class="space-y-3">
-        <div
-          v-for="(prescription, index) in prescriptions"
-          :key="index"
-          class="p-3 bg-gray-50 rounded-lg"
-        >
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <div><strong>Medication:</strong> {{ prescription.medication }}</div>
-            <div><strong>Dosage:</strong> {{ prescription.dosage }}</div>
-            <div><strong>Quantity:</strong> {{ prescription.quantity }}</div>
+        <Card>
+          <template #header>
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Visit Notes</h2>
+          </template>
+          <div v-if="canEdit">
+            <textarea
+              v-model="visitNotes"
+              rows="5"
+              class="w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+              placeholder="Enter visit notes..."
+            />
           </div>
-          <Button variant="danger" size="sm" class="mt-2" @click="removePrescription(index)">
-            Remove
+          <div v-else>
+            <p v-if="visitNotes" class="text-slate-700 dark:text-slate-300">{{ visitNotes }}</p>
+            <p v-else class="text-slate-500 dark:text-slate-400">No notes recorded yet.</p>
+          </div>
+        </Card>
+
+        <Card v-if="canEdit">
+          <template #header>
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Treatments</h2>
+              <Button variant="primary" size="sm" @click="addTreatment">
+                Add Treatment
+              </Button>
+            </div>
+          </template>
+          <div v-if="treatments.length === 0" class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400">
+            No treatments added yet.
+          </div>
+          <div v-else class="space-y-3">
+            <div
+              v-for="(treatment, index) in treatments"
+              :key="index"
+              class="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700 dark:bg-slate-800/60"
+            >
+              <div>
+                <p class="font-medium text-slate-900 dark:text-slate-100">{{ treatment.name }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">{{ treatment.description }}</p>
+              </div>
+              <Button variant="danger" size="sm" @click="removeTreatment(index)">
+                Remove
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        <Card v-if="canEdit">
+          <template #header>
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Prescriptions</h2>
+              <Button variant="primary" size="sm" @click="addPrescription">
+                Add Prescription
+              </Button>
+            </div>
+          </template>
+          <div v-if="prescriptions.length === 0" class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400">
+            No prescriptions added yet.
+          </div>
+          <div v-else class="space-y-3">
+            <div
+              v-for="(prescription, index) in prescriptions"
+              :key="index"
+              class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60"
+            >
+              <div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+                <div><span class="text-slate-500 dark:text-slate-400">Medication:</span> <span class="font-medium text-slate-900 dark:text-slate-100">{{ prescription.medication }}</span></div>
+                <div><span class="text-slate-500 dark:text-slate-400">Dosage:</span> <span class="font-medium text-slate-900 dark:text-slate-100">{{ prescription.dosage }}</span></div>
+                <div><span class="text-slate-500 dark:text-slate-400">Quantity:</span> <span class="font-medium text-slate-900 dark:text-slate-100">{{ prescription.quantity }}</span></div>
+              </div>
+              <Button variant="danger" size="sm" class="mt-3" @click="removePrescription(index)">
+                Remove
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        <Card v-if="visit?.invoice">
+          <template #header>
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Invoice</h2>
+          </template>
+          <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/60">
+            <pre class="text-sm text-slate-700 dark:text-slate-300">{{ JSON.stringify(visit.invoice, null, 2) }}</pre>
+          </div>
+        </Card>
+
+        <div class="flex justify-end" v-if="canEdit && !isCompleted">
+          <Button variant="success" @click="completeVisit" :disabled="completing">
+            {{ completing ? 'Completing...' : 'Complete Visit' }}
           </Button>
         </div>
+        <div v-if="completionError" class="rounded-lg border border-danger-300 bg-danger-50 p-3 text-sm text-danger-700 dark:border-danger-700 dark:bg-danger-950/30 dark:text-danger-300">
+          {{ completionError }}
+        </div>
+        <div v-if="completionSuccess" class="rounded-lg border border-success-300 bg-success-50 p-3 text-sm text-success-700 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300">
+          {{ completionSuccess }}
+        </div>
       </div>
-    </Card>
 
-    <!-- Invoice -->
-    <Card v-if="visit?.invoice">
-      <template #header>
-        <h2 class="text-xl font-semibold text-gray-900">Invoice</h2>
-      </template>
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <pre class="text-sm">{{ JSON.stringify(visit.invoice, null, 2) }}</pre>
+      <div class="space-y-6 lg:col-span-2">
+        <Card v-if="pet">
+          <template #header>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Pet Information</h2>
+          </template>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Name</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ pet.name }}</span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Species</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ pet.species }}</span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Breed</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ pet.breed }}</span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Age</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ petAge }}</span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Date of Birth</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(pet.dateOfBirth) }}</span></div>
+          </div>
+        </Card>
+
+        <Card>
+          <template #header>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Veterinarian</h2>
+          </template>
+          <div class="flex items-start gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-100 text-secondary-700 dark:bg-secondary-900/30 dark:text-secondary-300">
+              {{ canEdit ? 'DR' : 'VT' }}
+            </div>
+            <div class="text-sm">
+              <p class="font-medium text-slate-900 dark:text-slate-100">Assigned Veterinary Team</p>
+              <p class="text-slate-500 dark:text-slate-400">Clinical care and follow-up coordination</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <template #header>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Visit Timeline</h2>
+          </template>
+          <ol class="space-y-3">
+            <li
+              v-for="event in timelineEvents"
+              :key="event.label"
+              class="flex items-start gap-3"
+            >
+              <span class="mt-1 h-2.5 w-2.5 rounded-full bg-primary-500" aria-hidden="true" />
+              <div class="text-sm">
+                <p class="font-medium text-slate-900 dark:text-slate-100">{{ event.label }}</p>
+                <p class="text-slate-500 dark:text-slate-400">{{ event.time }}</p>
+              </div>
+            </li>
+          </ol>
+        </Card>
       </div>
-    </Card>
-
-    <!-- Actions -->
-    <div class="flex justify-end space-x-4" v-if="canEdit && !visit?.invoice">
-      <Button variant="success" @click="completeVisit" :disabled="completing">
-        {{ completing ? 'Completing...' : 'Complete Visit' }}
-      </Button>
     </div>
 
     <!-- Modals -->
@@ -189,21 +274,26 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { appointmentsService, type Visit, type Prescription } from '@/services/appointments'
+import { appointmentsService, type Appointment, type Visit, type Prescription } from '@/services/appointments'
 import { ownersService, type Pet } from '@/services/owners'
 import { useAuthStore } from '@/stores/auth'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
+import Breadcrumb from '@/components/Breadcrumb.vue'
+import Badge from '@/components/ui/Badge.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
 
+const appointment = ref<Appointment | null>(null)
 const visit = ref<Visit | null>(null)
 const pet = ref<Pet | null>(null)
 const loading = ref(true)
 const completing = ref(false)
+const completionError = ref('')
+const completionSuccess = ref('')
 
 const visitNotes = ref('')
 const treatments = ref<Array<{ name: string; description: string }>>([])
@@ -216,43 +306,156 @@ const newPrescription = ref({ medication: '', dosage: '', quantity: '' })
 
 const visitId = route.params.id as string
 
-const canEdit = computed(() => authStore.roles.includes('Vet'))
-const canComplete = computed(() => authStore.roles.includes('Vet') && !visit.value?.invoice)
+const breadcrumbItems = computed(() => {
+  if (authStore.roles.includes('Vet')) {
+    return [
+      { label: "Today's Appointments", to: '/vet/appointments' },
+      { label: `Visit ${visitId}` }
+    ]
+  }
 
-onMounted(async () => {
-  await loadVisit()
-  await loadPet()
+  return [
+    { label: 'Visit History', to: '/owner/history' },
+    { label: `Visit ${visitId}` }
+  ]
 })
 
-const loadVisit = async () => {
+const canEdit = computed(() => authStore.roles.includes('Vet'))
+
+const petEmoji = computed(() => {
+  const species = pet.value?.species?.toLowerCase() || ''
+  if (species.includes('dog')) return '🐕'
+  if (species.includes('cat')) return '🐱'
+  if (species.includes('bird')) return '🐦'
+  return '🐾'
+})
+
+const petAge = computed(() => {
+  if (!pet.value?.dateOfBirth) return 'Unknown'
+  const birth = new Date(pet.value.dateOfBirth)
+  const now = new Date()
+  let years = now.getFullYear() - birth.getFullYear()
+  const m = now.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
+    years--
+  }
+  return years <= 0 ? 'Less than 1 year' : `${years} years`
+})
+
+const oneHourAfterStart = computed(() => {
+  if (!appointment.value?.startAt) return null
+
+  const startDate = new Date(appointment.value.startAt)
+  if (Number.isNaN(startDate.getTime())) return null
+
+  return new Date(startDate.getTime() + 60 * 60 * 1000)
+})
+
+const visitTimeRange = computed(() => {
+  if (!appointment.value?.startAt) return 'Not scheduled'
+
+  const startDate = new Date(appointment.value.startAt)
+  if (Number.isNaN(startDate.getTime()) || !oneHourAfterStart.value) return 'Not scheduled'
+
+  return `${formatDateTime(startDate.toISOString())} - ${formatTime(oneHourAfterStart.value.toISOString())}`
+})
+
+const isCompleted = computed(() => {
+  if (visit.value?.invoice) return true
+  if (!appointment.value?.status) return false
+  return appointment.value.status === 'Completed'
+})
+
+const visitStatus = computed(() => {
+  if (isCompleted.value) return 'Completed'
+  if (appointment.value?.status) return appointment.value.status
+  return canEdit.value ? 'Ready to complete' : 'In progress'
+})
+
+const timelineEvents = computed(() => {
+  return [
+    { label: 'Scheduled start', time: appointment.value?.startAt ? formatTime(appointment.value.startAt) : 'Pending' },
+    { label: 'Scheduled end', time: oneHourAfterStart.value ? formatTime(oneHourAfterStart.value.toISOString()) : 'Pending' },
+    { label: 'Notes updated', time: visitNotes.value ? 'Recorded' : 'Pending' },
+    { label: 'Visit completion', time: isCompleted.value ? 'Completed' : 'Pending' }
+  ]
+})
+
+onMounted(async () => {
+  await loadDetails()
+})
+
+const loadDetails = async () => {
   try {
-    visit.value = await appointmentsService.getVisit(visitId)
-    if (visit.value) {
-      visitNotes.value = visit.value.notes || ''
-      // TODO: Load treatments and prescriptions from visit data
+    let loadedAppointment: Appointment | null = null
+    let loadedVisit: Visit | null = null
+
+    try {
+      loadedAppointment = await appointmentsService.getAppointmentById(visitId)
+    } catch {
+      // The route may contain a visit id.
     }
+
+    try {
+      loadedVisit = await appointmentsService.getVisit(visitId)
+    } catch {
+      // Current API may not expose visit retrieval for this route id.
+    }
+
+    if (!loadedAppointment && loadedVisit?.appointmentId) {
+      try {
+        loadedAppointment = await appointmentsService.getAppointmentById(loadedVisit.appointmentId)
+      } catch {
+        // Keep details partially populated when appointment lookup fails.
+      }
+    }
+
+    appointment.value = loadedAppointment
+    visit.value = loadedVisit
+    visitNotes.value = loadedVisit?.notes || loadedAppointment?.notes || ''
+
+    await loadPet()
   } catch (error) {
-    console.error('Failed to load visit', error)
+    console.error('Failed to load visit details', error)
   } finally {
     loading.value = false
   }
 }
 
 const loadPet = async () => {
-  // TODO: Get pet from appointment data
-  // For now, mock pet data
-  pet.value = {
-    id: '1',
-    name: 'Max',
-    species: 'Dog',
-    breed: 'Golden Retriever',
-    dateOfBirth: '2020-01-01',
-    ownerId: 'owner1'
+  if (!appointment.value?.petId) {
+    pet.value = null
+    return
+  }
+
+  try {
+    const pets = canEdit.value
+      ? await ownersService.getAllPets()
+      : await ownersService.getPets()
+    const match = pets.find((item) => item.id.toLowerCase() === appointment.value?.petId.toLowerCase())
+    pet.value = match || null
+  } catch {
+    pet.value = null
   }
 }
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString()
+}
+
+const formatDateTime = (date: string) => {
+  return new Date(date).toLocaleString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const formatTime = (date: string) => {
+  return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
 const addTreatment = () => {
@@ -293,16 +496,29 @@ const removePrescription = (index: number) => {
 }
 
 const completeVisit = async () => {
-  if (!visit.value) return
+  const targetId = visit.value?.id || appointment.value?.id || visitId
+
   completing.value = true
+  completionError.value = ''
+  completionSuccess.value = ''
   try {
-    await appointmentsService.completeVisit(visitId, {
+    await appointmentsService.completeVisit(targetId, {
       notes: visitNotes.value,
       prescriptions: prescriptions.value
     })
-    // Reload visit to get invoice
-    await loadVisit()
+    await loadDetails()
+    completionSuccess.value = 'Visit completed successfully.'
   } catch (error) {
+    const responseData = (error as any)?.response?.data
+    const nestedMessage =
+      typeof responseData?.error === 'object' && responseData?.error
+        ? responseData.error.message
+        : null
+    completionError.value =
+      responseData?.message ||
+      nestedMessage ||
+      (typeof responseData === 'string' ? responseData : null) ||
+      'Failed to complete visit. Please try again.'
     console.error('Failed to complete visit', error)
   } finally {
     completing.value = false

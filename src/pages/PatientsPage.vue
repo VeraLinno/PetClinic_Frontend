@@ -1,17 +1,17 @@
 <template>
   <div class="space-y-6">
-    <!-- Header -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <Breadcrumb :items="breadcrumbItems" />
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Patients</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">Manage your patient records</p>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">Manage your patient records</p>
     </div>
 
-    <!-- Search & Filters -->
     <Card>
       <template #header>
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">All Patients</h2>
-          <div class="flex gap-2 w-full md:w-auto">
+          <div class="flex w-full flex-wrap gap-2 md:w-auto">
             <Input
               v-model="searchQuery"
               placeholder="Search by name or owner..."
@@ -19,13 +19,14 @@
             />
             <select
               v-model="speciesFilter"
-              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Species</option>
               <option value="Dog">Dog</option>
               <option value="Cat">Cat</option>
               <option value="Bird">Bird</option>
             </select>
+            <Button variant="ghost" @click="speciesFilter = ''">Reset</Button>
           </div>
         </div>
       </template>
@@ -38,23 +39,24 @@
         No patients found.
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div
           v-for="patient in filteredPatients"
           :key="patient.id"
-          class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+          class="rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-card-hover dark:border-gray-700"
         >
           <div class="flex items-start gap-4">
-            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
+            <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl">
               {{ getPetEmoji(patient.species) }}
             </div>
             <div class="flex-1">
               <h3 class="font-semibold text-gray-900 dark:text-white">{{ patient.name }}</h3>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ patient.species }} - {{ patient.breed }}</p>
               <p class="text-sm text-gray-500 dark:text-gray-400">Owner: {{ patient.ownerName }}</p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Last visit: {{ formatDate(patient.lastVisit) }}</p>
               <div class="flex gap-2 mt-2">
-                <Button variant="ghost" size="sm" @click="viewHistory(patient)">History</Button>
-                <Button variant="primary" size="sm" @click="startVisit(patient)">New Visit</Button>
+                <Button variant="outline" size="sm" @click="viewHistory(patient)">History</Button>
+                <Button variant="primary" size="sm" @click="startVisit(patient)">Start Visit</Button>
               </div>
             </div>
           </div>
@@ -70,6 +72,11 @@ import { useRouter } from 'vue-router'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
+import Breadcrumb from '@/components/Breadcrumb.vue'
+
+const breadcrumbItems = [
+  { label: 'Patients' }
+]
 
 interface Patient {
   id: string
@@ -120,5 +127,9 @@ const viewHistory = (patient: Patient) => {
 
 const startVisit = (patient: Patient) => {
   console.log('Start visit for', patient.name)
+}
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString()
 }
 </script>

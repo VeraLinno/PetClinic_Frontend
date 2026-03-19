@@ -8,6 +8,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/LoginPage.vue')
   },
   {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/pages/RegisterPage.vue')
+  },
+  {
     path: '/owner',
     name: 'OwnerDashboard',
     component: () => import('@/pages/OwnerDashboard.vue'),
@@ -23,7 +28,7 @@ const routes: RouteRecordRaw[] = [
     path: '/booking',
     name: 'BookingWizard',
     component: () => import('@/pages/BookingPage.vue'),
-    meta: { requiresAuth: true, roles: ['Owner'] }
+    meta: { requiresAuth: true, roles: ['Owner', 'Vet'] }
   },
   {
     path: '/visit/:id',
@@ -52,7 +57,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/owner/pets',
     name: 'MyPets',
-    component: () => import('@/pages/OwnerDashboard.vue'),
+    component: () => import('@/pages/MyPetsPage.vue'),
     meta: { requiresAuth: true, roles: ['Owner'] }
   },
   {

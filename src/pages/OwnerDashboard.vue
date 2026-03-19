@@ -1,124 +1,96 @@
 <template>
   <div class="space-y-6">
-    <!-- Owner Profile Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
-      <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
-        <!-- Avatar Skeleton -->
-        <div class="flex-shrink-0">
-          <div v-if="loadingOwner" class="skeleton w-24 h-24 rounded-full"></div>
-          <div v-else class="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-3xl font-bold">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-card dark:border-slate-700 dark:bg-slate-800 sm:p-6">
+      <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div class="flex min-w-0 items-center gap-4">
+          <div v-if="loadingOwner" class="skeleton h-16 w-16 rounded-full" />
+          <div v-else class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-500 text-2xl font-bold text-white ring-4 ring-primary-100 dark:ring-primary-900/30">
             {{ ownerInitials }}
           </div>
-        </div>
-        
-        <!-- Owner Info -->
-        <div class="flex-1">
-          <div v-if="loadingOwner" class="space-y-3">
+
+          <div class="min-w-0 flex-1">
+            <div v-if="loadingOwner" class="space-y-3">
             <div class="skeleton h-8 w-64 rounded"></div>
             <div class="skeleton h-4 w-48 rounded"></div>
             <div class="skeleton h-4 w-32 rounded"></div>
-          </div>
-          <div v-else>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-              Welcome back, {{ owner?.firstName || 'Owner' }}!
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-1">{{ owner?.email }}</p>
-            <div class="flex flex-wrap gap-4 mt-4">
-              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                <span class="font-medium text-gray-900 dark:text-white">{{ pets.length }}</span>
-                <span class="ml-1">Pets</span>
-              </div>
-              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span class="font-medium text-gray-900 dark:text-white">{{ upcomingAppointments }}</span>
-                <span class="ml-1">Upcoming</span>
+            </div>
+            <div v-else>
+              <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                Welcome back, {{ owner?.firstName || 'Owner' }}
+              </h1>
+              <p class="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">{{ owner?.email }}</p>
+              <div class="mt-3 flex flex-wrap gap-3 text-sm">
+                <div class="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-primary-700 dark:bg-primary-950/30 dark:text-primary-300">
+                  <HeartIcon class="h-4 w-4" aria-hidden="true" />
+                  <span class="font-medium">{{ pets.length }}</span>
+                  <span>Pets</span>
+                </div>
+                <div class="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
+                  <CalendarDaysIcon class="h-4 w-4" aria-hidden="true" />
+                  <span class="font-medium">{{ upcomingAppointments }}</span>
+                  <span>Upcoming</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        
-        <!-- Quick Actions -->
-        <div class="flex flex-col gap-2">
+
+        <div class="grid w-full gap-2 sm:w-auto sm:grid-cols-2 md:grid-cols-1">
           <Button variant="primary" size="sm" @click="$router.push('/booking')">
-            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+            <PlusCircleIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             Book Appointment
           </Button>
           <Button variant="outline" size="sm" @click="showEditProfile = true">
-            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
+            <PencilSquareIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             Edit Profile
           </Button>
         </div>
       </div>
     </div>
 
-    <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- Total Pets Stat -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
+      <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:bg-slate-800">
         <div v-if="loadingPets" class="space-y-3">
           <div class="skeleton h-12 w-12 rounded-lg"></div>
           <div class="skeleton h-4 w-24 rounded"></div>
           <div class="skeleton h-8 w-16 rounded"></div>
         </div>
-        <div v-else class="flex items-center">
-          <div class="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
+        <div v-else class="space-y-3">
+          <div class="inline-flex rounded-lg bg-primary-100 p-3 text-primary-700 dark:bg-primary-950/30 dark:text-primary-300">
+            <HeartIcon class="h-6 w-6" aria-hidden="true" />
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pets</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ pets.length }}</p>
-          </div>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Pets</p>
+          <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ pets.length }}</p>
         </div>
       </div>
-      
-      <!-- Completed Visits Stat -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
+
+      <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:bg-slate-800">
         <div v-if="loadingAppointments" class="space-y-3">
           <div class="skeleton h-12 w-12 rounded-lg"></div>
           <div class="skeleton h-4 w-28 rounded"></div>
           <div class="skeleton h-8 w-16 rounded"></div>
         </div>
-        <div v-else class="flex items-center">
-          <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30">
-            <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div v-else class="space-y-3">
+          <div class="inline-flex rounded-lg bg-success-100 p-3 text-success-700 dark:bg-success-950/30 dark:text-success-300">
+            <CheckCircleIcon class="h-6 w-6" aria-hidden="true" />
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Completed Visits</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ completedVisits }}</p>
-          </div>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Completed Visits</p>
+          <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ completedVisits }}</p>
         </div>
       </div>
-      
-      <!-- Pending Appointments Stat -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
+
+      <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:bg-slate-800">
         <div v-if="loadingAppointments" class="space-y-3">
           <div class="skeleton h-12 w-12 rounded-lg"></div>
           <div class="skeleton h-4 w-28 rounded"></div>
           <div class="skeleton h-8 w-16 rounded"></div>
         </div>
-        <div v-else class="flex items-center">
-          <div class="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
-            <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div v-else class="space-y-3">
+          <div class="inline-flex rounded-lg bg-warning-100 p-3 text-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
+            <ClockIcon class="h-6 w-6" aria-hidden="true" />
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ pendingAppointments }}</p>
-          </div>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Pending</p>
+          <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ pendingAppointments }}</p>
         </div>
       </div>
     </div>
@@ -127,11 +99,12 @@
     <Card>
       <template #header>
         <div class="flex justify-between items-center">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">My Pets</h2>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">My Pets</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Manage profiles and book care quickly</p>
+          </div>
           <Button variant="primary" size="sm" @click="showAddPetModal = true">
-            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+            <PlusCircleIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             Add New Pet
           </Button>
         </div>
@@ -158,6 +131,7 @@
           :key="pet.id"
           :pet="pet"
           @book-appointment="bookAppointmentForPet"
+          @delete-pet="confirmDeletePet"
         />
       </div>
     </Card>
@@ -166,7 +140,10 @@
     <Card>
       <template #header>
         <div class="flex justify-between items-center">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Upcoming Appointments</h2>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Upcoming Appointments</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Stay on top of your scheduled visits</p>
+          </div>
           <div class="flex gap-2">
             <Button variant="outline" size="sm" @click="$router.push('/owner/history')">
               View History
@@ -200,6 +177,7 @@
       <AppointmentList 
         :appointments="appointments" 
         :loading="loadingAppointments"
+        :show-cancel="true"
         @view="viewAppointment" 
         @cancel="cancelAppointment" 
       />
@@ -220,7 +198,10 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Species</label>
             <select
               v-model="newPet.species"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              :class="[
+                'w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary',
+                petErrors.species ? 'border-danger-500 dark:border-danger-600' : 'border-gray-300 dark:border-gray-600'
+              ]"
               required
             >
               <option value="">Select species</option>
@@ -233,12 +214,14 @@
               <option value="Reptile">Reptile</option>
               <option value="Other">Other</option>
             </select>
+            <p v-if="petErrors.species" class="mt-1 text-sm text-danger-600 dark:text-danger-400">{{ petErrors.species }}</p>
           </div>
           <Input
             v-model="newPet.breed"
             label="Breed"
             placeholder="Enter breed"
             required
+            :error="petErrors.breed"
           />
         </div>
         <Input
@@ -246,6 +229,7 @@
           label="Date of Birth"
           type="date"
           required
+          :error="petErrors.dateOfBirth"
         />
       </form>
       <template #footer>
@@ -290,6 +274,14 @@ import Modal from '@/components/ui/Modal.vue'
 import Toast from '@/components/ui/Toast.vue'
 import AppointmentList from '@/components/AppointmentList.vue'
 import PetCard from '@/components/PetCard.vue'
+import {
+  CalendarDaysIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  HeartIcon,
+  PencilSquareIcon,
+  PlusCircleIcon
+} from '@heroicons/vue/24/outline'
 
 const router = useRouter()
 
@@ -349,16 +341,29 @@ const pendingAppointments = computed(() => {
 // Load data
 onMounted(async () => {
   await Promise.all([
-    loadAppointments(),
     loadPets(),
     loadOwner()
   ])
+
+  await loadAppointments()
 })
+
+const filterAppointmentsToOwnedPets = (items: Appointment[]) => {
+  const ownedPetIds = new Set(pets.value.map((pet) => pet.id.toLowerCase()))
+  const petNameById = new Map(pets.value.map((pet) => [pet.id.toLowerCase(), pet.name]))
+
+  return items
+    .filter((appointment) => ownedPetIds.has(appointment.petId.toLowerCase()))
+    .map((appointment) => ({
+      ...appointment,
+      petName: petNameById.get(appointment.petId.toLowerCase()) || appointment.petName
+    }))
+}
 
 const loadAppointments = async () => {
   try {
-    const data = await appointmentsService.getAppointments({ ownerId: 'me' })
-    appointments.value = data
+    const data = await appointmentsService.getAppointments()
+    appointments.value = filterAppointmentsToOwnedPets(data)
   } catch (error) {
     console.error('Failed to load appointments', error)
     showNotification('error', 'Failed to load appointments')
@@ -439,15 +444,15 @@ const submitPet = async () => {
     return
   }
   if (!newPet.value.species) {
-    petErrors.value.name = 'Species is required'
+    petErrors.value.species = 'Species is required'
     return
   }
   if (!newPet.value.breed) {
-    petErrors.value.name = 'Breed is required'
+    petErrors.value.breed = 'Breed is required'
     return
   }
   if (!newPet.value.dateOfBirth) {
-    petErrors.value.name = 'Date of birth is required'
+    petErrors.value.dateOfBirth = 'Date of birth is required'
     return
   }
   

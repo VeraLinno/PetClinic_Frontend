@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 
 interface AuthService {
   login(email: string, password: string): Promise<any>
-  register(email: string, password: string, roles: string[]): Promise<any>
+  register(email: string, password: string, firstName: string, lastName: string, roles: string[]): Promise<any>
   refresh(): Promise<any>
   logout(): Promise<void>
 }
@@ -15,8 +15,8 @@ export const authService: AuthService = {
     authStore.setAccessToken(response.data.accessToken)
     return response.data
   },
-  async register(email: string, password: string, roles: string[]) {
-    const response = await api.post('/auth/register', { email, password, roles })
+  async register(email: string, password: string, firstName: string, lastName: string, roles: string[]) {
+    const response = await api.post('/auth/register', { email, password, firstName, lastName, roles })
     return response.data
   },
   async refresh() {

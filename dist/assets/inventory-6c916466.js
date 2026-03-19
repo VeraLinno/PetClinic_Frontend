@@ -1,0 +1,1 @@
+import{m as t}from"./index-74dce820.js";const s={async getInventory(){return(await t.get("/inventory")).data},async getLowStock(){return(await t.get("/inventory/low-stock")).data},async reorderMedication(e,n){return(await t.post(`/inventory/${e}/reorder`,{quantity:n})).data}};export{s as i};

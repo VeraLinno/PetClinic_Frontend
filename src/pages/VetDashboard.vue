@@ -1,60 +1,113 @@
 <template>
   <div class="space-y-6">
-    <!-- Vet Profile Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
-        <!-- Avatar -->
-        <div class="flex-shrink-0">
-          <div class="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-3xl font-bold">
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-start gap-4">
+          <div class="flex h-14 w-14 items-center justify-center rounded-full bg-primary-500 text-xl font-semibold text-white ring-4 ring-primary-100 dark:ring-primary-900/30">
             {{ vetInitials }}
           </div>
-        </div>
-        
-        <!-- Vet Info -->
-        <div class="flex-1">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Good {{ timeOfDay }}, Dr. {{ vetName }}!
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-1">{{ specialization }}</p>
-          <div class="flex flex-wrap gap-4 mt-4">
-            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span class="font-medium text-gray-900 dark:text-white">{{ appointments.length }}</span>
-              <span class="ml-1">Today's Appointments</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span class="font-medium text-gray-900 dark:text-white">{{ completedVisits }}</span>
-              <span class="ml-1">Completed</span>
-            </div>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              Good {{ timeOfDay }}, Dr. {{ vetName }}
+            </h1>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ specialization }}</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ formattedToday }}</p>
           </div>
         </div>
-        
-        <!-- Quick Actions -->
-        <div class="flex flex-col gap-2">
+
+        <div class="flex flex-wrap items-center gap-2">
+          <Button
+            v-for="range in ranges"
+            :key="range.value"
+            size="sm"
+            :variant="activeRange === range.value ? 'primary' : 'outline'"
+            @click="activeRange = range.value"
+          >
+            {{ range.label }}
+          </Button>
+          <Button variant="primary" size="sm" @click="$router.push('/booking')">
+            <PlusCircleIcon class="mr-2 h-4 w-4" aria-hidden="true" />
+            New Appointment
+          </Button>
           <Button variant="outline" size="sm" @click="$router.push('/vet/patients')">
-            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+            <UsersIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             View Patients
           </Button>
         </div>
       </div>
     </div>
 
-    <!-- Today's Appointments -->
+    <Card v-if="visibleAlerts.length > 0">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <ExclamationTriangleIcon class="h-5 w-5 text-danger-500" aria-hidden="true" />
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Low Stock Alerts</h2>
+          <Badge variant="danger" size="sm">{{ visibleAlerts.length }}</Badge>
+        </div>
+      </template>
+
+      <div class="space-y-3">
+        <div
+          v-for="item in visibleAlerts"
+          :key="item.id"
+          class="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+          :class="alertClasses(item)"
+        >
+          <div>
+            <p class="font-medium">{{ item.name }}</p>
+            <p class="text-sm opacity-90">Current: {{ item.quantity }} {{ item.unit }} | Reorder at {{ item.reorderLevel }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <Button variant="danger" size="sm" @click="orderMore(item)">Order More</Button>
+            <Button variant="ghost" size="sm" @click="dismissAlert(item.id)">Dismiss</Button>
+          </div>
+        </div>
+      </div>
+    </Card>
+
+    <div
+      v-if="reorderSuccessMessage"
+      class="rounded-lg border border-success-300 bg-success-50 px-4 py-3 text-sm text-success-800 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300"
+    >
+      {{ reorderSuccessMessage }}
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <button
+        type="button"
+        class="rounded-xl border border-slate-200 bg-gradient-to-br from-blue-50 to-blue-100 p-5 text-left shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:from-blue-900/20 dark:to-blue-800/20"
+        @click="activeStatusFilter = 'all'"
+      >
+        <p class="text-sm text-slate-600 dark:text-slate-300">Appointments</p>
+        <p class="mt-1 text-3xl font-bold text-blue-700 dark:text-blue-300">{{ filteredByRange.length }}</p>
+      </button>
+      <button
+        type="button"
+        class="rounded-xl border border-slate-200 bg-gradient-to-br from-green-50 to-green-100 p-5 text-left shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:from-green-900/20 dark:to-green-800/20"
+        @click="activeStatusFilter = 'completed'"
+      >
+        <p class="text-sm text-slate-600 dark:text-slate-300">Completed Visits</p>
+        <p class="mt-1 text-3xl font-bold text-green-700 dark:text-green-300">{{ completedVisits }}</p>
+      </button>
+      <button
+        type="button"
+        class="rounded-xl border border-slate-200 bg-gradient-to-br from-yellow-50 to-yellow-100 p-5 text-left shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:from-yellow-900/20 dark:to-yellow-800/20"
+        @click="activeStatusFilter = 'pending'"
+      >
+        <p class="text-sm text-slate-600 dark:text-slate-300">Pending Items</p>
+        <p class="mt-1 text-3xl font-bold text-yellow-700 dark:text-yellow-300">{{ pendingVisits }}</p>
+      </button>
+    </div>
+
     <Card>
       <template #header>
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Today's Appointments</h2>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Appointments</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Active window: {{ activeRangeLabel }} | Filter: {{ activeStatusLabel }}</p>
+          </div>
           <Button variant="primary" size="sm" @click="refreshAppointments">
-            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+            <ArrowPathIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             Refresh
           </Button>
         </div>
@@ -63,77 +116,70 @@
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
         <p class="mt-2 text-gray-500 dark:text-gray-400">Loading appointments...</p>
       </div>
-      <div v-else-if="appointments.length === 0" class="text-center py-8">
+      <div v-else-if="displayAppointments.length === 0" class="text-center py-8">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">No appointments scheduled for today.</p>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">No appointments for the selected range/filter.</p>
       </div>
       <div v-else>
-        <AppointmentList :appointments="appointments" @view="viewAppointment" @start="startVisit" />
+        <AppointmentList
+          :appointments="displayAppointments"
+          :show-confirm="true"
+          :show-start="true"
+          :show-cancel="true"
+          @view="viewAppointment"
+          @confirm="confirmAppointment"
+          @start="startVisit"
+          @cancel="cancelAppointment"
+        />
       </div>
     </Card>
 
-    <!-- Low Stock Alerts -->
-    <Card v-if="lowStockItems.length > 0">
-      <template #header>
-        <div class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Low Stock Alerts</h2>
-          <Badge variant="danger" size="sm">{{ lowStockItems.length }}</Badge>
+    <Modal :is-open="showReorderModal" title="Reorder Item" @close="closeReorderModal">
+      <div class="space-y-4" v-if="selectedReorderItem">
+        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+          <p class="font-medium">{{ selectedReorderItem.name }}</p>
+          <p>Current stock: {{ selectedReorderItem.quantity }} {{ selectedReorderItem.unit }}</p>
+          <p>Reorder level: {{ selectedReorderItem.reorderLevel }}</p>
+        </div>
+
+        <Input
+          v-model="reorderQuantity"
+          type="number"
+          label="Quantity to reorder"
+          min="1"
+          placeholder="Enter quantity"
+          :error="reorderError"
+        />
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button variant="outline" :disabled="reorderLoading" @click="closeReorderModal">Cancel</Button>
+          <Button variant="primary" :loading="reorderLoading" @click="submitReorder">Reorder</Button>
         </div>
       </template>
-      <div class="space-y-4">
-        <div
-          v-for="item in lowStockItems"
-          :key="item.id"
-          class="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
-        >
-          <div>
-            <h3 class="font-medium text-red-900 dark:text-red-400">{{ item.name }}</h3>
-            <p class="text-sm text-red-700 dark:text-red-500">Current stock: {{ item.quantity }} {{ item.unit }}</p>
-          </div>
-          <Button variant="danger" size="sm" @click="orderMore(item)">
-            Order More
-          </Button>
-        </div>
-      </div>
-    </Card>
-
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ appointments.length }}</div>
-          <div class="text-gray-600 dark:text-gray-400">Today's Appointments</div>
-        </div>
-      </Card>
-      <Card class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ completedVisits }}</div>
-          <div class="text-gray-600 dark:text-gray-400">Completed Visits</div>
-        </div>
-      </Card>
-      <Card class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{{ pendingVisits }}</div>
-          <div class="text-gray-600 dark:text-gray-400">Pending Visits</div>
-        </div>
-      </Card>
-    </div>
+    </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import {
+  ArrowPathIcon,
+  ExclamationTriangleIcon,
+  PlusCircleIcon,
+  UsersIcon
+} from '@heroicons/vue/24/outline'
 import { appointmentsService, type Appointment } from '@/services/appointments'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import AppointmentList from '@/components/AppointmentList.vue'
+import Input from '@/components/ui/Input.vue'
+import Modal from '@/components/ui/Modal.vue'
+import { inventoryService } from '@/services/inventory'
 
 const router = useRouter()
 
@@ -142,11 +188,33 @@ const appointments = ref<Appointment[]>([])
 const loadingAppointments = ref(true)
 const vetName = ref('Smith')
 const specialization = ref('General Practitioner')
+const activeRange = ref<'today' | 'week' | 'month'>('week')
+const activeStatusFilter = ref<'all' | 'completed' | 'pending'>('all')
+const dismissedAlertIds = ref<string[]>([])
+const reorderSuccessMessage = ref('')
+const showReorderModal = ref(false)
+const selectedReorderItem = ref<LowStockItem | null>(null)
+const reorderQuantity = ref('1')
+const reorderError = ref('')
+const reorderLoading = ref(false)
 
-// Low stock items - would come from API
-const lowStockItems = ref<Array<{id: string, name: string, quantity: number, unit: string}>>([
-  { id: '1', name: 'Rabies Vaccine', quantity: 5, unit: 'doses' },
-  { id: '2', name: 'Amoxicillin', quantity: 2, unit: 'bottles' }
+const ranges = [
+  { label: 'Today', value: 'today' as const },
+  { label: 'This week', value: 'week' as const },
+  { label: 'This month', value: 'month' as const }
+]
+
+type LowStockItem = {
+  id: string
+  name: string
+  quantity: number
+  reorderLevel: number
+  unit: string
+}
+
+const lowStockItems = ref<LowStockItem[]>([
+  { id: '1', name: 'Rabies Vaccine', quantity: 5, reorderLevel: 10, unit: 'doses' },
+  { id: '2', name: 'Amoxicillin', quantity: 2, reorderLevel: 8, unit: 'bottles' }
 ])
 
 // Computed
@@ -161,24 +229,75 @@ const timeOfDay = computed(() => {
   return 'evening'
 })
 
+const formattedToday = computed(() => {
+  return new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  })
+})
+
+const filteredByRange = computed(() => {
+  const now = new Date()
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  return appointments.value.filter((app) => {
+    const d = new Date(app.startAt)
+    if (activeRange.value === 'today') {
+      return d.toDateString() === now.toDateString()
+    }
+    if (activeRange.value === 'week') {
+      const end = new Date(startOfToday)
+      end.setDate(now.getDate() + 7)
+      return d >= startOfToday && d <= end
+    }
+    const end = new Date(startOfToday)
+    end.setMonth(now.getMonth() + 1)
+    return d >= startOfToday && d <= end
+  })
+})
+
+const displayAppointments = computed(() => {
+  if (activeStatusFilter.value === 'completed') {
+    return filteredByRange.value.filter((a) => a.status === 'Completed')
+  }
+  if (activeStatusFilter.value === 'pending') {
+    return filteredByRange.value.filter((a) => a.status === 'Pending' || a.status === 'Confirmed' || a.status === 'Scheduled')
+  }
+  return filteredByRange.value
+})
+
 const completedVisits = computed(() => {
-  return appointments.value.filter(app => app.status === 'Completed').length
+  return filteredByRange.value.filter((app) => app.status === 'Completed').length
 })
 
 const pendingVisits = computed(() => {
-  return appointments.value.filter(app => app.status === 'Pending' || app.status === 'Confirmed').length
+  return filteredByRange.value.filter((app) => app.status === 'Pending' || app.status === 'Confirmed' || app.status === 'Scheduled').length
+})
+
+const visibleAlerts = computed(() => {
+  return lowStockItems.value.filter((item) => !dismissedAlertIds.value.includes(item.id))
+})
+
+const activeRangeLabel = computed(() => {
+  return ranges.find((r) => r.value === activeRange.value)?.label || 'Today'
+})
+
+const activeStatusLabel = computed(() => {
+  if (activeStatusFilter.value === 'completed') return 'Completed'
+  if (activeStatusFilter.value === 'pending') return 'Pending'
+  return 'All'
 })
 
 // Load data
 onMounted(async () => {
   await loadAppointments()
-  // TODO: Load low stock items from API
+  await loadLowStockItems()
 })
 
 const loadAppointments = async () => {
   try {
-    const today = new Date().toISOString().split('T')[0]
-    const data = await appointmentsService.getAppointments({ date: today })
+    const data = await appointmentsService.getAppointments()
     appointments.value = data
   } catch (error) {
     console.error('Failed to load appointments', error)
@@ -190,6 +309,22 @@ const loadAppointments = async () => {
 const refreshAppointments = async () => {
   loadingAppointments.value = true
   await loadAppointments()
+  await loadLowStockItems()
+}
+
+const loadLowStockItems = async () => {
+  try {
+    const data = await inventoryService.getLowStock()
+    lowStockItems.value = data.map((item) => ({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      reorderLevel: item.reorderLevel,
+      unit: item.unit
+    }))
+  } catch (error) {
+    console.error('Failed to load low stock items', error)
+  }
 }
 
 const viewAppointment = (appointment: Appointment) => {
@@ -200,8 +335,81 @@ const startVisit = (appointment: Appointment) => {
   router.push(`/visit/${appointment.id}`)
 }
 
-const orderMore = (item: any) => {
-  // TODO: Implement order more functionality
-  console.log('Order more for', item.name)
+const confirmAppointment = async (appointment: Appointment) => {
+  try {
+    await appointmentsService.confirmAppointment(appointment.id)
+    await loadAppointments()
+  } catch (error) {
+    console.error('Failed to confirm appointment', error)
+  }
+}
+
+const cancelAppointment = async (appointment: Appointment) => {
+  try {
+    await appointmentsService.cancelAppointment(appointment.id)
+    await loadAppointments()
+  } catch (error) {
+    console.error('Failed to cancel appointment', error)
+  }
+}
+
+const dismissAlert = (id: string) => {
+  dismissedAlertIds.value.push(id)
+}
+
+const alertClasses = (item: LowStockItem) => {
+  if (item.quantity <= item.reorderLevel / 2) {
+    return 'border-danger-300 bg-danger-50 text-danger-800 dark:border-danger-700 dark:bg-danger-950/30 dark:text-danger-300'
+  }
+  return 'border-warning-300 bg-warning-50 text-warning-800 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-300'
+}
+
+const orderMore = (item: LowStockItem) => {
+  selectedReorderItem.value = item
+  reorderQuantity.value = String(Math.max(1, item.reorderLevel))
+  reorderError.value = ''
+  showReorderModal.value = true
+}
+
+const closeReorderModal = () => {
+  showReorderModal.value = false
+  reorderLoading.value = false
+  reorderError.value = ''
+  selectedReorderItem.value = null
+}
+
+const submitReorder = async () => {
+  if (!selectedReorderItem.value) {
+    return
+  }
+
+  const quantity = Number(reorderQuantity.value)
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    reorderError.value = 'Please enter a valid quantity greater than zero.'
+    return
+  }
+
+  reorderLoading.value = true
+  reorderError.value = ''
+
+  try {
+    const result = await inventoryService.reorderMedication(selectedReorderItem.value.id, quantity)
+    const deliveryLocal = new Date(result.deliveryAtUtc).toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
+    reorderSuccessMessage.value = `Reorder confirmed for ${result.medicationName}. Package will arrive tomorrow at ${deliveryLocal}.`
+    closeReorderModal()
+    await loadLowStockItems()
+  } catch (error) {
+    console.error('Failed to reorder inventory item', error)
+    reorderError.value = 'Could not place reorder. Please try again.'
+  } finally {
+    reorderLoading.value = false
+  }
 }
 </script>

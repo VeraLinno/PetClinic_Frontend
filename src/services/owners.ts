@@ -24,6 +24,12 @@ export interface CreatePetDto {
   dateOfBirth: string
 }
 
+export interface VeterinarianOption {
+  id: string
+  name: string
+  email: string
+}
+
 export const ownersService = {
   async getMe(): Promise<Owner> {
     const response = await api.get('/owners/me')
@@ -32,6 +38,16 @@ export const ownersService = {
 
   async getPets(ownerId: string = 'me'): Promise<Pet[]> {
     const response = await api.get(`/owners/${ownerId}/pets`)
+    return response.data
+  },
+
+  async getAllPets(): Promise<Pet[]> {
+    const response = await api.get('/owners/pets')
+    return response.data
+  },
+
+  async getVeterinarians(): Promise<VeterinarianOption[]> {
+    const response = await api.get('/owners/vets')
     return response.data
   },
 

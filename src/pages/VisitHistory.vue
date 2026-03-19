@@ -1,20 +1,20 @@
 <template>
   <div class="space-y-6">
-    <!-- Header -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <Breadcrumb :items="breadcrumbItems" />
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Visit History</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">View your pet's past visits and medical records</p>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">View your pet's past visits and medical records</p>
     </div>
 
-    <!-- Filters -->
     <Card>
       <template #header>
-        <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Filter Visits</h2>
-          <div class="flex flex-wrap gap-3">
+          <div class="flex flex-wrap gap-2">
             <select
               v-model="filters.petId"
-              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Pets</option>
               <option v-for="pet in pets" :key="pet.id" :value="pet.id">{{ pet.name }}</option>
@@ -31,7 +31,7 @@
               placeholder="End Date"
               class="w-40"
             />
-            <Button variant="outline" @click="applyFilters">Apply Filters</Button>
+            <Button variant="outline" @click="applyFilters">Apply</Button>
             <Button variant="ghost" @click="clearFilters">Clear</Button>
           </div>
         </div>
@@ -49,19 +49,19 @@
         <p class="mt-2 text-gray-500 dark:text-gray-400">No visits found for the selected filters.</p>
       </div>
 
-      <div v-else class="space-y-4">
+      <div v-else class="space-y-3">
         <div
           v-for="visit in filteredVisits"
           :key="visit.id"
-          class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          class="rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
         >
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-2">
                 <span class="text-2xl">{{ getPetEmoji(visit.petName) }}</span>
                 <div>
                   <h3 class="font-semibold text-gray-900 dark:text-white">{{ visit.petName }}</h3>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(visit.date) }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDateLong(visit.date) }}</p>
                 </div>
               </div>
               <div class="flex flex-wrap gap-2 mt-2">
@@ -78,20 +78,19 @@
                   {{ visit.invoiceStatus || 'Pending' }}
                 </Badge>
               </div>
-              <Button variant="outline" size="sm" @click="viewDetails(visit)">View Details</Button>
+              <Button variant="outline" size="sm" @click="viewDetails(visit)">Details</Button>
             </div>
           </div>
         </div>
       </div>
     </Card>
 
-    <!-- Visit Details Modal -->
-    <Modal :isOpen="showDetailsModal" :title="selectedVisit?.petName" @close="showDetailsModal = false">
+    <Modal :is-open="showDetailsModal" :title="selectedVisit?.petName" @close="showDetailsModal = false">
       <div v-if="selectedVisit" class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Date</label>
-            <p class="text-gray-900 dark:text-white">{{ formatDate(selectedVisit.date) }}</p>
+            <p class="text-gray-900 dark:text-white">{{ formatDateLong(selectedVisit.date) }}</p>
           </div>
           <div>
             <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Veterinarian</label>
@@ -143,6 +142,11 @@ import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
 import Badge from '@/components/ui/Badge.vue'
+import Breadcrumb from '@/components/Breadcrumb.vue'
+
+const breadcrumbItems = [
+  { label: 'Visit History' }
+]
 
 const route = useRoute()
 const router = useRouter()
@@ -182,7 +186,8 @@ const filteredVisits = computed(() => {
 })
 
 onMounted(async () => {
-  await Promise.all([loadPets(), loadVisits()])
+  await loadPets()
+  await loadVisits()
 })
 
 const loadPets = async () => {
@@ -197,32 +202,21 @@ const loadPets = async () => {
 const loadVisits = async () => {
   loading.value = true
   try {
-    // Mock data for now - in real app would call API
-    visits.value = [
-      {
-        id: '1',
-        petId: '1',
-        petName: 'Buddy',
-        date: '2024-01-15',
-        vetName: 'Smith',
-        diagnosis: 'Annual Checkup',
-        treatments: ['Vaccination', 'Dental Cleaning'],
-        prescriptions: [{ medication: 'Heartworm Prevention', dosage: 'Monthly' }],
-        invoiceTotal: 150,
-        invoiceStatus: 'Paid'
-      },
-      {
-        id: '2',
-        petId: '1',
-        petName: 'Buddy',
-        date: '2024-02-20',
-        vetName: 'Johnson',
-        diagnosis: 'Skin Allergy',
-        treatments: ['Skin Test', 'Medicated Bath'],
-        invoiceTotal: 200,
+    const ownerPets = pets.value
+    const ownedPetIds = new Set(ownerPets.map((pet) => pet.id))
+    const petNameById = new Map(ownerPets.map((pet) => [pet.id, pet.name]))
+
+    const appointments = await appointmentsService.getAppointments()
+    visits.value = appointments
+      .filter((appointment: any) => ownedPetIds.has(appointment.petId))
+      .map((appointment: any) => ({
+        id: appointment.id,
+        petId: appointment.petId,
+        petName: petNameById.get(appointment.petId) || 'Unknown Pet',
+        date: appointment.startAt || appointment.dateTime,
+        vetName: appointment.veterinarianName || 'Assigned Vet',
         invoiceStatus: 'Pending'
-      }
-    ]
+      }))
   } catch (error) {
     console.error('Failed to load visits', error)
   } finally {
@@ -235,6 +229,13 @@ const getPetEmoji = (petName: string) => {
 }
 
 const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+const formatDateLong = (date: string) => {
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',

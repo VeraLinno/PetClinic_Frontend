@@ -1,39 +1,60 @@
 <template>
-  <Card class="hover:shadow-card-hover transition-shadow duration-200">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-      <!-- Pet Avatar -->
-      <div class="flex-shrink-0">
-        <div 
-          class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center"
+  <Card class="group transition-all duration-200 hover:border-primary-300 hover:shadow-card-hover dark:hover:border-primary-700/60" hoverable>
+    <div class="space-y-4">
+      <div class="flex items-start gap-3">
+        <div
+          class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-100 text-2xl ring-2 ring-primary-200 dark:bg-primary-900/30 dark:ring-primary-700/40"
           aria-hidden="true"
         >
-          <span class="text-2xl">{{ petEmoji }}</span>
+          <span>{{ petEmoji }}</span>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="truncate text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {{ pet.name }}
+            </h3>
+            <Badge :variant="speciesBadge.variant" size="sm">{{ speciesBadge.label }}</Badge>
+          </div>
+
+          <p class="truncate text-sm text-slate-500 dark:text-slate-400">
+            {{ pet.breed || 'Mixed Breed' }}
+          </p>
+
+          <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+            Born: {{ formatDate(pet.dateOfBirth) }}
+          </p>
         </div>
       </div>
-      
-      <!-- Pet Info -->
-      <div class="flex-1 min-w-0">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-          {{ pet.name }}
-        </h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          {{ pet.species }} • {{ pet.breed }}
-        </p>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-          Born: {{ formatDate(pet.dateOfBirth) }}
-        </p>
-      </div>
-      
-      <!-- Action Button -->
-      <div class="flex-shrink-0 w-full sm:w-auto">
+
+      <div class="grid grid-cols-2 gap-2">
         <Button
           variant="primary"
           size="sm"
-          class="w-full sm:w-auto"
+          class="col-span-2"
           @click="$emit('book-appointment', pet)"
           :aria-label="`Book appointment for ${pet.name}`"
         >
-          Book
+          Book Appointment
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          class="w-full"
+          :aria-label="`View details for ${pet.name}`"
+        >
+          Details
+        </Button>
+
+        <Button
+          variant="danger"
+          size="sm"
+          class="w-full"
+          :aria-label="`Delete ${pet.name}`"
+          @click="$emit('delete-pet', pet)"
+        >
+          Delete
         </Button>
       </div>
     </div>
@@ -44,6 +65,7 @@
 import { computed } from 'vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
+import Badge from '@/components/ui/Badge.vue'
 import type { Pet } from '@/services/owners'
 
 const props = defineProps<{
@@ -52,6 +74,7 @@ const props = defineProps<{
 
 defineEmits<{
   'book-appointment': [pet: Pet]
+  'delete-pet': [pet: Pet]
 }>()
 
 const petEmoji = computed(() => {
@@ -64,6 +87,15 @@ const petEmoji = computed(() => {
   if (species.includes('rabbit')) return '🐰'
   if (species.includes('hamster')) return '🐹'
   return '🐾'
+})
+
+const speciesBadge = computed(() => {
+  const species = props.pet.species.toLowerCase()
+  if (species.includes('dog')) return { label: 'Dog', variant: 'info' as const }
+  if (species.includes('cat')) return { label: 'Cat', variant: 'primary' as const }
+  if (species.includes('bird')) return { label: 'Bird', variant: 'warning' as const }
+  if (species.includes('rabbit')) return { label: 'Rabbit', variant: 'success' as const }
+  return { label: props.pet.species, variant: 'default' as const }
 })
 
 const formatDate = (date: string) => {
