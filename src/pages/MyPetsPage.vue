@@ -134,8 +134,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ownersService, type Pet } from '@/services/owners'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import Card from '@/components/ui/Card.vue'
@@ -144,11 +144,12 @@ import Button from '@/components/ui/Button.vue'
 import Modal from '@/components/ui/Modal.vue'
 
 const router = useRouter()
+const route = useRoute()
 const breadcrumbItems = [{ label: 'My Pets' }]
 
 const pets = ref<Pet[]>([])
 const loading = ref(true)
-const search = ref('')
+const search = ref(typeof route.query.search === 'string' ? route.query.search : '')
 const viewMode = ref<'grid' | 'list'>('grid')
 
 const showDetailsModal = ref(false)
@@ -175,6 +176,33 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+})
+
+watch(
+  () => route.query.search,
+  (value) => {
+    const queryValue = typeof value === 'string' ? value : ''
+    if (queryValue !== search.value) {
+      search.value = queryValue
+    }
+  }
+)
+
+watch(search, (value) => {
+  const normalizedValue = value.trim()
+  const currentQuery = typeof route.query.search === 'string' ? route.query.search : ''
+  if (normalizedValue === currentQuery) {
+    return
+  }
+
+  const nextQuery = { ...route.query }
+  if (normalizedValue) {
+    nextQuery.search = normalizedValue
+  } else {
+    delete nextQuery.search
+  }
+
+  router.replace({ query: nextQuery })
 })
 
 const getPetEmoji = (species: string) => {

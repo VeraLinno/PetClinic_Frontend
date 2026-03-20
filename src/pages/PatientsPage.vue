@@ -67,8 +67,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
@@ -88,9 +88,10 @@ interface Patient {
 }
 
 const router = useRouter()
+const route = useRoute()
 const patients = ref<Patient[]>([])
 const loading = ref(true)
-const searchQuery = ref('')
+const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '')
 const speciesFilter = ref('')
 
 const filteredPatients = computed(() => {
@@ -112,6 +113,33 @@ onMounted(() => {
     { id: '4', name: 'Tweety', species: 'Bird', breed: 'Canary', ownerName: 'Alice Brown', lastVisit: '2024-01-28' }
   ]
   loading.value = false
+})
+
+watch(
+  () => route.query.search,
+  (value) => {
+    const queryValue = typeof value === 'string' ? value : ''
+    if (queryValue !== searchQuery.value) {
+      searchQuery.value = queryValue
+    }
+  }
+)
+
+watch(searchQuery, (value) => {
+  const normalizedValue = value.trim()
+  const currentQuery = typeof route.query.search === 'string' ? route.query.search : ''
+  if (normalizedValue === currentQuery) {
+    return
+  }
+
+  const nextQuery = { ...route.query }
+  if (normalizedValue) {
+    nextQuery.search = normalizedValue
+  } else {
+    delete nextQuery.search
+  }
+
+  router.replace({ query: nextQuery })
 })
 
 const getPetEmoji = (species: string) => {

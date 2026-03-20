@@ -69,7 +69,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/vet/appointments',
     name: 'VetAppointments',
-    component: () => import('@/pages/VetDashboard.vue'),
+    component: () => import('@/pages/VetTodayAppointments.vue'),
     meta: { requiresAuth: true, roles: ['Vet'] }
   },
   {
@@ -95,15 +95,27 @@ const router = createRouter({
   routes
 })
 
+function getDefaultAuthenticatedRoute(roles: string[]): string {
+  if (roles.includes('Vet')) return '/vet'
+  if (roles.includes('Owner')) return '/owner'
+  return '/owner'
+}
+
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+
+  if ((to.path === '/login' || to.path === '/register') && authStore.isAuthenticated) {
+    next(getDefaultAuthenticatedRoute(authStore.roles))
+    return
+  }
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
+    next({ path: '/login', query: { redirect: to.fullPath } })
   } else if (to.meta.roles) {
     const userRoles = authStore.roles
     const requiredRoles = to.meta.roles as string[]
     if (!requiredRoles.some(role => userRoles.includes(role))) {
-      next('/login') // or 403
+      next(getDefaultAuthenticatedRoute(userRoles))
     } else {
       next()
     }

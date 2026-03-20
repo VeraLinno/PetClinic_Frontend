@@ -3,9 +3,15 @@ import api from './api'
 export interface InventoryItem {
   id: string
   name: string
+  unitPrice: number
   quantity: number
   unit: string
   reorderLevel: number
+}
+
+export interface UpdateInventoryItemPayload {
+  name: string
+  unitPrice: number
 }
 
 export interface ReorderResponse {
@@ -15,6 +21,23 @@ export interface ReorderResponse {
   currentQuantity: number
   deliveryAtUtc: string
   message: string
+}
+
+export interface PendingInventoryReorder {
+  reorderId: string
+  medicationId: string
+  medicationName: string
+  quantity: number
+  deliveryAtUtc: string
+}
+
+export interface DeliveredInventoryReorder {
+  reorderId: string
+  medicationId: string
+  medicationName: string
+  quantity: number
+  deliveryAtUtc: string
+  receivedAtUtc: string
 }
 
 export const inventoryService = {
@@ -28,8 +51,23 @@ export const inventoryService = {
     return response.data
   },
 
+  async updateInventoryItem(id: string, payload: UpdateInventoryItemPayload) {
+    const response = await api.put<InventoryItem>(`/inventory/${id}`, payload)
+    return response.data
+  },
+
   async reorderMedication(medicationId: string, quantity: number) {
     const response = await api.post<ReorderResponse>(`/inventory/${medicationId}/reorder`, { quantity })
+    return response.data
+  },
+
+  async getIncomingReorders() {
+    const response = await api.get<PendingInventoryReorder[]>('/inventory/incoming')
+    return response.data
+  },
+
+  async getDeliveredReorders() {
+    const response = await api.get<DeliveredInventoryReorder[]>('/inventory/delivered')
     return response.data
   }
 }

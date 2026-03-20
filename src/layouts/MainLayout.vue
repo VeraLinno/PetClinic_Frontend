@@ -21,7 +21,7 @@
 
       <div class="border-b border-slate-200 px-4 py-4 dark:border-slate-700">
         <div class="flex items-center gap-3">
-          <div 
+          <div
             class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-500 font-semibold text-white ring-2 ring-primary-100 dark:ring-primary-900/30"
             aria-hidden="true"
           >
@@ -82,7 +82,8 @@
       @click="closeSidebar"
       aria-hidden="true"
       role="presentation"
-    />
+    >
+    </div>
 
     <div :class="mainClasses">
       <header class="border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95">
@@ -126,18 +127,6 @@
               <MoonIcon v-else class="h-5 w-5" aria-hidden="true" />
             </button>
 
-            <button
-              class="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
-              aria-label="View notifications"
-            >
-              <BellIcon class="h-5 w-5" aria-hidden="true" />
-              <span
-                v-if="unreadNotifications > 0"
-                class="absolute right-1 top-1 h-2 w-2 rounded-full bg-danger-500"
-                aria-hidden="true"
-              />
-            </button>
-
             <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1 dark:border-slate-700 dark:bg-slate-800">
               <div 
                 class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500 text-sm font-semibold text-white"
@@ -145,7 +134,7 @@
               >
                 {{ userInitials }}
               </div>
-              <span class="hidden text-sm text-slate-700 dark:text-slate-300 md:block">{{ user?.email }}</span>
+              <span class="hidden text-sm text-slate-700 dark:text-slate-300 md:block">{{ userEmail }}</span>
             </div>
           </div>
         </div>
@@ -164,13 +153,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ownersService, type Owner } from '@/services/owners'
 import {
   ArrowRightStartOnRectangleIcon,
   Bars3Icon,
-  BellIcon,
   CalendarDaysIcon,
   CreditCardIcon,
   DocumentTextIcon,
@@ -193,31 +182,132 @@ const authStore = useAuthStore()
 const sidebarOpen = ref(false)
 const searchQuery = ref('')
 const isDarkMode = ref(false)
-const unreadNotifications = ref(2)
+const ownerProfile = ref<Owner | null>(null)
+const ownerProfileLoaded = ref(false)
 
 const user = computed(() => authStore.user)
+const normalizedRoles = computed(() => {
+  const rawRoles = authStore.roles as unknown
+  if (Array.isArray(rawRoles)) {
+    return rawRoles
+      .filter((role): role is string => typeof role === 'string')
+      .map((role) => role.trim())
+      .filter(Boolean)
+  }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const userName = computed(() => (user.value as any)?.name || user.value?.email || '')
+  if (typeof rawRoles === 'string') {
+    return rawRoles
+      .split(',')
+      .map((role) => role.trim())
+      .filter(Boolean)
+  }
+
+  return [] as string[]
+})
+
+const userRecord = computed<Record<string, unknown>>(() => {
+  if (!user.value) return {}
+  return user.value as unknown as Record<string, unknown>
+})
+
+const getStringClaim = (...keys: string[]) => {
+  for (const key of keys) {
+    const value = userRecord.value[key]
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim()
+    }
+  }
+  return ''
+}
+
+const userEmail = computed(() => {
+  return (
+    getStringClaim(
+    'email',
+    'emailaddress',
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
+    ) ||
+    ownerProfile.value?.email ||
+    ''
+  )
+})
+
+const userFirstName = computed(() => {
+  return (
+    getStringClaim(
+    'given_name',
+    'firstName',
+    'firstname',
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'
+    ) ||
+    ownerProfile.value?.firstName ||
+    ''
+  )
+})
+
+const userLastName = computed(() => {
+  return (
+    getStringClaim(
+    'family_name',
+    'lastName',
+    'lastname',
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'
+    ) ||
+    ownerProfile.value?.lastName ||
+    ''
+  )
+})
+
+const userName = computed(() => {
+  const fullNameFromParts = [userFirstName.value, userLastName.value].filter(Boolean).join(' ').trim()
+  if (fullNameFromParts) {
+    return fullNameFromParts
+  }
+
+  const candidate = getStringClaim(
+    'name',
+    'preferred_username',
+    'unique_name',
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+  )
+
+  return candidate || userEmail.value
+})
 
 const userInitials = computed(() => {
-  const name = userName.value
-  if (name) {
-    return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+  if (userFirstName.value || userLastName.value) {
+    return `${userFirstName.value[0] || ''}${userLastName.value[0] || ''}`.toUpperCase() || 'U'
   }
-  return user.value?.email?.[0]?.toUpperCase() || 'U'
+
+  const source = userName.value || userEmail.value
+  if (source) {
+    return source
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  const subject = userRecord.value.sub
+  if (typeof subject === 'string' && subject.length > 0) {
+    return subject.replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || 'U'
+  }
+
+  return 'U'
 })
 
 const userRole = computed(() => {
-  if (authStore.roles.includes('Owner')) return 'Pet Owner'
-  if (authStore.roles.includes('Vet')) return 'Veterinarian'
+  if (normalizedRoles.value.includes('Owner')) return 'Pet Owner'
+  if (normalizedRoles.value.includes('Vet')) return 'Veterinarian'
   return 'User'
 })
 
 const menuItems = computed(() => {
   const items: Array<{ path: string; label: string; icon: unknown }> = []
 
-  if (authStore.roles.includes('Owner')) {
+  if (normalizedRoles.value.includes('Owner')) {
     items.push(
       { path: '/owner', label: 'Dashboard', icon: HomeIcon },
       { path: '/booking', label: 'Book Appointment', icon: PlusCircleIcon },
@@ -229,7 +319,7 @@ const menuItems = computed(() => {
     )
   }
 
-  if (authStore.roles.includes('Vet')) {
+  if (normalizedRoles.value.includes('Vet')) {
     items.push(
       { path: '/vet', label: 'Dashboard', icon: HomeIcon },
       { path: '/booking', label: 'New Appointment', icon: PlusCircleIcon },
@@ -241,6 +331,17 @@ const menuItems = computed(() => {
 
   return items
 })
+
+const loadOwnerProfile = async () => {
+  if (ownerProfileLoaded.value || !normalizedRoles.value.includes('Owner')) return
+
+  ownerProfileLoaded.value = true
+  try {
+    ownerProfile.value = await ownersService.getMe()
+  } catch {
+    ownerProfile.value = null
+  }
+}
 
 const sidebarClasses = computed(() => {
   return sidebarOpen.value ? 'translate-x-0 shadow-overlay' : '-translate-x-full'
@@ -292,7 +393,23 @@ onMounted(() => {
   router.afterEach(() => {
     sidebarOpen.value = false
   })
+
+  void loadOwnerProfile()
 })
+
+watch(
+  () => [authStore.isAuthenticated, normalizedRoles.value.join(',')],
+  () => {
+    if (!authStore.isAuthenticated) {
+      ownerProfile.value = null
+      ownerProfileLoaded.value = false
+      return
+    }
+
+    void loadOwnerProfile()
+  },
+  { immediate: true }
+)
 
 // Watch for system theme changes
 if (typeof window !== 'undefined') {

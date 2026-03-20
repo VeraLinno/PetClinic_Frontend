@@ -24,6 +24,12 @@ export interface CreatePetDto {
   dateOfBirth: string
 }
 
+export interface UpdateOwnerProfileDto {
+  email: string
+  firstName?: string
+  lastName?: string
+}
+
 export interface VeterinarianOption {
   id: string
   name: string
@@ -33,6 +39,11 @@ export interface VeterinarianOption {
 export const ownersService = {
   async getMe(): Promise<Owner> {
     const response = await api.get('/owners/me')
+    return response.data
+  },
+
+  async updateMe(profileData: UpdateOwnerProfileDto): Promise<Owner> {
+    const response = await api.put('/owners/me', profileData)
     return response.data
   },
 

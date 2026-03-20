@@ -72,6 +72,47 @@
       {{ reorderSuccessMessage }}
     </div>
 
+    <Card v-if="incomingReorders.length > 0">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <Badge variant="primary" size="sm">Incoming</Badge>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Scheduled Deliveries</h2>
+        </div>
+      </template>
+
+      <div class="space-y-2">
+        <div
+          v-for="incoming in incomingReorders"
+          :key="incoming.reorderId"
+          class="rounded-lg border border-primary-200 bg-primary-50 p-3 text-sm text-primary-800 dark:border-primary-700 dark:bg-primary-950/30 dark:text-primary-300"
+        >
+          {{ incoming.quantity }} units of {{ incoming.medicationName }} will arrive at {{ formatDeliveryTime(incoming.deliveryAtUtc) }}.
+        </div>
+      </div>
+    </Card>
+
+    <Card>
+      <template #header>
+        <div class="flex items-center gap-2">
+          <Badge variant="success" size="sm">Delivered</Badge>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Delivered History</h2>
+        </div>
+      </template>
+
+      <div v-if="deliveredReorders.length === 0" class="text-sm text-slate-500 dark:text-slate-400">
+        No delivered reorders yet.
+      </div>
+      <div v-else class="space-y-2">
+        <div
+          v-for="delivered in deliveredReorders"
+          :key="delivered.reorderId"
+          class="rounded-lg border border-success-200 bg-success-50 p-3 text-sm text-success-800 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300"
+        >
+          {{ delivered.quantity }} units of {{ delivered.medicationName }} were delivered at {{ formatDeliveryTime(delivered.receivedAtUtc) }}.
+        </div>
+      </div>
+    </Card>
+
     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
       <button
         type="button"
@@ -179,7 +220,11 @@ import Badge from '@/components/ui/Badge.vue'
 import AppointmentList from '@/components/AppointmentList.vue'
 import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
-import { inventoryService } from '@/services/inventory'
+import {
+  inventoryService,
+  type PendingInventoryReorder,
+  type DeliveredInventoryReorder
+} from '@/services/inventory'
 
 const router = useRouter()
 
@@ -197,6 +242,8 @@ const selectedReorderItem = ref<LowStockItem | null>(null)
 const reorderQuantity = ref('1')
 const reorderError = ref('')
 const reorderLoading = ref(false)
+const incomingReorders = ref<PendingInventoryReorder[]>([])
+const deliveredReorders = ref<DeliveredInventoryReorder[]>([])
 
 const ranges = [
   { label: 'Today', value: 'today' as const },
@@ -293,6 +340,8 @@ const activeStatusLabel = computed(() => {
 onMounted(async () => {
   await loadAppointments()
   await loadLowStockItems()
+  await loadIncomingReorders()
+  await loadDeliveredReorders()
 })
 
 const loadAppointments = async () => {
@@ -310,6 +359,8 @@ const refreshAppointments = async () => {
   loadingAppointments.value = true
   await loadAppointments()
   await loadLowStockItems()
+  await loadIncomingReorders()
+  await loadDeliveredReorders()
 }
 
 const loadLowStockItems = async () => {
@@ -325,6 +376,32 @@ const loadLowStockItems = async () => {
   } catch (error) {
     console.error('Failed to load low stock items', error)
   }
+}
+
+const loadIncomingReorders = async () => {
+  try {
+    incomingReorders.value = await inventoryService.getIncomingReorders()
+  } catch (error) {
+    console.error('Failed to load incoming reorders', error)
+  }
+}
+
+const loadDeliveredReorders = async () => {
+  try {
+    deliveredReorders.value = await inventoryService.getDeliveredReorders()
+  } catch (error) {
+    console.error('Failed to load delivered reorders', error)
+  }
+}
+
+const formatDeliveryTime = (dateUtc: string) => {
+  return new Date(dateUtc).toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 const viewAppointment = (appointment: Appointment) => {
@@ -405,6 +482,8 @@ const submitReorder = async () => {
     reorderSuccessMessage.value = `Reorder confirmed for ${result.medicationName}. Package will arrive tomorrow at ${deliveryLocal}.`
     closeReorderModal()
     await loadLowStockItems()
+    await loadIncomingReorders()
+    await loadDeliveredReorders()
   } catch (error) {
     console.error('Failed to reorder inventory item', error)
     reorderError.value = 'Could not place reorder. Please try again.'

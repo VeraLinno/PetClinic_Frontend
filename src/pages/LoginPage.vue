@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { authService } from '@/services/auth'
 import { useAuthStore } from '@/stores/auth'
@@ -98,6 +98,7 @@ const password = ref('')
 const loading = ref(false)
 const error = ref('')
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const handleLogin = async () => {
@@ -105,6 +106,12 @@ const handleLogin = async () => {
   error.value = ''
   try {
     await authService.login(email.value, password.value)
+
+    const redirectTarget = typeof route.query.redirect === 'string' ? route.query.redirect : null
+    if (redirectTarget) {
+      router.push(redirectTarget)
+      return
+    }
 
     const userRoles = authStore.roles
     if (userRoles.includes('Vet')) {

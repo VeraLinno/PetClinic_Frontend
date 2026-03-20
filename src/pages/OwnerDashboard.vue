@@ -40,7 +40,7 @@
             <PlusCircleIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             Book Appointment
           </Button>
-          <Button variant="outline" size="sm" @click="showEditProfile = true">
+          <Button variant="outline" size="sm" @click="openEditProfile">
             <PencilSquareIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             Edit Profile
           </Button>
@@ -257,6 +257,42 @@
       </template>
     </Modal>
 
+    <!-- Edit Profile Modal -->
+    <Modal :is-open="showEditProfile" title="Edit Profile" @close="showEditProfile = false">
+      <form @submit.prevent="submitProfile" class="space-y-4">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Input
+            v-model="profileForm.firstName"
+            label="First Name"
+            placeholder="Enter first name"
+            :error="profileErrors.firstName"
+          />
+          <Input
+            v-model="profileForm.lastName"
+            label="Last Name"
+            placeholder="Enter last name"
+            :error="profileErrors.lastName"
+          />
+        </div>
+        <Input
+          v-model="profileForm.email"
+          label="Email"
+          type="email"
+          placeholder="Enter email"
+          required
+          :error="profileErrors.email"
+        />
+      </form>
+      <template #footer>
+        <div class="flex justify-end gap-3">
+          <Button variant="outline" @click="showEditProfile = false">Cancel</Button>
+          <Button variant="primary" @click="submitProfile" :disabled="submittingProfile">
+            {{ submittingProfile ? 'Saving...' : 'Save Changes' }}
+          </Button>
+        </div>
+      </template>
+    </Modal>
+
     <!-- Toast for notifications -->
     <Toast v-model:show="showToast" :type="toastType" :message="toastMessage" />
   </div>
@@ -265,6 +301,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { appointmentsService, type Appointment } from '@/services/appointments'
 import { ownersService, type Owner, type Pet } from '@/services/owners'
 import Card from '@/components/ui/Card.vue'
@@ -284,6 +321,7 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 // Data
 const appointments = ref<Appointment[]>([])
@@ -309,6 +347,13 @@ const newPet = ref({
 const petErrors = ref<Record<string, string>>({})
 const submittingPet = ref(false)
 const deletingPet = ref(false)
+const submittingProfile = ref(false)
+const profileErrors = ref<Record<string, string>>({})
+const profileForm = ref({
+  firstName: '',
+  lastName: '',
+  email: ''
+})
 
 // Toast
 const showToast = ref(false)
@@ -395,6 +440,16 @@ const loadOwner = async () => {
   }
 }
 
+const openEditProfile = () => {
+  profileErrors.value = {}
+  profileForm.value = {
+    firstName: owner.value?.firstName || '',
+    lastName: owner.value?.lastName || '',
+    email: owner.value?.email || ''
+  }
+  showEditProfile.value = true
+}
+
 // Actions
 const viewAppointment = (appointment: Appointment) => {
   router.push(`/visit/${appointment.id}`)
@@ -467,6 +522,63 @@ const submitPet = async () => {
     showNotification('error', 'Failed to add pet')
   } finally {
     submittingPet.value = false
+  }
+}
+
+const submitProfile = async () => {
+  profileErrors.value = {}
+
+  const firstName = profileForm.value.firstName.trim()
+  const lastName = profileForm.value.lastName.trim()
+  const email = profileForm.value.email.trim().toLowerCase()
+
+  if (!email) {
+    profileErrors.value.email = 'Email is required'
+    return
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailPattern.test(email)) {
+    profileErrors.value.email = 'Please enter a valid email address'
+    return
+  }
+
+  if (firstName.length > 100) {
+    profileErrors.value.firstName = 'First name must be 100 characters or fewer'
+    return
+  }
+
+  if (lastName.length > 100) {
+    profileErrors.value.lastName = 'Last name must be 100 characters or fewer'
+    return
+  }
+
+  submittingProfile.value = true
+  try {
+    const updatedOwner = await ownersService.updateMe({
+      email,
+      firstName: firstName || undefined,
+      lastName: lastName || undefined
+    })
+
+    owner.value = updatedOwner
+    showEditProfile.value = false
+    showNotification('success', 'Profile updated successfully')
+
+    try {
+      await authStore.refreshAccessToken()
+    } catch {
+      // Owner details are already updated in local state, token refresh is best-effort.
+    }
+  } catch (error: any) {
+    if (error?.response?.status === 409) {
+      profileErrors.value.email = 'This email is already in use'
+      return
+    }
+
+    showNotification('error', 'Failed to update profile')
+  } finally {
+    submittingProfile.value = false
   }
 }
 

@@ -47,6 +47,45 @@
       </div>
     </Card>
 
+    <Card v-if="incomingReorders.length > 0">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <Badge variant="primary" size="sm">Incoming</Badge>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Scheduled Deliveries</h2>
+        </div>
+      </template>
+      <div class="space-y-2">
+        <div
+          v-for="incoming in incomingReorders"
+          :key="incoming.reorderId"
+          class="rounded-lg border border-primary-200 bg-primary-50 p-3 text-sm text-primary-800 dark:border-primary-700 dark:bg-primary-950/30 dark:text-primary-300"
+        >
+          {{ incoming.quantity }} units of {{ incoming.medicationName }} will arrive at {{ formatDeliveryTime(incoming.deliveryAtUtc) }}.
+        </div>
+      </div>
+    </Card>
+
+    <Card>
+      <template #header>
+        <div class="flex items-center gap-2">
+          <Badge variant="success" size="sm">Delivered</Badge>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Delivered History</h2>
+        </div>
+      </template>
+      <div v-if="deliveredReorders.length === 0" class="text-sm text-slate-500 dark:text-slate-400">
+        No delivered reorders yet.
+      </div>
+      <div v-else class="space-y-2">
+        <div
+          v-for="delivered in deliveredReorders"
+          :key="delivered.reorderId"
+          class="rounded-lg border border-success-200 bg-success-50 p-3 text-sm text-success-800 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300"
+        >
+          {{ delivered.quantity }} units of {{ delivered.medicationName }} were delivered at {{ formatDeliveryTime(delivered.receivedAtUtc) }}.
+        </div>
+      </div>
+    </Card>
+
     <div class="flex flex-wrap gap-2">
       <button
         v-for="category in categories"
@@ -148,6 +187,27 @@
       </template>
     </Modal>
 
+    <Modal :is-open="showEditModal" title="Edit Inventory Item" @close="closeEditModal">
+      <div class="space-y-4" v-if="editingItemId">
+        <Input v-model="editItemForm.name" label="Item Name" placeholder="e.g. Dewormer" :error="editItemError" />
+        <Input
+          v-model="editItemForm.unitPrice"
+          label="Unit Price"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="e.g. 19.99"
+          :error="editItemError"
+        />
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button variant="outline" @click="closeEditModal">Cancel</Button>
+          <Button variant="primary" :loading="editItemLoading" @click="saveEditedItem">Save</Button>
+        </div>
+      </template>
+    </Modal>
+
     <Modal :is-open="showReorderModal" title="Reorder Item" @close="closeReorderModal">
       <div class="space-y-4" v-if="selectedReorderItem">
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
@@ -176,18 +236,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import Modal from '@/components/ui/Modal.vue'
-import { inventoryService, type InventoryItem as ApiInventoryItem } from '@/services/inventory'
+import {
+  inventoryService,
+  type InventoryItem as ApiInventoryItem,
+  type PendingInventoryReorder,
+  type DeliveredInventoryReorder
+} from '@/services/inventory'
 
 const breadcrumbItems = [
   { label: 'Inventory' }
 ]
+
+const route = useRoute()
+const router = useRouter()
 
 interface InventoryItem {
   id: string
@@ -202,20 +271,31 @@ interface InventoryItem {
 const items = ref<InventoryItem[]>([])
 const loading = ref(true)
 const loadError = ref('')
-const searchQuery = ref('')
+const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '')
 const showAddModal = ref(false)
+const showEditModal = ref(false)
 const showReorderModal = ref(false)
 const selectedCategory = ref('All')
 const selectedReorderItem = ref<InventoryItem | null>(null)
+const editingItemId = ref<string | null>(null)
+const editItemLoading = ref(false)
+const editItemError = ref('')
 const reorderQuantity = ref('1')
 const reorderLoading = ref(false)
 const reorderError = ref('')
 const reorderSuccessMessage = ref('')
+const incomingReorders = ref<PendingInventoryReorder[]>([])
+const deliveredReorders = ref<DeliveredInventoryReorder[]>([])
 
 const newItem = ref({
   name: '',
   category: '',
   quantity: '',
+  unitPrice: ''
+})
+
+const editItemForm = ref({
+  name: '',
   unitPrice: ''
 })
 
@@ -243,6 +323,35 @@ const filteredItems = computed(() => {
 
 onMounted(async () => {
   await loadInventory()
+  await loadIncomingReorders()
+  await loadDeliveredReorders()
+})
+
+watch(
+  () => route.query.search,
+  (value) => {
+    const queryValue = typeof value === 'string' ? value : ''
+    if (queryValue !== searchQuery.value) {
+      searchQuery.value = queryValue
+    }
+  }
+)
+
+watch(searchQuery, (value) => {
+  const normalizedValue = value.trim()
+  const currentQuery = typeof route.query.search === 'string' ? route.query.search : ''
+  if (normalizedValue === currentQuery) {
+    return
+  }
+
+  const nextQuery = { ...route.query }
+  if (normalizedValue) {
+    nextQuery.search = normalizedValue
+  } else {
+    delete nextQuery.search
+  }
+
+  router.replace({ query: nextQuery })
 })
 
 const getCategoryFromName = (name: string) => {
@@ -260,7 +369,7 @@ const toInventoryItem = (item: ApiInventoryItem): InventoryItem => {
     unit: item.unit,
     reorderLevel: item.reorderLevel,
     category: getCategoryFromName(item.name),
-    unitPrice: 0
+    unitPrice: item.unitPrice
   }
 }
 
@@ -277,6 +386,32 @@ const loadInventory = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const loadIncomingReorders = async () => {
+  try {
+    incomingReorders.value = await inventoryService.getIncomingReorders()
+  } catch (error) {
+    console.error('Failed to load incoming reorders', error)
+  }
+}
+
+const loadDeliveredReorders = async () => {
+  try {
+    deliveredReorders.value = await inventoryService.getDeliveredReorders()
+  } catch (error) {
+    console.error('Failed to load delivered reorders', error)
+  }
+}
+
+const formatDeliveryTime = (dateUtc: string) => {
+  return new Date(dateUtc).toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 const getStatus = (item: InventoryItem) => {
@@ -332,6 +467,8 @@ const submitReorder = async () => {
     reorderSuccessMessage.value = `Reorder confirmed for ${result.medicationName}. Package will arrive tomorrow at ${deliveryLocal}.`
     closeReorderModal()
     await loadInventory()
+    await loadIncomingReorders()
+    await loadDeliveredReorders()
   } catch (error) {
     console.error('Failed to reorder inventory item', error)
     reorderError.value = 'Could not place reorder. Please try again.'
@@ -341,7 +478,68 @@ const submitReorder = async () => {
 }
 
 const editItem = (item: InventoryItem) => {
-  console.log('Edit', item.name)
+  editingItemId.value = item.id
+  editItemForm.value = {
+    name: item.name,
+    unitPrice: String(item.unitPrice)
+  }
+  editItemError.value = ''
+  showEditModal.value = true
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+  editItemLoading.value = false
+  editingItemId.value = null
+  editItemError.value = ''
+}
+
+const saveEditedItem = async () => {
+  if (!editingItemId.value) {
+    return
+  }
+
+  const normalizedName = editItemForm.value.name.trim()
+  const unitPrice = Number(editItemForm.value.unitPrice)
+
+  if (!normalizedName) {
+    editItemError.value = 'Item name is required.'
+    return
+  }
+
+  if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+    editItemError.value = 'Unit price must be a number greater than or equal to zero.'
+    return
+  }
+
+  editItemLoading.value = true
+  editItemError.value = ''
+
+  try {
+    const updated = await inventoryService.updateInventoryItem(editingItemId.value, {
+      name: normalizedName,
+      unitPrice
+    })
+
+    items.value = items.value.map((item) => {
+      if (item.id !== updated.id) {
+        return item
+      }
+
+      return {
+        ...item,
+        name: updated.name,
+        unitPrice: updated.unitPrice
+      }
+    })
+
+    closeEditModal()
+  } catch (error) {
+    console.error('Failed to update inventory item', error)
+    editItemError.value = 'Could not update inventory item. Please try again.'
+  } finally {
+    editItemLoading.value = false
+  }
 }
 
 const addInventoryItem = () => {
