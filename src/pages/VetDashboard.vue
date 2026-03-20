@@ -33,6 +33,10 @@
             <UsersIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             View Patients
           </Button>
+          <Button variant="outline" size="sm" @click="openCreateVetModal">
+            <UserPlusIcon class="mr-2 h-4 w-4" aria-hidden="true" />
+            Create Vet Account
+          </Button>
         </div>
       </div>
     </div>
@@ -201,6 +205,66 @@
         </div>
       </template>
     </Modal>
+
+    <Modal :is-open="showCreateVetModal" title="Create Veterinary Account" @close="closeCreateVetModal">
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input v-model="createVetForm.firstName" label="First Name" placeholder="Sarah" :disabled="createVetLoading" />
+          <Input v-model="createVetForm.lastName" label="Last Name" placeholder="Johnson" :disabled="createVetLoading" />
+        </div>
+
+        <Input
+          v-model="createVetForm.email"
+          type="email"
+          label="Email"
+          placeholder="new.vet@petclinic.com"
+          :disabled="createVetLoading"
+        />
+
+        <Input
+          v-model="createVetForm.password"
+          type="password"
+          label="Temporary Password"
+          placeholder="Minimum 8 characters"
+          :disabled="createVetLoading"
+        />
+
+        <Input
+          v-model="createVetForm.licenseNumber"
+          label="License Number"
+          placeholder="VET-1002"
+          :disabled="createVetLoading"
+        />
+
+        <Input
+          v-model="createVetForm.phoneNumber"
+          type="tel"
+          label="Phone Number (optional)"
+          placeholder="+1 555 123 4567"
+          :disabled="createVetLoading"
+        />
+
+        <div
+          v-if="createVetError"
+          class="rounded-lg border border-danger-300 bg-danger-50 px-3 py-2 text-sm text-danger-700 dark:border-danger-700 dark:bg-danger-950/30 dark:text-danger-300"
+        >
+          {{ createVetError }}
+        </div>
+        <div
+          v-if="createVetSuccess"
+          class="rounded-lg border border-success-300 bg-success-50 px-3 py-2 text-sm text-success-700 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300"
+        >
+          {{ createVetSuccess }}
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button variant="outline" :disabled="createVetLoading" @click="closeCreateVetModal">Cancel</Button>
+          <Button variant="primary" :loading="createVetLoading" @click="submitCreateVet">Create Account</Button>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -211,9 +275,11 @@ import {
   ArrowPathIcon,
   ExclamationTriangleIcon,
   PlusCircleIcon,
+  UserPlusIcon,
   UsersIcon
 } from '@heroicons/vue/24/outline'
 import { appointmentsService, type Appointment } from '@/services/appointments'
+import { authService } from '@/services/auth'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -244,6 +310,18 @@ const reorderError = ref('')
 const reorderLoading = ref(false)
 const incomingReorders = ref<PendingInventoryReorder[]>([])
 const deliveredReorders = ref<DeliveredInventoryReorder[]>([])
+const showCreateVetModal = ref(false)
+const createVetLoading = ref(false)
+const createVetError = ref('')
+const createVetSuccess = ref('')
+const createVetForm = ref({
+  firstName: '',
+  lastName: '',
+  email: '',
+  password: '',
+  licenseNumber: '',
+  phoneNumber: ''
+})
 
 const ranges = [
   { label: 'Today', value: 'today' as const },
@@ -489,6 +567,72 @@ const submitReorder = async () => {
     reorderError.value = 'Could not place reorder. Please try again.'
   } finally {
     reorderLoading.value = false
+  }
+}
+
+const openCreateVetModal = () => {
+  createVetError.value = ''
+  createVetSuccess.value = ''
+  showCreateVetModal.value = true
+}
+
+const closeCreateVetModal = () => {
+  showCreateVetModal.value = false
+  createVetLoading.value = false
+  createVetError.value = ''
+}
+
+const submitCreateVet = async () => {
+  createVetError.value = ''
+  createVetSuccess.value = ''
+
+  if (!createVetForm.value.firstName.trim() || !createVetForm.value.lastName.trim()) {
+    createVetError.value = 'First name and last name are required.'
+    return
+  }
+
+  if (!createVetForm.value.email.trim()) {
+    createVetError.value = 'Email is required.'
+    return
+  }
+
+  if (createVetForm.value.password.length < 8) {
+    createVetError.value = 'Password must be at least 8 characters.'
+    return
+  }
+
+  if (!createVetForm.value.licenseNumber.trim()) {
+    createVetError.value = 'License number is required.'
+    return
+  }
+
+  createVetLoading.value = true
+  try {
+    await authService.createVetAccount({
+      firstName: createVetForm.value.firstName.trim(),
+      lastName: createVetForm.value.lastName.trim(),
+      email: createVetForm.value.email.trim(),
+      password: createVetForm.value.password,
+      licenseNumber: createVetForm.value.licenseNumber.trim(),
+      phoneNumber: createVetForm.value.phoneNumber.trim() || undefined
+    })
+
+    createVetSuccess.value = 'Veterinary account created successfully.'
+    createVetForm.value = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      licenseNumber: '',
+      phoneNumber: ''
+    }
+  } catch (error: any) {
+    createVetError.value =
+      error?.response?.data?.error ||
+      error?.response?.data?.message ||
+      'Could not create vet account. Please try again.'
+  } finally {
+    createVetLoading.value = false
   }
 }
 </script>

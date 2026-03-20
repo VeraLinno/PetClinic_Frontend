@@ -156,7 +156,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { ownersService, type Owner } from '@/services/owners'
+import { ownersService, type Owner, type VeterinarianOption } from '@/services/owners'
 import {
   ArrowRightStartOnRectangleIcon,
   Bars3Icon,
@@ -165,6 +165,7 @@ import {
   DocumentTextIcon,
   HeartIcon,
   HomeIcon,
+  IdentificationIcon,
   ListBulletIcon,
   MagnifyingGlassIcon,
   MoonIcon,
@@ -184,6 +185,8 @@ const searchQuery = ref('')
 const isDarkMode = ref(false)
 const ownerProfile = ref<Owner | null>(null)
 const ownerProfileLoaded = ref(false)
+const vetProfile = ref<VeterinarianOption | null>(null)
+const vetProfileLoaded = ref(false)
 
 const user = computed(() => authStore.user)
 const normalizedRoles = computed(() => {
@@ -227,9 +230,27 @@ const userEmail = computed(() => {
     'emailaddress',
     'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
     ) ||
+    vetProfile.value?.email ||
     ownerProfile.value?.email ||
     ''
   )
+})
+
+const vetNameParts = computed(() => {
+  const fullName = (vetProfile.value?.name || '').trim()
+  if (!fullName) {
+    return { firstName: '', lastName: '' }
+  }
+
+  const parts = fullName.split(/\s+/).filter(Boolean)
+  if (parts.length === 1) {
+    return { firstName: parts[0], lastName: '' }
+  }
+
+  return {
+    firstName: parts.slice(0, -1).join(' '),
+    lastName: parts[parts.length - 1]
+  }
 })
 
 const userFirstName = computed(() => {
@@ -240,6 +261,7 @@ const userFirstName = computed(() => {
     'firstname',
     'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'
     ) ||
+    vetNameParts.value.firstName ||
     ownerProfile.value?.firstName ||
     ''
   )
@@ -253,6 +275,7 @@ const userLastName = computed(() => {
     'lastname',
     'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'
     ) ||
+    vetNameParts.value.lastName ||
     ownerProfile.value?.lastName ||
     ''
   )
@@ -325,7 +348,8 @@ const menuItems = computed(() => {
       { path: '/booking', label: 'New Appointment', icon: PlusCircleIcon },
       { path: '/vet/appointments', label: "Today's Appointments", icon: CalendarDaysIcon },
       { path: '/vet/inventory', label: 'Inventory', icon: ShoppingBagIcon },
-      { path: '/vet/patients', label: 'Patients', icon: UsersIcon }
+      { path: '/vet/patients', label: 'Patients', icon: UsersIcon },
+      { path: '/vet/accounts', label: 'Vet Accounts', icon: IdentificationIcon }
     )
   }
 
@@ -340,6 +364,28 @@ const loadOwnerProfile = async () => {
     ownerProfile.value = await ownersService.getMe()
   } catch {
     ownerProfile.value = null
+  }
+}
+
+const loadVetProfile = async () => {
+  if (vetProfileLoaded.value || !normalizedRoles.value.includes('Vet')) return
+
+  vetProfileLoaded.value = true
+  try {
+    const vets = await ownersService.getVeterinarians()
+    const userId = getStringClaim(
+      'sub',
+      'nameid',
+      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+    )
+    const normalizedEmail = userEmail.value.toLowerCase()
+
+    vetProfile.value =
+      vets.find((v) => v.id === userId) ||
+      vets.find((v) => v.email.toLowerCase() === normalizedEmail) ||
+      null
+  } catch {
+    vetProfile.value = null
   }
 }
 
@@ -395,6 +441,7 @@ onMounted(() => {
   })
 
   void loadOwnerProfile()
+  void loadVetProfile()
 })
 
 watch(
@@ -403,10 +450,13 @@ watch(
     if (!authStore.isAuthenticated) {
       ownerProfile.value = null
       ownerProfileLoaded.value = false
+      vetProfile.value = null
+      vetProfileLoaded.value = false
       return
     }
 
     void loadOwnerProfile()
+    void loadVetProfile()
   },
   { immediate: true }
 )

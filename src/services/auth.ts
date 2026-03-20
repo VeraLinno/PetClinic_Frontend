@@ -4,6 +4,14 @@ import { useAuthStore } from '@/stores/auth'
 interface AuthService {
   login(email: string, password: string): Promise<any>
   register(email: string, password: string, firstName: string, lastName: string, roles: string[]): Promise<any>
+  createVetAccount(payload: {
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    licenseNumber: string
+    phoneNumber?: string
+  }): Promise<any>
   refresh(): Promise<any>
   logout(): Promise<void>
 }
@@ -17,6 +25,17 @@ export const authService: AuthService = {
   },
   async register(email: string, password: string, firstName: string, lastName: string, roles: string[]) {
     const response = await api.post('/auth/register', { email, password, firstName, lastName, roles })
+    return response.data
+  },
+  async createVetAccount(payload: {
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    licenseNumber: string
+    phoneNumber?: string
+  }) {
+    const response = await api.post('/auth/register-vet', payload)
     return response.data
   },
   async refresh() {

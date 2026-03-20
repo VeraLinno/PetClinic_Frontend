@@ -9,9 +9,6 @@
           Pet Clinic Platform
         </div>
         <h1 class="mt-8 text-4xl font-semibold leading-tight">Pet Care Management</h1>
-        <p class="mt-4 max-w-md text-base text-white/90">
-          Professional software for appointments, patient history, inventory, and invoices in one place.
-        </p>
       </div>
 
       <ul class="space-y-4 text-sm text-white/95">
