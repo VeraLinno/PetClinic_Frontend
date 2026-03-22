@@ -190,6 +190,7 @@
     <Modal :is-open="showEditModal" title="Edit Inventory Item" @close="closeEditModal">
       <div class="space-y-4" v-if="editingItemId">
         <Input v-model="editItemForm.name" label="Item Name" placeholder="e.g. Dewormer" :error="editItemError" />
+        <Input v-model="editItemForm.category" label="Category" placeholder="e.g. Medications" :error="editItemError" />
         <Input
           v-model="editItemForm.unitPrice"
           label="Unit Price"
@@ -296,6 +297,7 @@ const newItem = ref({
 
 const editItemForm = ref({
   name: '',
+  category: '',
   unitPrice: ''
 })
 
@@ -354,13 +356,6 @@ watch(searchQuery, (value) => {
   router.replace({ query: nextQuery })
 })
 
-const getCategoryFromName = (name: string) => {
-  const normalized = name.toLowerCase()
-  if (normalized.includes('vaccine')) return 'Vaccines'
-  if (normalized.includes('cillin') || normalized.includes('profen') || normalized.includes('aspirin')) return 'Antibiotics'
-  return 'Medications'
-}
-
 const toInventoryItem = (item: ApiInventoryItem): InventoryItem => {
   return {
     id: item.id,
@@ -368,7 +363,7 @@ const toInventoryItem = (item: ApiInventoryItem): InventoryItem => {
     quantity: item.quantity,
     unit: item.unit,
     reorderLevel: item.reorderLevel,
-    category: getCategoryFromName(item.name),
+    category: item.category || 'Medications',
     unitPrice: item.unitPrice
   }
 }
@@ -481,6 +476,7 @@ const editItem = (item: InventoryItem) => {
   editingItemId.value = item.id
   editItemForm.value = {
     name: item.name,
+    category: item.category,
     unitPrice: String(item.unitPrice)
   }
   editItemError.value = ''
@@ -500,10 +496,16 @@ const saveEditedItem = async () => {
   }
 
   const normalizedName = editItemForm.value.name.trim()
+  const normalizedCategory = editItemForm.value.category.trim()
   const unitPrice = Number(editItemForm.value.unitPrice)
 
   if (!normalizedName) {
     editItemError.value = 'Item name is required.'
+    return
+  }
+
+  if (!normalizedCategory) {
+    editItemError.value = 'Category is required.'
     return
   }
 
@@ -518,6 +520,7 @@ const saveEditedItem = async () => {
   try {
     const updated = await inventoryService.updateInventoryItem(editingItemId.value, {
       name: normalizedName,
+      category: normalizedCategory,
       unitPrice
     })
 
@@ -529,6 +532,7 @@ const saveEditedItem = async () => {
       return {
         ...item,
         name: updated.name,
+        category: updated.category,
         unitPrice: updated.unitPrice
       }
     })

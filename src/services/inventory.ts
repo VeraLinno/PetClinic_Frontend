@@ -3,6 +3,7 @@ import api from './api'
 export interface InventoryItem {
   id: string
   name: string
+  category: string
   unitPrice: number
   quantity: number
   unit: string
@@ -11,6 +12,7 @@ export interface InventoryItem {
 
 export interface UpdateInventoryItemPayload {
   name: string
+  category: string
   unitPrice: number
 }
 
