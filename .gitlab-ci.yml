@@ -1,0 +1,16 @@
+stages:
+  - deploy
+
+deploy_frontend:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  tags:
+    - petclinic-runner
+  script:
+    - docker info
+    - docker build -t petclinic-frontend:latest .
+    - docker rm -f petclinic-frontend || true
+    - docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
+    - docker run -d --name petclinic-frontend --restart unless-stopped --network petclinic_default -p 80:80 petclinic-frontend:latest
+    - docker ps --filter name=petclinic-frontend
