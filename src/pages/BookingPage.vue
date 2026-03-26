@@ -81,6 +81,10 @@
               required
             />
           </div>
+          <div v-if="isSelectedDateUnavailable" class="rounded-lg border border-warning-300 bg-warning-50 p-4 text-warning-700 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
+            <p class="font-medium">⚠️ This date is unavailable</p>
+            <p class="mt-1 text-sm">Please select a different date.</p>
+          </div>
         </div>
 
         <div v-if="currentStep === 2" class="space-y-4">
@@ -201,6 +205,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
+import { useAvailabilityStore } from '@/stores/availability'
 import { appointmentsService } from '@/services/appointments'
 import { ownersService, type Pet, type VeterinarianOption } from '@/services/owners'
 import Card from '@/components/ui/Card.vue'
@@ -209,6 +214,7 @@ import Input from '@/components/ui/Input.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const availabilityStore = useAvailabilityStore()
 
 // Wizard state
 const currentStep = ref(0)
@@ -244,6 +250,13 @@ const minDate = computed(() => {
   return getLocalDateKey(new Date())
 })
 
+const isSelectedDateUnavailable = computed(() => {
+  if (!selectedDate.value) return false
+  return availabilityStore.unavailablePeriods.some(
+    (period) => selectedDate.value >= period.startDate && selectedDate.value <= period.endDate
+  )
+})
+
 const getLocalDateKey = (date: Date) => {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -269,7 +282,7 @@ const isPastSlotForSelectedDate = (slot: string) => {
 const canProceed = computed(() => {
   switch (currentStep.value) {
     case 0: return !!selectedPet.value
-    case 1: return !!selectedDate.value
+    case 1: return !!selectedDate.value && !isSelectedDateUnavailable.value
     case 2: return !!selectedTime.value
     case 3: return !!selectedVeterinarianId.value
     default: return false
@@ -323,6 +336,15 @@ const getPetEmoji = (pet: Pet) => {
 
 const nextStep = () => {
   if (currentStep.value === 1 && selectedDate.value) {
+    if (isSelectedDateUnavailable.value) {
+      const period = availabilityStore.unavailablePeriods.find(
+        (p) => selectedDate.value >= p.startDate && selectedDate.value <= p.endDate
+      )
+      error.value = period?.reason
+        ? `This date is unavailable: ${period.reason}`
+        : 'This date is unavailable'
+      return
+    }
     loadAvailableSlots()
   }
   if (canProceed.value && currentStep.value < steps.length - 1) {
@@ -383,6 +405,11 @@ const confirmBooking = async () => {
     return
   }
 
+  if (isSelectedDateUnavailable.value) {
+    error.value = 'Selected date is unavailable. Please choose another date.'
+    return
+  }
+
   loading.value = true
   error.value = ''
   try {
@@ -419,5 +446,6 @@ const confirmBooking = async () => {
 onMounted(async () => {
   await loadVeterinarians()
   await loadPets()
+  await availabilityStore.fetchUnavailablePeriods()
 })
 </script>

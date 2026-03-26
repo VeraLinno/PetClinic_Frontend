@@ -87,5 +87,17 @@ export const appointmentsService = {
   async payInvoice(invoiceId: string) {
     const response = await api.post(`/invoices/${invoiceId}/pay`)
     return response.data
+  },
+  async getVetUnavailability() {
+    const response = await api.get('/vet/unavailability')
+    return response.data
+  },
+  async addVetUnavailability(startDate: string, endDate: string, reason?: string) {
+    const response = await api.post('/vet/unavailability', { startDate, endDate, reason })
+    return response.data
+  },
+  async deleteVetUnavailability(id: string) {
+    const response = await api.delete(`/vet/unavailability/${id}`)
+    return response.data
   }
 }

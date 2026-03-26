@@ -91,6 +91,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, roles: ['Vet'] }
   },
   {
+    path: '/vet/availability',
+    name: 'Availability',
+    component: () => import('@/pages/VetAvailabilityPage.vue'),
+    meta: { requiresAuth: true, roles: ['Vet'] }
+  },
+  {
     path: '/',
     redirect: '/login'
   }

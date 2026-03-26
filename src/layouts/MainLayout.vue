@@ -347,6 +347,7 @@ const menuItems = computed(() => {
       { path: '/vet', label: 'Dashboard', icon: HomeIcon },
       { path: '/booking', label: 'New Appointment', icon: PlusCircleIcon },
       { path: '/vet/appointments', label: "Today's Appointments", icon: CalendarDaysIcon },
+      { path: '/vet/availability', label: 'Availability', icon: CalendarDaysIcon },
       { path: '/vet/inventory', label: 'Inventory', icon: ShoppingBagIcon },
       { path: '/vet/patients', label: 'Patients', icon: UsersIcon },
       { path: '/vet/accounts', label: 'Vet Accounts', icon: IdentificationIcon }
