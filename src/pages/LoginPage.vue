@@ -30,9 +30,7 @@
     <section class="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
       <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-card dark:border-slate-700 dark:bg-slate-800">
         <div class="mb-8 text-center">
-          <p class="label-upper text-primary-700 dark:text-primary-300">{{ $t('auth.loginSuccess') }}</p>
           <h2 class="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('common.login') }}</h2>
-          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{{ $t('auth.invalidCredentials') }}</p>
         </div>
 
         <form class="space-y-4" @submit.prevent="handleLogin">
@@ -62,7 +60,6 @@
 
           <div class="flex items-center justify-between text-sm">
             <span class="text-slate-500 dark:text-slate-400">{{ $t('auth.forgotPassword') }}</span>
-            <span class="text-primary-700 dark:text-primary-300">{{ $t('common.ok') }}</span>
           </div>
 
           <Button type="submit" variant="primary" size="lg" class="w-full" :loading="loading">
