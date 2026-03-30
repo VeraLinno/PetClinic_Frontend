@@ -16,19 +16,19 @@
             </div>
             <div v-else>
               <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                Welcome back, {{ owner?.firstName || 'Owner' }}
+                {{ $t('dashboard.owner.welcomeBack') }}, {{ owner?.firstName || 'Owner' }}
               </h1>
               <p class="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">{{ owner?.email }}</p>
               <div class="mt-3 flex flex-wrap gap-3 text-sm">
                 <div class="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-primary-700 dark:bg-primary-950/30 dark:text-primary-300">
                   <HeartIcon class="h-4 w-4" aria-hidden="true" />
                   <span class="font-medium">{{ pets.length }}</span>
-                  <span>Pets</span>
+                  <span>{{ $t('navigation.pets') }}</span>
                 </div>
                 <div class="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
                   <CalendarDaysIcon class="h-4 w-4" aria-hidden="true" />
                   <span class="font-medium">{{ upcomingAppointments }}</span>
-                  <span>Upcoming</span>
+                  <span>{{ $t('appointments.status_scheduled') }}</span>
                 </div>
               </div>
             </div>
@@ -38,11 +38,11 @@
         <div class="grid w-full gap-2 sm:w-auto sm:grid-cols-2 md:grid-cols-1">
           <Button variant="primary" size="sm" @click="$router.push('/booking')">
             <PlusCircleIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-            Book Appointment
+            {{ $t('appointments.bookNew') }}
           </Button>
           <Button variant="outline" size="sm" @click="openEditProfile">
             <PencilSquareIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-            Edit Profile
+            {{ $t('profile.editProfile') }}
           </Button>
         </div>
       </div>
@@ -59,7 +59,7 @@
           <div class="inline-flex rounded-lg bg-primary-100 p-3 text-primary-700 dark:bg-primary-950/30 dark:text-primary-300">
             <HeartIcon class="h-6 w-6" aria-hidden="true" />
           </div>
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Pets</p>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ $t('pets.title') }}</p>
           <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ pets.length }}</p>
         </div>
       </div>
@@ -74,7 +74,7 @@
           <div class="inline-flex rounded-lg bg-success-100 p-3 text-success-700 dark:bg-success-950/30 dark:text-success-300">
             <CheckCircleIcon class="h-6 w-6" aria-hidden="true" />
           </div>
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Completed Visits</p>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ $t('visits.title') }}</p>
           <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ completedVisits }}</p>
         </div>
       </div>
@@ -89,7 +89,7 @@
           <div class="inline-flex rounded-lg bg-warning-100 p-3 text-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
             <ClockIcon class="h-6 w-6" aria-hidden="true" />
           </div>
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Pending</p>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ $t('appointments.status_scheduled') }}</p>
           <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ pendingAppointments }}</p>
         </div>
       </div>

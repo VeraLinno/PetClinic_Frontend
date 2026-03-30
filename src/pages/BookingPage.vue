@@ -4,8 +4,8 @@
       <div class="space-y-5 p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Book Appointment</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Complete each step to secure your appointment</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('appointments.bookNew') }}</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('common.ok') }}</p>
           </div>
           <div class="text-sm font-medium text-primary-700 dark:text-primary-300">
             Step {{ currentStep + 1 }} of {{ steps.length }}
@@ -38,9 +38,9 @@
     <Card>
       <div class="space-y-6 p-6">
         <div v-if="currentStep === 0" class="space-y-4">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Select a Pet</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('appointments.selectPet') }}</h2>
           <div v-if="pets.length === 0" class="rounded-lg border border-slate-200 bg-slate-50 py-10 text-center text-gray-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400">
-            No pets available. Please add a pet first.
+            {{ $t('dashboard.owner.noPets') }}
           </div>
           <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <button

@@ -68,10 +68,10 @@
         <button
           @click="logout"
           class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-          aria-label="Logout from your account"
+          :aria-label="$t('common.logout')"
         >
           <ArrowRightStartOnRectangleIcon class="h-5 w-5 text-slate-400" aria-hidden="true" />
-          <span>Logout</span>
+          <span>{{ $t('common.logout') }}</span>
         </button>
       </div>
     </aside>
@@ -109,7 +109,7 @@
                   id="search"
                   type="text"
                   v-model="searchQuery"
-                  placeholder="Search pets, appointments..."
+                  :placeholder="$t('common.search')"
                   class="h-10 w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-500 transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400"
                   aria-label="Search pets and appointments"
                 />
@@ -117,7 +117,9 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-3">
+            <LanguageSwitcher />
+
             <button
               @click="toggleDarkMode"
               class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
@@ -128,7 +130,7 @@
             </button>
 
             <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1 dark:border-slate-700 dark:bg-slate-800">
-              <div 
+              <div
                 class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500 text-sm font-semibold text-white"
                 aria-hidden="true"
               >
@@ -176,9 +178,12 @@ import {
   UsersIcon,
   XMarkIcon
 } from '@heroicons/vue/24/outline'
+import { useI18n } from 'vue-i18n'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const sidebarOpen = ref(false)
 const searchQuery = ref('')
@@ -322,9 +327,9 @@ const userInitials = computed(() => {
 })
 
 const userRole = computed(() => {
-  if (normalizedRoles.value.includes('Owner')) return 'Pet Owner'
-  if (normalizedRoles.value.includes('Vet')) return 'Veterinarian'
-  return 'User'
+  if (normalizedRoles.value.includes('Owner')) return t('auth.petOwner')
+  if (normalizedRoles.value.includes('Vet')) return t('auth.veterinarian')
+  return t('common.home')
 })
 
 const menuItems = computed(() => {
@@ -332,24 +337,24 @@ const menuItems = computed(() => {
 
   if (normalizedRoles.value.includes('Owner')) {
     items.push(
-      { path: '/owner', label: 'Dashboard', icon: HomeIcon },
-      { path: '/booking', label: 'Book Appointment', icon: PlusCircleIcon },
-      { path: '/owner/pets', label: 'My Pets', icon: SparklesIcon },
-      { path: '/owner/appointments', label: 'Appointments', icon: ListBulletIcon },
-      { path: '/owner/history', label: 'Visit History', icon: DocumentTextIcon },
-      { path: '/owner/invoices', label: 'Invoices', icon: CreditCardIcon },
-      { path: '/owner/health', label: 'Health Records', icon: HeartIcon }
+      { path: '/owner', label: t('navigation.dashboard'), icon: HomeIcon },
+      { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },
+      { path: '/owner/pets', label: t('navigation.pets'), icon: SparklesIcon },
+      { path: '/owner/appointments', label: t('navigation.appointments'), icon: ListBulletIcon },
+      { path: '/owner/history', label: t('navigation.visits'), icon: DocumentTextIcon },
+      { path: '/owner/invoices', label: t('navigation.invoices'), icon: CreditCardIcon },
+      { path: '/owner/health', label: t('navigation.health'), icon: HeartIcon }
     )
   }
 
   if (normalizedRoles.value.includes('Vet')) {
     items.push(
-      { path: '/vet', label: 'Dashboard', icon: HomeIcon },
-      { path: '/booking', label: 'New Appointment', icon: PlusCircleIcon },
-      { path: '/vet/appointments', label: "Today's Appointments", icon: CalendarDaysIcon },
+      { path: '/vet', label: t('navigation.dashboard'), icon: HomeIcon },
+      { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },
+      { path: '/vet/appointments', label: t('dashboard.vet.todaySchedule'), icon: CalendarDaysIcon },
       { path: '/vet/availability', label: 'Availability', icon: CalendarDaysIcon },
-      { path: '/vet/inventory', label: 'Inventory', icon: ShoppingBagIcon },
-      { path: '/vet/patients', label: 'Patients', icon: UsersIcon },
+      { path: '/vet/inventory', label: t('navigation.inventory'), icon: ShoppingBagIcon },
+      { path: '/vet/patients', label: t('navigation.patients'), icon: UsersIcon },
       { path: '/vet/accounts', label: 'Vet Accounts', icon: IdentificationIcon }
     )
   }

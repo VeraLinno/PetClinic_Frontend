@@ -6,26 +6,26 @@
 
       <div>
         <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
-          Start with confidence
+          {{ $t('auth.registerAsOwner').split(' ').slice(0, 2).join(' ') }}
         </div>
-        <h1 class="mt-8 text-4xl font-semibold leading-tight">Create your clinic account</h1>
+        <h1 class="mt-8 text-4xl font-semibold leading-tight">{{ $t('common.register') }}</h1>
         <p class="mt-4 max-w-md text-base text-white/90">
-          Join a streamlined workflow for pet owners and veterinary teams with secure access and role-based tools.
+          {{ $t('auth.petOwner') }}
         </p>
       </div>
 
       <ul class="space-y-4 text-sm text-white/95">
         <li class="flex items-center gap-3">
           <CheckBadgeIcon class="h-5 w-5 text-white" aria-hidden="true" />
-          Fast onboarding with modern dashboard access
+          {{ $t('appointments.title') }}
         </li>
         <li class="flex items-center gap-3">
           <CheckBadgeIcon class="h-5 w-5 text-white" aria-hidden="true" />
-          Schedule visits and track patient journeys
+          {{ $t('appointments.scheduled') }}
         </li>
         <li class="flex items-center gap-3">
           <CheckBadgeIcon class="h-5 w-5 text-white" aria-hidden="true" />
-          Transparent billing and records in one place
+          {{ $t('invoices.title') }}
         </li>
       </ul>
     </section>
@@ -33,9 +33,9 @@
     <section class="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
       <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-card dark:border-slate-700 dark:bg-slate-800">
         <div class="mb-8 text-center">
-          <p class="label-upper text-secondary-700 dark:text-secondary-300">Create Account</p>
-          <h2 class="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">Sign up</h2>
-          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Set up your access in under a minute</p>
+          <p class="label-upper text-secondary-700 dark:text-secondary-300">{{ $t('common.register') }}</p>
+          <h2 class="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('common.register') }}</h2>
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{{ $t('forms.pleaseWait') }}</p>
         </div>
 
         <form class="space-y-4" @submit.prevent="handleRegister">
@@ -44,7 +44,7 @@
               id="firstName"
               v-model="form.firstName"
               type="text"
-              label="First Name"
+              :label="$t('auth.firstName')"
               placeholder="Alex"
               :disabled="loading"
               required
@@ -53,7 +53,7 @@
               id="lastName"
               v-model="form.lastName"
               type="text"
-              label="Last Name"
+              :label="$t('auth.lastName')"
               placeholder="Morgan"
               :disabled="loading"
               required
@@ -64,7 +64,7 @@
             id="email"
             v-model="form.email"
             type="email"
-            label="Email"
+            :label="$t('auth.email')"
             placeholder="you@clinic.com"
             :disabled="loading"
             required
@@ -74,7 +74,7 @@
             id="password"
             v-model="form.password"
             type="password"
-            label="Password"
+            :label="$t('auth.password')"
             placeholder="Create a secure password"
             :disabled="loading"
             required
@@ -89,7 +89,7 @@
               :disabled="loading"
             />
             <span>
-              I agree to the Terms and Privacy Policy.
+              {{ $t('auth.registrationSuccess') }}
             </span>
           </label>
 
@@ -98,13 +98,13 @@
           </div>
 
           <Button type="submit" variant="primary" size="lg" class="w-full" :loading="loading">
-            {{ loading ? 'Creating account...' : 'Create account' }}
+            {{ loading ? $t('forms.pleaseWait') : $t('common.register') }}
           </Button>
 
           <p class="pt-2 text-center text-sm text-slate-500 dark:text-slate-400">
-            Already have an account?
+            {{ $t('auth.haveAccount') }}
             <router-link to="/login" class="font-medium text-primary-700 hover:text-primary-600 dark:text-primary-300 dark:hover:text-primary-200">
-              Sign in
+              {{ $t('auth.loginHere') }}
             </router-link>
           </p>
         </form>
