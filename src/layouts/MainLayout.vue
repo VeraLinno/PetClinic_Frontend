@@ -172,6 +172,7 @@ import {
   MagnifyingGlassIcon,
   MoonIcon,
   PlusCircleIcon,
+  ShieldCheckIcon,
   ShoppingBagIcon,
   SparklesIcon,
   SunIcon,
@@ -327,6 +328,7 @@ const userInitials = computed(() => {
 })
 
 const userRole = computed(() => {
+  if (normalizedRoles.value.includes('Admin')) return t('navigation.admin')
   if (normalizedRoles.value.includes('Owner')) return t('auth.petOwner')
   if (normalizedRoles.value.includes('Vet')) return t('auth.veterinarian')
   return t('common.home')
@@ -356,6 +358,12 @@ const menuItems = computed(() => {
       { path: '/vet/inventory', label: t('navigation.inventory'), icon: ShoppingBagIcon },
       { path: '/vet/patients', label: t('navigation.patients'), icon: UsersIcon },
       { path: '/vet/accounts', label: 'Vet Accounts', icon: IdentificationIcon }
+    )
+  }
+
+  if (normalizedRoles.value.includes('Admin')) {
+    items.push(
+      { path: '/admin', label: t('navigation.admin'), icon: ShieldCheckIcon }
     )
   }
 

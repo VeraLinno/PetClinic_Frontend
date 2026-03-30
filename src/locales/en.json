@@ -262,6 +262,8 @@
   },
   "admin": {
     "title": "Admin Dashboard",
+    "subtitle": "System overview and operational control",
+    "refresh": "Refresh",
     "users": "Users",
     "veterinarians": "Veterinarians",
     "appointments": "Appointments",
@@ -271,7 +273,21 @@
     "systemHealth": "System Health",
     "totalUsers": "Total Users",
     "totalVets": "Total Veterinarians",
+    "totalPets": "Total Pets",
     "totalAppointments": "Total Appointments",
-    "totalRevenue": "Total Revenue"
+    "totalRevenue": "Total Revenue",
+    "monthAppointments": "Appointments This Month",
+    "monthCompletedVisits": "Completed Visits This Month",
+    "lowStock": "Low Stock Medications",
+    "activeUsers": "Active Users",
+    "dbConnections": "Database Connections",
+    "cpuUsage": "CPU Usage",
+    "memoryUsage": "Memory Usage",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noUsers": "No users found",
+    "noAppointments": "No appointments found",
+    "forbidden": "Admin permissions are required to open this page.",
+    "loadFailed": "Failed to load admin dashboard data."
   }
 }

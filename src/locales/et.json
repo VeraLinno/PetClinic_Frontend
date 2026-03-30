@@ -262,6 +262,8 @@
   },
   "admin": {
     "title": "Administraatori juhtpaneel",
+    "subtitle": "Süsteemi ülevaade ja halduse juhtimine",
+    "refresh": "Värskenda",
     "users": "Kasutajad",
     "veterinarians": "Veterinaarspetsialistid",
     "appointments": "Aja saadiused",
@@ -271,7 +273,21 @@
     "systemHealth": "Süsteemi tervis",
     "totalUsers": "Kokku kasutajaid",
     "totalVets": "Kokku veterinaarspetsialiste",
+    "totalPets": "Kokku lemmikloomi",
     "totalAppointments": "Kokku aja saadeseid",
-    "totalRevenue": "Kokku tulu"
+    "totalRevenue": "Kokku tulu",
+    "monthAppointments": "Selle kuu ajad",
+    "monthCompletedVisits": "Selle kuu lõpetatud visiidid",
+    "lowStock": "Vähese laoseisuga ravimid",
+    "activeUsers": "Aktiivsed kasutajad",
+    "dbConnections": "Andmebaasi ühendused",
+    "cpuUsage": "CPU kasutus",
+    "memoryUsage": "Mälu kasutus",
+    "active": "Aktiivne",
+    "inactive": "Mitteaktiivne",
+    "noUsers": "Kasutajaid ei leitud",
+    "noAppointments": "Aegu ei leitud",
+    "forbidden": "Selle lehe avamiseks on vaja administraatori õigusi.",
+    "loadFailed": "Admini juhtpaneeli andmete laadimine ebaõnnestus."
   }
 }

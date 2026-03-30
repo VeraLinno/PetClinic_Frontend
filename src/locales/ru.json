@@ -262,6 +262,8 @@
   },
   "admin": {
     "title": "Админ панель",
+    "subtitle": "Обзор системы и оперативное управление",
+    "refresh": "Обновить",
     "users": "Пользователи",
     "veterinarians": "Ветеринары",
     "appointments": "Записи",
@@ -271,7 +273,21 @@
     "systemHealth": "Здоровье системы",
     "totalUsers": "Всего пользователей",
     "totalVets": "Всего ветеринаров",
+    "totalPets": "Всего питомцев",
     "totalAppointments": "Всего записей",
-    "totalRevenue": "Общий доход"
+    "totalRevenue": "Общий доход",
+    "monthAppointments": "Записей за месяц",
+    "monthCompletedVisits": "Завершенных визитов за месяц",
+    "lowStock": "Низкий остаток медикаментов",
+    "activeUsers": "Активные пользователи",
+    "dbConnections": "Подключения к БД",
+    "cpuUsage": "Нагрузка CPU",
+    "memoryUsage": "Использование памяти",
+    "active": "Активен",
+    "inactive": "Неактивен",
+    "noUsers": "Пользователи не найдены",
+    "noAppointments": "Записи не найдены",
+    "forbidden": "Для этой страницы требуются права администратора.",
+    "loadFailed": "Не удалось загрузить данные админ-панели."
   }
 }

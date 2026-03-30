@@ -25,6 +25,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, roles: ['Vet'] }
   },
   {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: () => import('@/pages/AdminDashboard.vue'),
+    meta: { requiresAuth: true, roles: ['Admin'] }
+  },
+  {
     path: '/booking',
     name: 'BookingWizard',
     component: () => import('@/pages/BookingPage.vue'),
@@ -108,6 +114,7 @@ const router = createRouter({
 })
 
 function getDefaultAuthenticatedRoute(roles: string[]): string {
+  if (roles.includes('Admin')) return '/admin'
   if (roles.includes('Vet')) return '/vet'
   if (roles.includes('Owner')) return '/owner'
   return '/owner'
