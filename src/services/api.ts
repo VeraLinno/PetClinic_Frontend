@@ -2,8 +2,12 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || ''
+const apiBaseUrl = configuredBaseUrl ? configuredBaseUrl.replace(/\/+$/, '') : '/api/v1'
+
 const api = axios.create({
-  baseURL: '/api/v1'
+  baseURL: apiBaseUrl,
+  withCredentials: true
 })
 
 // Request interceptor to add token

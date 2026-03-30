@@ -1,5 +1,9 @@
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 lg:grid lg:grid-cols-2">
+  <div class="relative min-h-screen bg-slate-50 dark:bg-slate-900 lg:grid lg:grid-cols-2">
+    <div class="absolute right-4 top-4 z-20">
+      <LanguageSwitcher />
+    </div>
+
     <section class="relative hidden overflow-hidden bg-gradient-to-br from-secondary-600 via-primary-600 to-primary-700 p-10 text-white lg:flex lg:flex-col lg:justify-between">
       <div class="absolute -top-8 right-10 h-44 w-44 rounded-full bg-white/10 blur-xl" aria-hidden="true" />
       <div class="absolute -bottom-16 -left-12 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
@@ -120,6 +124,7 @@ import { CheckBadgeIcon } from '@heroicons/vue/24/outline'
 import { authService } from '@/services/auth'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const form = ref({
   firstName: '',
