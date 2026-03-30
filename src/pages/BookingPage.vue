@@ -82,11 +82,11 @@
             />
           </div>
           <div v-if="isSelectedDateUnavailable" class="rounded-lg border border-warning-300 bg-warning-50 p-4 text-warning-700 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
-            <p class="font-medium">⚠️ This date is unavailable</p>
-            <p v-if="getUnavailableReason" class="mt-1 text-sm">
-              Reason: <strong>{{ getUnavailableReason }}</strong>
+            <p class="font-medium">⚠️ Date unavailable</p>
+            <p v-if="getUnavailableReason" class="mt-2 text-sm">
+              {{ getUnavailableReason }}
             </p>
-            <p class="mt-1 text-sm">Please select a different date.</p>
+            <p class="mt-2 text-sm">Please select a different date.</p>
           </div>
         </div>
 
@@ -265,7 +265,18 @@ const getUnavailableReason = computed(() => {
   const period = availabilityStore.unavailablePeriods.find(
     (p) => selectedDate.value >= p.startDate && selectedDate.value <= p.endDate
   )
-  return period?.reason || null
+  if (!period?.reason) return null
+
+  const reasonMessages: Record<string, string> = {
+    'Vacation': 'The veterinarian is on vacation',
+    'Sick Leave': 'The veterinarian is on sick leave',
+    'Conference': 'The veterinarian is attending a conference',
+    'Training': 'The veterinarian is attending training',
+    'Personal': 'The veterinarian has a personal appointment',
+    'Other': 'The veterinarian is unavailable'
+  }
+
+  return reasonMessages[period.reason] || period.reason
 })
 
 const getLocalDateKey = (date: Date) => {
