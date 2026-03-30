@@ -99,5 +99,9 @@ export const appointmentsService = {
   async deleteVetUnavailability(id: string) {
     const response = await api.delete(`/vet/unavailability/${id}`)
     return response.data
+  },
+  async updateVetUnavailability(id: string, startDate: string, endDate: string, reason?: string) {
+    const response = await api.put(`/vet/unavailability/${id}`, { startDate, endDate, reason })
+    return response.data
   }
 }

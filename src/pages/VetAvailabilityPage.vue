@@ -150,15 +150,25 @@
                   {{ getDuration(period.startDate, period.endDate) }}
                 </td>
                 <td class="px-4 py-3 text-right">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    @click="openDeleteConfirm(period)"
-                    :disabled="loading"
-                    class="text-danger-600 dark:text-danger-400"
-                  >
-                    Delete
-                  </Button>
+                  <div class="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      @click="openEditModal(period)"
+                      :disabled="loading"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      @click="openDeleteConfirm(period)"
+                      :disabled="loading"
+                      class="text-danger-600 dark:text-danger-400"
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -206,6 +216,88 @@
       </template>
     </Modal>
 
+    <!-- Edit Modal -->
+    <Modal
+      :isOpen="!!editingPeriod"
+      title="Edit Unavailable Period"
+      @close="editingPeriod = null"
+    >
+      <template #default>
+        <div class="space-y-4 p-4">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label for="edit-start-date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Start Date <span class="text-danger-600">*</span>
+              </label>
+              <Input
+                id="edit-start-date"
+                v-model="editFormData.startDate"
+                type="date"
+                :min="today"
+                placeholder="Select start date"
+              />
+            </div>
+            <div>
+              <label for="edit-end-date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                End Date <span class="text-danger-600">*</span>
+              </label>
+              <Input
+                id="edit-end-date"
+                v-model="editFormData.endDate"
+                type="date"
+                :min="today"
+                placeholder="Select end date"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="edit-reason" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Reason (optional)
+            </label>
+            <select
+              id="edit-reason"
+              v-model="editFormData.reason"
+              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+            >
+              <option value="">None</option>
+              <option value="Vacation">Vacation</option>
+              <option value="Sick Leave">Sick Leave</option>
+              <option value="Conference">Conference</option>
+              <option value="Training">Training</option>
+              <option value="Personal">Personal</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Error Message -->
+          <div v-if="editFormError" class="rounded-lg border border-danger-300 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-700 dark:bg-danger-950/30 dark:text-danger-300">
+            {{ editFormError }}
+          </div>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex justify-end gap-3">
+          <Button
+            variant="secondary"
+            @click="editingPeriod = null"
+            :disabled="loading"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            @click="saveEdit"
+            :loading="loading"
+            :disabled="loading || !isEditFormValid"
+          >
+            Update
+          </Button>
+        </div>
+      </template>
+    </Modal>
+
     <!-- Success Toast (shown via component lifecycle) -->
     <div v-if="showSuccessMessage" class="fixed bottom-4 right-4 rounded-lg border border-success-300 bg-success-50 p-4 shadow-lg dark:border-success-700 dark:bg-success-950/40">
       <div class="flex items-center gap-3">
@@ -237,6 +329,13 @@ const formData = ref({
 const loading = ref(false)
 const formError = ref('')
 const deleteConfirmPeriod = ref<UnavailablePeriod | null>(null)
+const editingPeriod = ref<UnavailablePeriod | null>(null)
+const editFormData = ref({
+  startDate: '',
+  endDate: '',
+  reason: ''
+})
+const editFormError = ref('')
 const showSuccessMessage = ref(false)
 const successMessage = ref('')
 
@@ -253,6 +352,13 @@ const isFormValid = computed(() => {
     return false
   }
   return formData.value.startDate <= formData.value.endDate
+})
+
+const isEditFormValid = computed(() => {
+  if (!editFormData.value.startDate || !editFormData.value.endDate) {
+    return false
+  }
+  return editFormData.value.startDate <= editFormData.value.endDate
 })
 
 const clearError = () => {
@@ -353,6 +459,16 @@ const openDeleteConfirm = (period: UnavailablePeriod) => {
   deleteConfirmPeriod.value = period
 }
 
+const openEditModal = (period: UnavailablePeriod) => {
+  editingPeriod.value = period
+  editFormData.value = {
+    startDate: period.startDate,
+    endDate: period.endDate,
+    reason: period.reason || ''
+  }
+  editFormError.value = ''
+}
+
 const confirmDelete = async () => {
   if (!deleteConfirmPeriod.value) return
 
@@ -367,6 +483,70 @@ const confirmDelete = async () => {
     deleteConfirmPeriod.value = null
   } catch (err: any) {
     formError.value = err.response?.data?.message || 'Failed to delete unavailable period'
+  } finally {
+    loading.value = false
+  }
+}
+
+const validateEditDateRange = (): boolean => {
+  editFormError.value = ''
+
+  if (!editFormData.value.startDate || !editFormData.value.endDate) {
+    editFormError.value = 'Both start and end dates are required'
+    return false
+  }
+
+  if (editFormData.value.startDate > editFormData.value.endDate) {
+    editFormError.value = 'End date must be on or after start date'
+    return false
+  }
+
+  // Check for overlaps with other periods
+  const editStart = new Date(editFormData.value.startDate)
+  const editEnd = new Date(editFormData.value.endDate)
+
+  for (const period of availabilityStore.unavailablePeriods) {
+    // Skip the period being edited
+    if (editingPeriod.value && period.id === editingPeriod.value.id) {
+      continue
+    }
+
+    const existingStart = new Date(period.startDate)
+    const existingEnd = new Date(period.endDate)
+
+    if (editStart <= existingEnd && editEnd >= existingStart) {
+      editFormError.value = `Date range overlaps with existing period: ${formatDateRange(period.startDate, period.endDate)}`
+      return false
+    }
+  }
+
+  return true
+}
+
+const saveEdit = async () => {
+  if (!editingPeriod.value || !validateEditDateRange()) {
+    return
+  }
+
+  loading.value = true
+  try {
+    await availabilityStore.updateUnavailablePeriod(
+      editingPeriod.value.id,
+      editFormData.value.startDate,
+      editFormData.value.endDate,
+      editFormData.value.reason || undefined
+    )
+
+    successMessage.value = 'Unavailable period updated successfully'
+    showSuccessMessage.value = true
+    setTimeout(() => {
+      showSuccessMessage.value = false
+    }, 3000)
+
+    editingPeriod.value = null
+    editFormData.value = { startDate: '', endDate: '', reason: '' }
+  } catch (err: any) {
+    editFormError.value = err.response?.data?.message || 'Failed to update unavailable period'
   } finally {
     loading.value = false
   }

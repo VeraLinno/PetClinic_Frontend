@@ -83,6 +83,9 @@
           </div>
           <div v-if="isSelectedDateUnavailable" class="rounded-lg border border-warning-300 bg-warning-50 p-4 text-warning-700 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
             <p class="font-medium">⚠️ This date is unavailable</p>
+            <p v-if="getUnavailableReason" class="mt-1 text-sm">
+              Reason: <strong>{{ getUnavailableReason }}</strong>
+            </p>
             <p class="mt-1 text-sm">Please select a different date.</p>
           </div>
         </div>
@@ -255,6 +258,14 @@ const isSelectedDateUnavailable = computed(() => {
   return availabilityStore.unavailablePeriods.some(
     (period) => selectedDate.value >= period.startDate && selectedDate.value <= period.endDate
   )
+})
+
+const getUnavailableReason = computed(() => {
+  if (!selectedDate.value) return null
+  const period = availabilityStore.unavailablePeriods.find(
+    (p) => selectedDate.value >= p.startDate && selectedDate.value <= p.endDate
+  )
+  return period?.reason || null
 })
 
 const getLocalDateKey = (date: Date) => {

@@ -93,6 +93,25 @@ export const useAvailabilityStore = defineStore('availability', {
       }
     },
 
+    async updateUnavailablePeriod(id: string, startDate: string, endDate: string, reason?: string) {
+      this.loading = true
+      this.error = null
+      try {
+        const updatedPeriod = await appointmentsService.updateVetUnavailability(id, startDate, endDate, reason)
+        const index = this.unavailablePeriods.findIndex((p) => p.id === id)
+        if (index !== -1) {
+          this.unavailablePeriods[index] = updatedPeriod
+        }
+        return updatedPeriod
+      } catch (err: any) {
+        const msg = err.response?.data?.message || 'Failed to update unavailable period'
+        this.error = msg
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+
     clearError() {
       this.error = null
     }
