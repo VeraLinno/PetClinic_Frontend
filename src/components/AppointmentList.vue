@@ -43,7 +43,7 @@
                 :class="statusBadgeClass(appointment.status)"
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
               >
-                {{ appointment.status }}
+                {{ getStatusLabel(appointment) }}
               </span>
             </div>
             <p class="text-sm text-slate-500 dark:text-slate-400">
@@ -101,6 +101,7 @@
 <script setup lang="ts">
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
+import { useI18n } from 'vue-i18n'
 import type { Appointment } from '@/services/appointments'
 
 interface Props {
@@ -124,6 +125,8 @@ defineEmits<{
   start: [appointment: Appointment]
   cancel: [appointment: Appointment]
 }>()
+
+const { t } = useI18n()
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString(undefined, {
@@ -156,5 +159,27 @@ const statusBadgeClass = (status: string) => {
     'Cancelled': 'status-cancelled'
   }
   return classes[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+}
+
+const getStatusLabel = (appointment: Appointment) => {
+  if (appointment.statusLocalized) {
+    return appointment.statusLocalized
+  }
+
+  const map: Record<string, string> = {
+    Pending: 'appointments.status_pending',
+    Confirmed: 'appointments.status_confirmed',
+    Scheduled: 'appointments.status_scheduled',
+    Completed: 'appointments.status_completed',
+    Cancelled: 'appointments.status_cancelled'
+  }
+
+  const key = map[appointment.status]
+  if (!key) {
+    return appointment.status
+  }
+
+  const localized = t(key)
+  return localized === key ? appointment.status : localized
 }
 </script>

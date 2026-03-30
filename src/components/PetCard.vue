@@ -18,7 +18,7 @@
           </div>
 
           <p class="truncate text-sm text-slate-500 dark:text-slate-400">
-            {{ pet.breed || 'Mixed Breed' }}
+            {{ pet.breedLocalized || pet.breed || 'Mixed Breed' }}
           </p>
 
           <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
@@ -90,12 +90,13 @@ const petEmoji = computed(() => {
 })
 
 const speciesBadge = computed(() => {
+  const speciesLabel = props.pet.speciesLocalized || props.pet.species
   const species = props.pet.species.toLowerCase()
-  if (species.includes('dog')) return { label: 'Dog', variant: 'info' as const }
-  if (species.includes('cat')) return { label: 'Cat', variant: 'primary' as const }
-  if (species.includes('bird')) return { label: 'Bird', variant: 'warning' as const }
-  if (species.includes('rabbit')) return { label: 'Rabbit', variant: 'success' as const }
-  return { label: props.pet.species, variant: 'default' as const }
+  if (species.includes('dog')) return { label: speciesLabel, variant: 'info' as const }
+  if (species.includes('cat')) return { label: speciesLabel, variant: 'primary' as const }
+  if (species.includes('bird')) return { label: speciesLabel, variant: 'warning' as const }
+  if (species.includes('rabbit')) return { label: speciesLabel, variant: 'success' as const }
+  return { label: speciesLabel, variant: 'default' as const }
 })
 
 const formatDate = (date: string) => {

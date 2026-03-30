@@ -45,7 +45,7 @@
             </div>
             <div class="flex-1 min-w-0">
               <h3 class="truncate font-semibold text-slate-900 dark:text-slate-100">{{ pet.name }}</h3>
-              <p class="text-sm text-slate-500 dark:text-slate-400">{{ pet.species }} • {{ pet.breed }}</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">{{ getPetSpeciesLabel(pet) }} • {{ getPetBreedLabel(pet) }}</p>
               <p class="mt-1 text-xs text-slate-400">Age: {{ petAge(pet.dateOfBirth) }}</p>
             </div>
           </div>
@@ -71,8 +71,8 @@
           <tbody>
             <tr v-for="pet in filteredPets" :key="`${pet.id}-row`" class="border-t border-slate-200 dark:border-slate-700">
               <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100">{{ pet.name }}</td>
-              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{{ pet.species }}</td>
-              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{{ pet.breed }}</td>
+              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{{ getPetSpeciesLabel(pet) }}</td>
+              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{{ getPetBreedLabel(pet) }}</td>
               <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{{ petAge(pet.dateOfBirth) }}</td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
@@ -91,11 +91,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <p class="text-slate-500">Species</p>
-            <p class="font-medium text-slate-900 dark:text-slate-100">{{ selectedPet.species }}</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ getPetSpeciesLabel(selectedPet) }}</p>
           </div>
           <div>
             <p class="text-slate-500">Breed</p>
-            <p class="font-medium text-slate-900 dark:text-slate-100">{{ selectedPet.breed }}</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ getPetBreedLabel(selectedPet) }}</p>
           </div>
           <div>
             <p class="text-slate-500">Date of Birth</p>
@@ -136,6 +136,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ownersService, type Pet } from '@/services/owners'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import Card from '@/components/ui/Card.vue'
@@ -145,6 +146,7 @@ import Modal from '@/components/ui/Modal.vue'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 const breadcrumbItems = [{ label: 'My Pets' }]
 
 const pets = ref<Pet[]>([])
@@ -211,6 +213,33 @@ const getPetEmoji = (species: string) => {
   if (s.includes('cat')) return '🐱'
   if (s.includes('bird')) return '🐦'
   return '🐾'
+}
+
+const normalizeTranslationKey = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+const getPetSpeciesLabel = (pet: Pet) => {
+  if (pet.speciesLocalized) {
+    return pet.speciesLocalized
+  }
+
+  const key = `pets.species_${normalizeTranslationKey(pet.species)}`
+  const translated = t(key)
+  return translated === key ? pet.species : translated
+}
+
+const getPetBreedLabel = (pet: Pet) => {
+  if (pet.breedLocalized) {
+    return pet.breedLocalized
+  }
+
+  const key = `pets.breed_${normalizeTranslationKey(pet.breed)}`
+  const translated = t(key)
+  return translated === key ? pet.breed : translated
 }
 
 const formatDate = (date: string) => new Date(date).toLocaleDateString()

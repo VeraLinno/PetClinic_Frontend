@@ -105,6 +105,8 @@
     "time": "Время",
     "duration": "Длительность",
     "status": "Статус",
+    "status_pending": "В ожидании",
+    "status_confirmed": "Подтверждено",
     "status_scheduled": "Запланировано",
     "status_completed": "Завершено",
     "status_cancelled": "Отменено",
@@ -128,7 +130,18 @@
     "noDescription": "Описание не предоставлено",
     "lastVisit": "Последний визит",
     "nextBooster": "Следующее усиление",
-    "healthStatus": "Статус здоровья"
+    "healthStatus": "Статус здоровья",
+    "species_dog": "Собака",
+    "species_cat": "Кошка",
+    "species_bird": "Птица",
+    "species_fish": "Рыба",
+    "species_rabbit": "Кролик",
+    "species_hamster": "Хомяк",
+    "species_reptile": "Рептилия",
+    "species_other": "Другое",
+    "breed_golden_retriever": "Золотистый ретривер",
+    "breed_persian": "Персидская",
+    "breed_mixed_breed": "Смешанная порода"
   },
   "health": {
     "title": "История здоровья",
@@ -169,6 +182,7 @@
   },
   "visits": {
     "title": "История посещений",
+    "status_open": "Открыт",
     "date": "Дата",
     "veterinarian": "Ветеринар",
     "reason": "Причина",
@@ -182,6 +196,7 @@
   },
   "inventory": {
     "title": "Инвентарь",
+    "filterAll": "Все",
     "medication": "Лекарство",
     "quantity": "Количество",
     "unit": "Единица",
@@ -193,7 +208,15 @@
     "status_inStock": "В наличии",
     "status_lowStock": "Низкий запас",
     "status_outOfStock": "Нет в наличии",
-    "addMedication": "Добавить лекарство"
+    "addMedication": "Добавить лекарство",
+    "category_medications": "Медикаменты",
+    "category_antibiotics": "Антибиотики",
+    "category_vaccines": "Вакцины",
+    "unit_units": "ед.",
+    "unit_pcs": "шт.",
+    "unit_tablets": "таблетки",
+    "unit_bottles": "флаконы",
+    "unit_doses": "дозы"
   },
   "patients": {
     "title": "Пациенты",

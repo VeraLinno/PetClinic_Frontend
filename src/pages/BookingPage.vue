@@ -58,7 +58,7 @@
                 <span class="text-2xl">{{ getPetEmoji(pet) }}</span>
                 <div class="min-w-0 flex-1">
                   <h3 class="truncate font-semibold text-slate-900 dark:text-slate-100">{{ pet.name }}</h3>
-                  <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ pet.species }} • {{ pet.breed }}</p>
+                  <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ getPetSpeciesLabel(pet) }} • {{ getPetBreedLabel(pet) }}</p>
                 </div>
                 <CheckCircleIcon
                   v-if="selectedPet?.id === pet.id"
@@ -211,6 +211,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useAvailabilityStore } from '@/stores/availability'
 import { appointmentsService } from '@/services/appointments'
 import { ownersService, type Pet, type VeterinarianOption } from '@/services/owners'
+import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
@@ -218,6 +219,7 @@ import Input from '@/components/ui/Input.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 const availabilityStore = useAvailabilityStore()
+const { t } = useI18n()
 
 // Wizard state
 const currentStep = ref(0)
@@ -354,6 +356,33 @@ const getPetEmoji = (pet: Pet) => {
   if (species.includes('bird')) return '🐦'
   if (species.includes('fish')) return '🐠'
   return '🐾'
+}
+
+const normalizeTranslationKey = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+const getPetSpeciesLabel = (pet: Pet) => {
+  if (pet.speciesLocalized) {
+    return pet.speciesLocalized
+  }
+
+  const key = `pets.species_${normalizeTranslationKey(pet.species)}`
+  const translated = t(key)
+  return translated === key ? pet.species : translated
+}
+
+const getPetBreedLabel = (pet: Pet) => {
+  if (pet.breedLocalized) {
+    return pet.breedLocalized
+  }
+
+  const key = `pets.breed_${normalizeTranslationKey(pet.breed)}`
+  const translated = t(key)
+  return translated === key ? pet.breed : translated
 }
 
 const nextStep = () => {

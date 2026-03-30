@@ -105,6 +105,8 @@
     "time": "Aeg",
     "duration": "Kestus",
     "status": "Olek",
+    "status_pending": "Ootel",
+    "status_confirmed": "Kinnitatud",
     "status_scheduled": "Planeeritud",
     "status_completed": "Lõpetatud",
     "status_cancelled": "Tühistatud",
@@ -128,7 +130,18 @@
     "noDescription": "Kirjeldust pole",
     "lastVisit": "Viimane külastus",
     "nextBooster": "Järgmine võimendus",
-    "healthStatus": "Tervislik olek"
+    "healthStatus": "Tervislik olek",
+    "species_dog": "Koer",
+    "species_cat": "Kass",
+    "species_bird": "Lind",
+    "species_fish": "Kala",
+    "species_rabbit": "Küülik",
+    "species_hamster": "Hamster",
+    "species_reptile": "Roomaja",
+    "species_other": "Muu",
+    "breed_golden_retriever": "Kuldne retriiver",
+    "breed_persian": "Pärsia",
+    "breed_mixed_breed": "Segatõug"
   },
   "health": {
     "title": "Tervisekartoteek",
@@ -169,6 +182,7 @@
   },
   "visits": {
     "title": "Külastuste ajalugu",
+    "status_open": "Aktiivne",
     "date": "Kuupäev",
     "veterinarian": "Veterinaarspetsialist",
     "reason": "Põhjus",
@@ -182,6 +196,7 @@
   },
   "inventory": {
     "title": "Varud",
+    "filterAll": "Kõik",
     "medication": "Ravi",
     "quantity": "Kogus",
     "unit": "Ühik",
@@ -193,7 +208,15 @@
     "status_inStock": "Laos",
     "status_lowStock": "Madal kuivavarus",
     "status_outOfStock": "Laost otsas",
-    "addMedication": "Lisa ravi"
+    "addMedication": "Lisa ravi",
+    "category_medications": "Ravimid",
+    "category_antibiotics": "Antibiootikumid",
+    "category_vaccines": "Vaktsiinid",
+    "unit_units": "ühikut",
+    "unit_pcs": "tk",
+    "unit_tablets": "tabletid",
+    "unit_bottles": "pudelid",
+    "unit_doses": "doosid"
   },
   "patients": {
     "title": "Patsiendid",

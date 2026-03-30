@@ -1,9 +1,5 @@
 <template>
-  <div class="relative min-h-screen bg-slate-50 dark:bg-slate-900 lg:grid lg:grid-cols-2">
-    <div class="absolute right-4 top-4 z-20">
-      <LanguageSwitcher />
-    </div>
-
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 lg:grid lg:grid-cols-2">
     <section class="relative hidden overflow-hidden bg-gradient-to-br from-primary-500 via-cyan-500 to-secondary-600 p-10 text-white lg:flex lg:flex-col lg:justify-between">
       <div class="absolute -left-12 top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
       <div class="absolute -bottom-10 right-8 h-44 w-44 rounded-full bg-white/10 blur-xl" aria-hidden="true" />
@@ -86,12 +82,10 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { CheckCircleIcon } from '@heroicons/vue/24/outline'
-import { AxiosError } from 'axios'
 import { authService } from '@/services/auth'
 import { useAuthStore } from '@/stores/auth'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const email = ref('')
 const password = ref('')
@@ -121,16 +115,8 @@ const handleLogin = async () => {
     } else {
       router.push('/owner')
     }
-  } catch (err: unknown) {
-    const axiosError = err as AxiosError<{ error?: string; message?: string }>
-    const status = axiosError.response?.status
-    if (!axiosError.response) {
-      error.value = 'Cannot reach server. Please check backend connection and try again.'
-    } else if (status === 429) {
-      error.value = 'Too many login attempts. Please wait a minute and try again.'
-    } else {
-      error.value = axiosError.response?.data?.error || axiosError.response?.data?.message || 'Login failed. Please try again.'
-    }
+  } catch (err: any) {
+    error.value = err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again.'
   } finally {
     loading.value = false
   }

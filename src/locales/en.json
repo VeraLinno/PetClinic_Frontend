@@ -105,6 +105,8 @@
     "time": "Time",
     "duration": "Duration",
     "status": "Status",
+    "status_pending": "Pending",
+    "status_confirmed": "Confirmed",
     "status_scheduled": "Scheduled",
     "status_completed": "Completed",
     "status_cancelled": "Cancelled",
@@ -128,7 +130,18 @@
     "noDescription": "No description provided",
     "lastVisit": "Last Visit",
     "nextBooster": "Next Booster Due",
-    "healthStatus": "Health Status"
+    "healthStatus": "Health Status",
+    "species_dog": "Dog",
+    "species_cat": "Cat",
+    "species_bird": "Bird",
+    "species_fish": "Fish",
+    "species_rabbit": "Rabbit",
+    "species_hamster": "Hamster",
+    "species_reptile": "Reptile",
+    "species_other": "Other",
+    "breed_golden_retriever": "Golden Retriever",
+    "breed_persian": "Persian",
+    "breed_mixed_breed": "Mixed Breed"
   },
   "health": {
     "title": "Health Records",
@@ -169,6 +182,7 @@
   },
   "visits": {
     "title": "Visit History",
+    "status_open": "Open",
     "date": "Date",
     "veterinarian": "Veterinarian",
     "reason": "Reason",
@@ -182,6 +196,7 @@
   },
   "inventory": {
     "title": "Inventory",
+    "filterAll": "All",
     "medication": "Medication",
     "quantity": "Quantity",
     "unit": "Unit",
@@ -193,7 +208,15 @@
     "status_inStock": "In Stock",
     "status_lowStock": "Low Stock",
     "status_outOfStock": "Out of Stock",
-    "addMedication": "Add Medication"
+    "addMedication": "Add Medication",
+    "category_medications": "Medications",
+    "category_antibiotics": "Antibiotics",
+    "category_vaccines": "Vaccines",
+    "unit_units": "units",
+    "unit_pcs": "pcs",
+    "unit_tablets": "tablets",
+    "unit_bottles": "bottles",
+    "unit_doses": "doses"
   },
   "patients": {
     "title": "Patients",

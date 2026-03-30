@@ -98,7 +98,7 @@
             : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
         ]"
       >
-        {{ category }}
+        {{ localizeCategory(category) }}
       </button>
     </div>
 
@@ -143,8 +143,8 @@
               class="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800"
             >
               <td class="px-4 py-3 text-gray-900 dark:text-white">{{ item.name }}</td>
-              <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ item.category }}</td>
-              <td class="px-4 py-3 text-gray-900 dark:text-white">{{ item.quantity }} {{ item.unit }}</td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ localizeCategory(item.category) }}</td>
+              <td class="px-4 py-3 text-gray-900 dark:text-white">{{ item.quantity }} {{ localizeUnit(item.unit) }}</td>
               <td class="px-4 py-3">
                 <div class="h-2 w-28 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                   <div
@@ -213,7 +213,7 @@
       <div class="space-y-4" v-if="selectedReorderItem">
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
           <p class="font-medium">{{ selectedReorderItem.name }}</p>
-          <p>Current stock: {{ selectedReorderItem.quantity }} {{ selectedReorderItem.unit }}</p>
+          <p>Current stock: {{ selectedReorderItem.quantity }} {{ localizeUnit(selectedReorderItem.unit) }}</p>
           <p>Reorder level: {{ selectedReorderItem.reorderLevel }}</p>
         </div>
 
@@ -239,6 +239,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
@@ -258,6 +259,7 @@ const breadcrumbItems = [
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 interface InventoryItem {
   id: string
@@ -305,6 +307,31 @@ const categories = computed(() => {
   const unique = Array.from(new Set(items.value.map((i) => i.category)))
   return ['All', ...unique]
 })
+
+const normalizeTranslationKey = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+const localizeCategory = (category: string) => {
+  if (category === 'All') {
+    return t('inventory.filterAll')
+  }
+
+  const normalized = normalizeTranslationKey(category)
+  const translationKey = `inventory.category_${normalized}`
+  const translated = t(translationKey)
+  return translated === translationKey ? category : translated
+}
+
+const localizeUnit = (unit: string) => {
+  const normalized = normalizeTranslationKey(unit)
+  const translationKey = `inventory.unit_${normalized}`
+  const translated = t(translationKey)
+  return translated === translationKey ? unit : translated
+}
 
 const lowStockItems = computed(() => {
   return items.value.filter(item => item.quantity <= item.reorderLevel)

@@ -11,6 +11,7 @@ export interface Appointment {
   startAt: string
   endAt: string
   status: 'Pending' | 'Confirmed' | 'Scheduled' | 'Completed' | 'Cancelled'
+  statusLocalized?: string
   notes?: string
   dateTime?: string
 }
@@ -19,6 +20,8 @@ export interface Visit {
   id: string
   appointmentId: string
   notes: string
+  status?: 'Open' | 'Completed'
+  statusLocalized?: string
   diagnosis?: string
   treatments?: string[]
   prescriptions?: Prescription[]

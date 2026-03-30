@@ -42,7 +42,7 @@
             </div>
             <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
               <p class="text-slate-500 dark:text-slate-400">Species</p>
-              <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ pet?.species || 'Unknown' }}</p>
+              <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ pet ? getPetSpeciesLabel(pet) : 'Unknown' }}</p>
             </div>
             <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
               <p class="text-slate-500 dark:text-slate-400">Scheduled Time</p>
@@ -167,8 +167,8 @@
           </template>
           <div class="space-y-2 text-sm">
             <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Name</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ pet.name }}</span></div>
-            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Species</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ pet.species }}</span></div>
-            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Breed</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ pet.breed }}</span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Species</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ getPetSpeciesLabel(pet) }}</span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Breed</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ getPetBreedLabel(pet) }}</span></div>
             <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Age</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ petAge }}</span></div>
             <div class="flex justify-between gap-2"><span class="text-slate-500 dark:text-slate-400">Date of Birth</span><span class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(pet.dateOfBirth) }}</span></div>
           </div>
@@ -274,6 +274,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { appointmentsService, type Appointment, type Visit, type Prescription } from '@/services/appointments'
 import { ownersService, type Pet } from '@/services/owners'
 import { useAuthStore } from '@/stores/auth'
@@ -286,6 +287,7 @@ import Badge from '@/components/ui/Badge.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const appointment = ref<Appointment | null>(null)
 const visit = ref<Visit | null>(null)
@@ -367,9 +369,25 @@ const isCompleted = computed(() => {
 })
 
 const visitStatus = computed(() => {
-  if (isCompleted.value) return 'Completed'
-  if (appointment.value?.status) return appointment.value.status
-  return canEdit.value ? 'Ready to complete' : 'In progress'
+  if (visit.value?.statusLocalized) return visit.value.statusLocalized
+
+  const rawStatus = visit.value?.status || appointment.value?.status || (isCompleted.value ? 'Completed' : 'Open')
+  const map: Record<string, string> = {
+    Open: 'visits.status_open',
+    Pending: 'appointments.status_pending',
+    Confirmed: 'appointments.status_confirmed',
+    Scheduled: 'appointments.status_scheduled',
+    Completed: 'appointments.status_completed',
+    Cancelled: 'appointments.status_cancelled'
+  }
+
+  const key = map[rawStatus]
+  if (!key) {
+    return canEdit.value ? 'Ready to complete' : 'In progress'
+  }
+
+  const localized = t(key)
+  return localized === key ? rawStatus : localized
 })
 
 const timelineEvents = computed(() => {
@@ -456,6 +474,33 @@ const formatDateTime = (date: string) => {
 
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+const normalizeTranslationKey = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+const getPetSpeciesLabel = (item: Pet) => {
+  if (item.speciesLocalized) {
+    return item.speciesLocalized
+  }
+
+  const key = `pets.species_${normalizeTranslationKey(item.species)}`
+  const translated = t(key)
+  return translated === key ? item.species : translated
+}
+
+const getPetBreedLabel = (item: Pet) => {
+  if (item.breedLocalized) {
+    return item.breedLocalized
+  }
+
+  const key = `pets.breed_${normalizeTranslationKey(item.breed)}`
+  const translated = t(key)
+  return translated === key ? item.breed : translated
 }
 
 const addTreatment = () => {
