@@ -141,7 +141,7 @@
                   {{ formatDateRange(period.startDate, period.endDate) }}
                 </td>
                 <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100">
-                  <Badge v-if="period.reason" variant="secondary" size="sm">
+                  <Badge v-if="period.reason" variant="primary" size="sm">
                     {{ period.reason }}
                   </Badge>
                   <span v-else class="text-slate-400 dark:text-slate-500">—</span>
@@ -169,7 +169,7 @@
 
     <!-- Delete Confirmation Modal -->
     <Modal
-      v-if="deleteConfirmPeriod"
+      :isOpen="!!deleteConfirmPeriod"
       title="Delete Unavailable Period"
       @close="deleteConfirmPeriod = null"
     >
@@ -178,7 +178,7 @@
           <p class="text-slate-600 dark:text-slate-400">
             Are you sure you want to delete the unavailable period for
             <span class="font-semibold text-slate-900 dark:text-slate-100">
-              {{ formatDateRange(deleteConfirmPeriod.startDate, deleteConfirmPeriod.endDate) }}
+              {{ deleteConfirmPeriod ? formatDateRange(deleteConfirmPeriod.startDate, deleteConfirmPeriod.endDate) : '' }}
             </span>?
           </p>
           <p class="text-sm text-slate-500 dark:text-slate-400">This action cannot be undone.</p>
