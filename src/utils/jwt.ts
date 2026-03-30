@@ -19,7 +19,21 @@ export function decodeToken(token: string): any {
         .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
         .join('')
     )
-    return JSON.parse(jsonPayload)
+    const payload = JSON.parse(jsonPayload)
+
+    // Transform the JWT payload to match the User interface
+    return {
+      id: payload.sub || payload.nameid || '',
+      email: payload.email || '',
+      roles: payload.roles
+        ? typeof payload.roles === 'string'
+          ? payload.roles.split(',').map((r: string) => r.trim()).filter(Boolean)
+          : Array.isArray(payload.roles)
+            ? payload.roles
+            : []
+        : [],
+      ...payload // Keep all original claims
+    }
   } catch {
     throw new Error('Invalid token payload')
   }
