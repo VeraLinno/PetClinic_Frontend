@@ -8,7 +8,7 @@
         <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
           Pet Clinic Platform
         </div>
-        <h1 class="mt-8 text-4xl font-semibold leading-tight">{{ $t('dashboard.owner.title').split(' ').slice(0, 2).join(' ') }}</h1>
+        <h1 class="mt-8 text-4xl font-semibold leading-tight">{{ $t('auth.loginPortalTitle') }}</h1>
       </div>
 
       <ul class="space-y-4 text-sm text-white/95">

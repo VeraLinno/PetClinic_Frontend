@@ -40,6 +40,7 @@
     "admin": "Administraatori paneel"
   },
   "auth": {
+    "loginPortalTitle": "Kliiniku ligipääsuportaal",
     "email": "E-post",
     "password": "Parool",
     "firstName": "Eesnimi",
