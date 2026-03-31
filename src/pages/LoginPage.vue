@@ -4,11 +4,14 @@
       <div class="absolute -left-12 top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
       <div class="absolute -bottom-10 right-8 h-44 w-44 rounded-full bg-white/10 blur-xl" aria-hidden="true" />
 
-      <div>
-        <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
-          Pet Clinic Platform
+      <div class="flex items-center justify-between w-full">
+        <div>
+          <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
+            Pet Clinic Platform
+          </div>
+          <h1 class="mt-8 text-4xl font-semibold leading-tight">{{ $t('auth.loginPortalTitle') }}</h1>
         </div>
-        <h1 class="mt-8 text-4xl font-semibold leading-tight">{{ $t('auth.loginPortalTitle') }}</h1>
+        <LanguageSwitcher class="ml-4" />
       </div>
 
       <ul class="space-y-4 text-sm text-white/95">

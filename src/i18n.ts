@@ -84,3 +84,8 @@ export const availableLanguages = [
   { code: 'et', name: 'Eesti', flag: '🇪🇪' },
   { code: 'ru', name: 'Русский', flag: '🇷🇺' }
 ]
+
+// Load translations from database for the saved language on initialization
+loadDbTranslations(savedLanguage).catch(err => {
+  console.warn('Failed to load translations from database on init:', err)
+})

@@ -314,36 +314,36 @@ const canProceed = computed(() => {
 })
 
 // Methods
-const loadPets = async () => {
-  try {
-    const data = isVet.value ? await ownersService.getAllPets() : await ownersService.getPets()
-    pets.value = data
-    // If pet was pre-selected from sessionStorage
-    const storedPet = sessionStorage.getItem('selectedPet')
-    if (storedPet) {
-      const pet = JSON.parse(storedPet)
-      selectedPet.value = pets.value.find(p => p.id === pet.id) || null
-      sessionStorage.removeItem('selectedPet')
-    }
-  } catch (error) {
-    console.error('Failed to load pets', error)
-  }
-}
-
-const loadVeterinarians = async () => {
-  try {
-    veterinarians.value = await ownersService.getVeterinarians()
-    if (isVet.value) {
-      const currentUserId = authStore.user?.id?.toLowerCase()
-      const currentVet = veterinarians.value.find((vet) => vet.id.toLowerCase() === currentUserId)
-      if (currentVet) {
-        selectedVeterinarianId.value = currentVet.id
+  const loadPets = async () => {
+    try {
+      const data = isVet.value ? await ownersService.getAllPets() : await ownersService.getPets()
+      pets.value = data
+      // If pet was pre-selected from sessionStorage
+      const storedPet = sessionStorage.getItem('selectedPet')
+      if (storedPet) {
+        const pet = JSON.parse(storedPet)
+        selectedPet.value = pets.value.find(p => p.id === pet.id) || null
+        sessionStorage.removeItem('selectedPet')
       }
+    } catch (err) {
+      console.error('Failed to load pets', err)
     }
-  } catch (error) {
-    console.error('Failed to load veterinarians', error)
   }
-}
+
+  const loadVeterinarians = async () => {
+    try {
+      veterinarians.value = await ownersService.getVeterinarians()
+      if (isVet.value) {
+        const currentUserId = authStore.user?.id?.toLowerCase()
+        const currentVet = veterinarians.value.find((vet) => vet.id.toLowerCase() === currentUserId)
+        if (currentVet) {
+          selectedVeterinarianId.value = currentVet.id
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load veterinarians', err)
+    }
+  }
 
 const selectPet = (pet: Pet) => {
   selectedPet.value = pet
@@ -409,23 +409,23 @@ const previousStep = () => {
   }
 }
 
-const loadAvailableSlots = async () => {
-  if (!selectedDate.value) return
+  const loadAvailableSlots = async () => {
+    if (!selectedDate.value) return
 
-  loadingSlots.value = true
-  try {
-    // TODO: Replace with real availability API once backend endpoint is available.
-    availableSlots.value = defaultSlots.filter((slot) => !isPastSlotForSelectedDate(slot))
+    loadingSlots.value = true
+    try {
+      // TODO: Replace with real availability API once backend endpoint is available.
+      availableSlots.value = defaultSlots.filter((slot) => !isPastSlotForSelectedDate(slot))
 
-    if (selectedTime.value && !availableSlots.value.includes(selectedTime.value)) {
-      selectedTime.value = ''
+      if (selectedTime.value && !availableSlots.value.includes(selectedTime.value)) {
+        selectedTime.value = ''
+      }
+    } catch (err) {
+      console.error('Failed to load slots', err)
+    } finally {
+      loadingSlots.value = false
     }
-  } catch (error) {
-    console.error('Failed to load slots', error)
-  } finally {
-    loadingSlots.value = false
   }
-}
 
 const selectTime = (time: string) => {
   selectedTime.value = time
@@ -450,11 +450,11 @@ const toLocalDateTimeString = (date: Date) => {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
 
-const confirmBooking = async () => {
-  if (!selectedPet.value || !selectedDate.value || !selectedTime.value || !selectedVeterinarianId.value) {
-    error.value = 'Please select a veterinarian before confirming the appointment.'
-    return
-  }
+  const confirmBooking = async () => {
+    if (!selectedPet.value || !selectedDate.value || !selectedTime.value || !selectedVeterinarianId.value) {
+      error.value = 'Please fill in all required fields before confirming the appointment.'
+      return
+    }
 
   if (isSelectedDateUnavailable.value) {
     error.value = 'Selected date is unavailable. Please choose another date.'
