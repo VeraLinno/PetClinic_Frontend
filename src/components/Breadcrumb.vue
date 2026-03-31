@@ -8,7 +8,7 @@
             class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
           >
             <HomeIcon class="h-4 w-4" aria-hidden="true" />
-            <span>Home</span>
+            <span>{{ t('common.home') }}</span>
           </RouterLink>
         </li>
 
@@ -40,7 +40,7 @@
             class="inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
           >
             <HomeIcon class="h-4 w-4" aria-hidden="true" />
-            <span>Home</span>
+            <span>{{ t('common.home') }}</span>
           </RouterLink>
         </li>
 
@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ChevronRightIcon, HomeIcon } from '@heroicons/vue/24/outline'
 
 interface BreadcrumbItem {
@@ -74,6 +75,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const route = useRoute()
+const { t } = useI18n()
 
 const homePath = computed(() => {
   if (route.path.startsWith('/vet')) return '/vet'

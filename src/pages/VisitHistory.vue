@@ -3,50 +3,50 @@
     <Breadcrumb :items="breadcrumbItems" />
 
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Visit History</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">View your pet's past visits and medical records</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('visits.title') }}</h1>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">{{ $t('visits.subtitle') }}</p>
     </div>
 
     <Card>
       <template #header>
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Filter Visits</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('visits.filterVisits') }}</h2>
           <div class="flex flex-wrap gap-2">
             <select
               v-model="filters.petId"
               class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
-              <option value="">All Pets</option>
+              <option value="">{{ $t('visits.allPets') }}</option>
               <option v-for="pet in pets" :key="pet.id" :value="pet.id">{{ pet.name }}</option>
             </select>
             <Input
               v-model="filters.startDate"
               type="date"
-              placeholder="Start Date"
+              :placeholder="$t('visits.startDate')"
               class="w-40"
             />
             <Input
               v-model="filters.endDate"
               type="date"
-              placeholder="End Date"
+              :placeholder="$t('visits.endDate')"
               class="w-40"
             />
-            <Button variant="outline" @click="applyFilters">Apply</Button>
-            <Button variant="ghost" @click="clearFilters">Clear</Button>
+            <Button variant="outline" @click="applyFilters">{{ $t('visits.apply') }}</Button>
+            <Button variant="ghost" @click="clearFilters">{{ $t('visits.clear') }}</Button>
           </div>
         </div>
       </template>
 
       <div v-if="loading" class="text-center py-8">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">Loading visits...</p>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $t('visits.loading') }}</p>
       </div>
 
       <div v-else-if="filteredVisits.length === 0" class="text-center py-8">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">No visits found for the selected filters.</p>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $t('visits.noVisitsForFilters') }}</p>
       </div>
 
       <div v-else class="space-y-3">
@@ -73,12 +73,12 @@
             </div>
             <div class="flex items-center gap-3">
               <div class="text-right">
-                <p class="text-sm font-medium text-gray-900 dark:text-white">Dr. {{ visit.vetName }}</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $t('visits.veterinarianAbbr') }} {{ visit.vetName }}</p>
                 <Badge :variant="visit.invoiceStatus === 'Paid' ? 'success' : 'warning'" size="sm">
-                  {{ visit.invoiceStatus || 'Pending' }}
+                  {{ visit.invoiceStatus || $t('invoices.status_pending') }}
                 </Badge>
               </div>
-              <Button variant="outline" size="sm" @click="viewDetails(visit)">Details</Button>
+              <Button variant="outline" size="sm" @click="viewDetails(visit)">{{ $t('common.details') }}</Button>
             </div>
           </div>
         </div>
@@ -89,25 +89,25 @@
       <div v-if="selectedVisit" class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Date</label>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('visits.date') }}</label>
             <p class="text-gray-900 dark:text-white">{{ formatDateLong(selectedVisit.date) }}</p>
           </div>
           <div>
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Veterinarian</label>
-            <p class="text-gray-900 dark:text-white">Dr. {{ selectedVisit.vetName }}</p>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('visits.veterinarian') }}</label>
+            <p class="text-gray-900 dark:text-white">{{ $t('visits.veterinarianAbbr') }} {{ selectedVisit.vetName }}</p>
           </div>
           <div v-if="selectedVisit.diagnosis">
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Diagnosis</label>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('visits.diagnosis') }}</label>
             <p class="text-gray-900 dark:text-white">{{ selectedVisit.diagnosis }}</p>
           </div>
           <div v-if="selectedVisit.treatments?.length">
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Treatments</label>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('visits.treatments') }}</label>
             <ul class="list-disc list-inside text-gray-900 dark:text-white">
               <li v-for="t in selectedVisit.treatments" :key="t">{{ t }}</li>
             </ul>
           </div>
           <div v-if="selectedVisit.prescriptions?.length">
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Prescriptions</label>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('visits.prescriptions') }}</label>
             <ul class="list-disc list-inside text-gray-900 dark:text-white">
               <li v-for="p in selectedVisit.prescriptions" :key="p.medication">
                 {{ p.medication }} - {{ p.dosage }}
@@ -115,16 +115,16 @@
             </ul>
           </div>
           <div v-if="selectedVisit.invoiceTotal">
-            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Invoice Total</label>
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('visits.invoiceTotal') }}</label>
             <p class="text-gray-900 dark:text-white">${{ selectedVisit.invoiceTotal }}</p>
           </div>
         </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-3">
-          <Button variant="outline" @click="showDetailsModal = false">Close</Button>
+          <Button variant="outline" @click="showDetailsModal = false">{{ $t('common.close') }}</Button>
           <Button v-if="selectedVisit?.invoiceStatus !== 'Paid'" variant="primary" @click="payInvoice">
-            Pay Invoice
+            {{ $t('invoices.pay') }}
           </Button>
         </div>
       </template>
@@ -135,6 +135,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ownersService, type Pet } from '@/services/owners'
 import { appointmentsService } from '@/services/appointments'
 import Card from '@/components/ui/Card.vue'
@@ -144,9 +145,8 @@ import Modal from '@/components/ui/Modal.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 
-const breadcrumbItems = [
-  { label: 'Visit History' }
-]
+const { t, locale } = useI18n()
+const breadcrumbItems = computed(() => [{ label: t('visits.title') }])
 
 const route = useRoute()
 const router = useRouter()
@@ -212,10 +212,10 @@ const loadVisits = async () => {
       .map((appointment: any) => ({
         id: appointment.id,
         petId: appointment.petId,
-        petName: petNameById.get(appointment.petId) || 'Unknown Pet',
+        petName: petNameById.get(appointment.petId) || t('visits.unknownPet'),
         date: appointment.startAt || appointment.dateTime,
-        vetName: appointment.veterinarianName || 'Assigned Vet',
-        invoiceStatus: 'Pending'
+        vetName: appointment.veterinarianName || t('visits.assignedVet'),
+        invoiceStatus: t('invoices.status_pending')
       }))
   } catch (error) {
     console.error('Failed to load visits', error)
@@ -229,14 +229,14 @@ const getPetEmoji = (petName: string) => {
 }
 
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('en-US', {
+  return new Date(date).toLocaleDateString(locale.value || undefined, {
     month: 'short',
     day: 'numeric'
   })
 }
 
 const formatDateLong = (date: string) => {
-  return new Date(date).toLocaleDateString('en-US', {
+  return new Date(date).toLocaleDateString(locale.value || undefined, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'

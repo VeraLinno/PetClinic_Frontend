@@ -6,7 +6,7 @@
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ $t('pets.title') }}</h1>
-          <p class="mt-1 text-slate-500 dark:text-slate-400">{{ $t('pets.manageAllProfiles') }}</p>
+          <p class="mt-1 text-slate-500 dark:text-slate-400">{{ $t('pets.profilesSubtitle') }}</p>
         </div>
         <div class="flex gap-2">
           <Button variant="outline" @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'">
@@ -20,8 +20,8 @@
     <Card>
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('pets.petProfiles') }}</h2>
-          <Input v-model="search" :placeholder="$t('pets.searchByNameOrBreed')" class="w-full sm:w-72" />
+          <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('pets.profilesTitle') }}</h2>
+          <Input v-model="search" :placeholder="$t('pets.searchPlaceholder')" class="w-full sm:w-72" />
         </div>
       </template>
 
@@ -248,7 +248,13 @@ const petAge = (date: string) => {
   const birth = new Date(date)
   const now = new Date()
   const y = now.getFullYear() - birth.getFullYear()
-  return y <= 0 ? t('pets.ageLessThanYear') : t('pets.ageYears', { count: y })
+  if (y <= 0) return t('pets.ageLessThanYear')
+
+  const ageText = t('pets.ageYears', { count: y })
+  if (ageText === 'pets.ageYears') {
+    return t('pets.ageYearsOld', { count: y })
+  }
+  return ageText
 }
 
 const openDetails = (pet: Pet) => {
