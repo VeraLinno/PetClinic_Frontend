@@ -4,12 +4,12 @@
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Vet Accounts</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Manage veterinarian accounts from one place.</p>
+            <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('vetAccounts.title') }}</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('vetAccounts.subtitle') }}</p>
           </div>
           <div class="flex items-center gap-2">
-            <Button variant="outline" size="sm" @click="loadVetAccounts">Refresh</Button>
-            <Button variant="primary" size="sm" @click="openCreateModal">Add Vet Account</Button>
+            <Button variant="outline" size="sm" @click="loadVetAccounts">{{ $t('vetAccounts.refresh') }}</Button>
+            <Button variant="primary" size="sm" @click="openCreateModal">{{ $t('vetAccounts.addAccount') }}</Button>
           </div>
         </div>
       </template>
@@ -28,21 +28,21 @@
         {{ successMessage }}
       </div>
 
-      <div v-if="loading" class="py-8 text-center text-sm text-slate-500 dark:text-slate-400">Loading vet accounts...</div>
+      <div v-if="loading" class="py-8 text-center text-sm text-slate-500 dark:text-slate-400">{{ $t('vetAccounts.loading') }}</div>
 
       <div v-else-if="vetAccounts.length === 0" class="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-        No veterinary accounts found.
+        {{ $t('vetAccounts.noAccounts') }}
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
           <thead>
             <tr>
-              <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Name</th>
-              <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Email</th>
-              <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">License</th>
-              <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Phone</th>
-              <th class="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Actions</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $t('vetAccounts.name') }}</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $t('vetAccounts.email') }}</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $t('vetAccounts.license') }}</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $t('vetAccounts.phone') }}</th>
+              <th class="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -53,14 +53,14 @@
               <td class="px-3 py-3 text-sm text-slate-700 dark:text-slate-300">{{ account.phoneNumber || '-' }}</td>
               <td class="px-3 py-3 text-right">
                 <div class="inline-flex items-center gap-2">
-                  <Button variant="outline" size="sm" @click="openEditModal(account)">Edit</Button>
+                  <Button variant="outline" size="sm" @click="openEditModal(account)">{{ $t('common.edit') }}</Button>
                   <Button
                     v-if="canDeleteAccount(account)"
                     variant="danger"
                     size="sm"
                     @click="confirmDelete(account)"
                   >
-                    Delete
+                    {{ $t('common.delete') }}
                   </Button>
                 </div>
               </td>
@@ -70,41 +70,41 @@
       </div>
     </Card>
 
-    <Modal :is-open="showCreateModal" title="Add Vet Account" @close="closeCreateModal">
+    <Modal :is-open="showCreateModal" :title="$t('vetAccounts.createTitle')" @close="closeCreateModal">
       <div class="space-y-4">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input v-model="createForm.firstName" label="First Name" placeholder="Sarah" :disabled="saving" />
-          <Input v-model="createForm.lastName" label="Last Name" placeholder="Johnson" :disabled="saving" />
+          <Input v-model="createForm.firstName" :label="$t('auth.firstName')" placeholder="Sarah" :disabled="saving" />
+          <Input v-model="createForm.lastName" :label="$t('auth.lastName')" placeholder="Johnson" :disabled="saving" />
         </div>
-        <Input v-model="createForm.email" type="email" label="Email" placeholder="vet@petclinic.com" :disabled="saving" />
-        <Input v-model="createForm.password" type="password" label="Password" placeholder="Minimum 8 characters" :disabled="saving" />
-        <Input v-model="createForm.licenseNumber" label="License Number" placeholder="VET-1002" :disabled="saving" />
-        <Input v-model="createForm.phoneNumber" type="tel" label="Phone Number (optional)" placeholder="+1 555 000 0000" :disabled="saving" />
+        <Input v-model="createForm.email" type="email" :label="$t('auth.email')" placeholder="vet@petclinic.com" :disabled="saving" />
+        <Input v-model="createForm.password" type="password" :label="$t('auth.password')" :placeholder="$t('dashboard.vet.minimum8Chars')" :disabled="saving" />
+        <Input v-model="createForm.licenseNumber" :label="$t('auth.licenseNumber')" placeholder="VET-1002" :disabled="saving" />
+        <Input v-model="createForm.phoneNumber" type="tel" :label="`${$t('auth.phoneNumber')} (${$t('appointments.optional')})`" placeholder="+1 555 000 0000" :disabled="saving" />
         <p v-if="modalError" class="text-sm text-danger-600 dark:text-danger-400">{{ modalError }}</p>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" :disabled="saving" @click="closeCreateModal">Cancel</Button>
-          <Button variant="primary" :loading="saving" @click="submitCreate">Create</Button>
+          <Button variant="outline" :disabled="saving" @click="closeCreateModal">{{ $t('common.cancel') }}</Button>
+          <Button variant="primary" :loading="saving" @click="submitCreate">{{ $t('common.add') }}</Button>
         </div>
       </template>
     </Modal>
 
-    <Modal :is-open="showEditModal" title="Edit Vet Account" @close="closeEditModal">
+    <Modal :is-open="showEditModal" :title="$t('vetAccounts.editTitle')" @close="closeEditModal">
       <div class="space-y-4">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input v-model="editForm.firstName" label="First Name" :disabled="saving" />
-          <Input v-model="editForm.lastName" label="Last Name" :disabled="saving" />
+          <Input v-model="editForm.firstName" :label="$t('auth.firstName')" :disabled="saving" />
+          <Input v-model="editForm.lastName" :label="$t('auth.lastName')" :disabled="saving" />
         </div>
-        <Input v-model="editForm.email" type="email" label="Email" :disabled="saving" />
-        <Input v-model="editForm.licenseNumber" label="License Number" :disabled="saving" />
-        <Input v-model="editForm.phoneNumber" type="tel" label="Phone Number (optional)" :disabled="saving" />
+        <Input v-model="editForm.email" type="email" :label="$t('auth.email')" :disabled="saving" />
+        <Input v-model="editForm.licenseNumber" :label="$t('auth.licenseNumber')" :disabled="saving" />
+        <Input v-model="editForm.phoneNumber" type="tel" :label="`${$t('auth.phoneNumber')} (${$t('appointments.optional')})`" :disabled="saving" />
         <p v-if="modalError" class="text-sm text-danger-600 dark:text-danger-400">{{ modalError }}</p>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" :disabled="saving" @click="closeEditModal">Cancel</Button>
-          <Button variant="primary" :loading="saving" @click="submitEdit">Save</Button>
+          <Button variant="outline" :disabled="saving" @click="closeEditModal">{{ $t('common.cancel') }}</Button>
+          <Button variant="primary" :loading="saving" @click="submitEdit">{{ $t('common.save') }}</Button>
         </div>
       </template>
     </Modal>
@@ -113,6 +113,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
@@ -125,6 +126,7 @@ import {
 
 const MAIN_VET_EMAIL = 'vet@petclinic.com'
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const vetAccounts = ref<VetAccount[]>([])
 const loading = ref(false)
@@ -159,7 +161,7 @@ const loadVetAccounts = async () => {
   try {
     vetAccounts.value = await vetAccountsService.getAll()
   } catch (err: any) {
-    error.value = err?.response?.data?.error || 'Failed to load vet accounts.'
+    error.value = err?.response?.data?.error || t('vetAccounts.loadFailed')
   } finally {
     loading.value = false
   }
@@ -207,17 +209,17 @@ const closeEditModal = () => {
 }
 
 const validateCreate = () => {
-  if (!createForm.value.firstName.trim() || !createForm.value.lastName.trim()) return 'First and last name are required.'
-  if (!createForm.value.email.trim()) return 'Email is required.'
-  if (createForm.value.password.length < 8) return 'Password must be at least 8 characters.'
-  if (!createForm.value.licenseNumber.trim()) return 'License number is required.'
+  if (!createForm.value.firstName.trim() || !createForm.value.lastName.trim()) return t('vetAccounts.firstLastRequired')
+  if (!createForm.value.email.trim()) return t('vetAccounts.emailRequired')
+  if (createForm.value.password.length < 8) return t('vetAccounts.passwordTooShort')
+  if (!createForm.value.licenseNumber.trim()) return t('vetAccounts.licenseRequired')
   return ''
 }
 
 const validateEdit = () => {
-  if (!editForm.value.firstName.trim() || !editForm.value.lastName.trim()) return 'First and last name are required.'
-  if (!editForm.value.email.trim()) return 'Email is required.'
-  if (!editForm.value.licenseNumber.trim()) return 'License number is required.'
+  if (!editForm.value.firstName.trim() || !editForm.value.lastName.trim()) return t('vetAccounts.firstLastRequired')
+  if (!editForm.value.email.trim()) return t('vetAccounts.emailRequired')
+  if (!editForm.value.licenseNumber.trim()) return t('vetAccounts.licenseRequired')
   return ''
 }
 
@@ -242,10 +244,10 @@ const submitCreate = async () => {
       phoneNumber: createForm.value.phoneNumber.trim() || undefined
     })
     closeCreateModal()
-    successMessage.value = 'Vet account created successfully.'
+    successMessage.value = t('vetAccounts.createSuccess')
     await loadVetAccounts()
   } catch (err: any) {
-    modalError.value = err?.response?.data?.error || 'Failed to create vet account.'
+    modalError.value = err?.response?.data?.error || t('vetAccounts.createFailed')
   } finally {
     saving.value = false
   }
@@ -271,10 +273,10 @@ const submitEdit = async () => {
       phoneNumber: editForm.value.phoneNumber.trim() || undefined
     })
     closeEditModal()
-    successMessage.value = 'Vet account updated successfully.'
+    successMessage.value = t('vetAccounts.updateSuccess')
     await loadVetAccounts()
   } catch (err: any) {
-    modalError.value = err?.response?.data?.error || 'Failed to update vet account.'
+    modalError.value = err?.response?.data?.error || t('vetAccounts.updateFailed')
   } finally {
     saving.value = false
   }
@@ -312,7 +314,7 @@ const confirmDelete = async (account: VetAccount) => {
   modalError.value = ''
   successMessage.value = ''
 
-  const confirmed = window.confirm('are u sure?')
+  const confirmed = window.confirm(t('vetAccounts.confirmDelete'))
   if (!confirmed) {
     return
   }
@@ -320,10 +322,10 @@ const confirmDelete = async (account: VetAccount) => {
   saving.value = true
   try {
     await vetAccountsService.delete(account.id)
-    successMessage.value = `Vet account ${account.email} deleted.`
+    successMessage.value = t('vetAccounts.deleteSuccess', { email: account.email })
     await loadVetAccounts()
   } catch (err: any) {
-    error.value = err?.response?.data?.error || 'Failed to delete vet account.'
+    error.value = err?.response?.data?.error || t('vetAccounts.deleteFailed')
   } finally {
     saving.value = false
   }

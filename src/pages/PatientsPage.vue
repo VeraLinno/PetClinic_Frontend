@@ -3,30 +3,30 @@
     <Breadcrumb :items="breadcrumbItems" />
 
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Patients</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">Manage your patient records</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('patients.title') }}</h1>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">{{ $t('patients.manageRecords') }}</p>
     </div>
 
     <Card>
       <template #header>
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">All Patients</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('patients.allPatients') }}</h2>
           <div class="flex w-full flex-wrap gap-2 md:w-auto">
             <Input
               v-model="searchQuery"
-              placeholder="Search by name or owner..."
+              :placeholder="$t('patients.searchPlaceholder')"
               class="w-full md:w-64"
             />
             <select
               v-model="speciesFilter"
               class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
-              <option value="">All Species</option>
-              <option value="Dog">Dog</option>
-              <option value="Cat">Cat</option>
-              <option value="Bird">Bird</option>
+              <option value="">{{ $t('patients.allSpecies') }}</option>
+              <option value="Dog">{{ $t('pets.species_dog') }}</option>
+              <option value="Cat">{{ $t('pets.species_cat') }}</option>
+              <option value="Bird">{{ $t('pets.species_bird') }}</option>
             </select>
-            <Button variant="ghost" @click="speciesFilter = ''">Reset</Button>
+            <Button variant="ghost" @click="speciesFilter = ''">{{ $t('common.reset') }}</Button>
           </div>
         </div>
       </template>
@@ -36,7 +36,7 @@
       </div>
 
       <div v-else-if="filteredPatients.length === 0" class="text-center py-8 text-gray-500">
-        No patients found.
+        {{ $t('patients.noPatients') }}
       </div>
 
       <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -51,12 +51,12 @@
             </div>
             <div class="flex-1">
               <h3 class="font-semibold text-gray-900 dark:text-white">{{ patient.name }}</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ patient.species }} - {{ patient.breed }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Owner: {{ patient.ownerName }}</p>
-              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Last visit: {{ formatDate(patient.lastVisit) }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ getSpeciesLabel(patient.species) }} - {{ getBreedLabel(patient.breed) }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('patients.ownerLabel') }}: {{ patient.ownerName }}</p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ $t('patients.lastVisitLabel') }}: {{ formatDate(patient.lastVisit) }}</p>
               <div class="flex gap-2 mt-2">
-                <Button variant="outline" size="sm" @click="viewHistory(patient)">History</Button>
-                <Button variant="primary" size="sm" @click="startVisit(patient)">Start Visit</Button>
+                <Button variant="outline" size="sm" @click="viewHistory(patient)">{{ $t('patients.history') }}</Button>
+                <Button variant="primary" size="sm" @click="startVisit(patient)">{{ $t('dashboard.vet.startVisit') }}</Button>
               </div>
             </div>
           </div>
@@ -69,14 +69,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
-
-const breadcrumbItems = [
-  { label: 'Patients' }
-]
 
 interface Patient {
   id: string
@@ -89,6 +86,12 @@ interface Patient {
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
+
+const breadcrumbItems = computed(() => [
+  { label: t('patients.title') }
+])
+
 const patients = ref<Patient[]>([])
 const loading = ref(true)
 const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '')
@@ -147,6 +150,25 @@ const getPetEmoji = (species: string) => {
   if (species.toLowerCase() === 'cat') return '🐱'
   if (species.toLowerCase() === 'bird') return '🐦'
   return '🐾'
+}
+
+const normalizeTranslationKey = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+const getSpeciesLabel = (species: string) => {
+  const key = `pets.species_${normalizeTranslationKey(species)}`
+  const translated = t(key)
+  return translated === key ? species : translated
+}
+
+const getBreedLabel = (breed: string) => {
+  const key = `pets.breed_${normalizeTranslationKey(breed)}`
+  const translated = t(key)
+  return translated === key ? breed : translated
 }
 
 const viewHistory = (patient: Patient) => {

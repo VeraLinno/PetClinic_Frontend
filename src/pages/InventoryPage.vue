@@ -3,8 +3,8 @@
     <Breadcrumb :items="breadcrumbItems" />
 
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Inventory Management</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">Manage medications and supplies</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('inventory.managementTitle') }}</h1>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">{{ $t('inventory.managementSubtitle') }}</p>
 
       <div
         v-if="reorderSuccessMessage"
@@ -27,7 +27,7 @@
           <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Low Stock Alerts</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('inventory.lowStockAlerts') }}</h2>
         </div>
       </template>
       <div class="space-y-3">
@@ -39,10 +39,10 @@
           <div>
             <h3 class="font-medium text-red-900 dark:text-red-400">{{ item.name }}</h3>
             <p class="text-sm text-red-700 dark:text-red-500">
-              Current: {{ item.quantity }} {{ item.unit }} | Reorder Level: {{ item.reorderLevel }}
+              {{ $t('inventory.current') }}: {{ item.quantity }} {{ localizeUnit(item.unit) }} | {{ $t('inventory.reorderLevelLabel') }}: {{ item.reorderLevel }}
             </p>
           </div>
-          <Button variant="danger" size="sm" @click="openReorderModal(item)">Reorder</Button>
+          <Button variant="danger" size="sm" @click="openReorderModal(item)">{{ $t('inventory.reorder') }}</Button>
         </div>
       </div>
     </Card>
@@ -50,8 +50,8 @@
     <Card v-if="incomingReorders.length > 0">
       <template #header>
         <div class="flex items-center gap-2">
-          <Badge variant="primary" size="sm">Incoming</Badge>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Scheduled Deliveries</h2>
+          <Badge variant="primary" size="sm">{{ $t('inventory.incoming') }}</Badge>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('inventory.scheduledDeliveries') }}</h2>
         </div>
       </template>
       <div class="space-y-2">
@@ -60,7 +60,7 @@
           :key="incoming.reorderId"
           class="rounded-lg border border-primary-200 bg-primary-50 p-3 text-sm text-primary-800 dark:border-primary-700 dark:bg-primary-950/30 dark:text-primary-300"
         >
-          {{ incoming.quantity }} units of {{ incoming.medicationName }} will arrive at {{ formatDeliveryTime(incoming.deliveryAtUtc) }}.
+          {{ $t('inventory.incomingDeliveryText', { quantity: incoming.quantity, medicationName: incoming.medicationName, time: formatDeliveryTime(incoming.deliveryAtUtc) }) }}
         </div>
       </div>
     </Card>
@@ -68,12 +68,12 @@
     <Card>
       <template #header>
         <div class="flex items-center gap-2">
-          <Badge variant="success" size="sm">Delivered</Badge>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Delivered History</h2>
+          <Badge variant="success" size="sm">{{ $t('inventory.delivered') }}</Badge>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('inventory.deliveredHistory') }}</h2>
         </div>
       </template>
       <div v-if="deliveredReorders.length === 0" class="text-sm text-slate-500 dark:text-slate-400">
-        No delivered reorders yet.
+        {{ $t('inventory.noDeliveredReorders') }}
       </div>
       <div v-else class="space-y-2">
         <div
@@ -81,7 +81,7 @@
           :key="delivered.reorderId"
           class="rounded-lg border border-success-200 bg-success-50 p-3 text-sm text-success-800 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300"
         >
-          {{ delivered.quantity }} units of {{ delivered.medicationName }} were delivered at {{ formatDeliveryTime(delivered.receivedAtUtc) }}.
+          {{ $t('inventory.deliveredDeliveryText', { quantity: delivered.quantity, medicationName: delivered.medicationName, time: formatDeliveryTime(delivered.receivedAtUtc) }) }}
         </div>
       </div>
     </Card>
@@ -105,15 +105,15 @@
     <Card>
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">All Items</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('inventory.allItems') }}</h2>
           <div class="flex gap-2">
             <Input
               v-model="searchQuery"
-              placeholder="Search items..."
+              :placeholder="$t('inventory.searchItems')"
               class="w-full sm:w-64"
             />
             <Button variant="primary" @click="showAddModal = true">
-              Add Item
+              {{ $t('inventory.addItem') }}
             </Button>
           </div>
         </div>
@@ -127,13 +127,13 @@
         <table class="w-full min-w-[760px]">
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800">
-              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Name</th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Category</th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Quantity</th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Stock</th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Unit Price</th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
-              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('inventory.name') }}</th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('inventory.category') }}</th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('inventory.quantity') }}</th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('inventory.stock') }}</th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('inventory.unitPrice') }}</th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('inventory.status') }}</th>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('inventory.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -160,8 +160,8 @@
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <Button variant="ghost" size="sm" @click="editItem(item)">Edit</Button>
-                  <Button variant="outline" size="sm" @click="openReorderModal(item)">Reorder</Button>
+                  <Button variant="ghost" size="sm" @click="editItem(item)">{{ $t('common.edit') }}</Button>
+                  <Button variant="outline" size="sm" @click="openReorderModal(item)">{{ $t('inventory.reorder') }}</Button>
                 </div>
               </td>
             </tr>
@@ -170,30 +170,30 @@
       </div>
     </Card>
 
-    <Modal :is-open="showAddModal" title="Add Inventory Item" @close="showAddModal = false">
+    <Modal :is-open="showAddModal" :title="$t('inventory.addInventoryItem')" @close="showAddModal = false">
       <div class="space-y-4">
-        <Input v-model="newItem.name" label="Item Name" placeholder="e.g. Dewormer" />
-        <Input v-model="newItem.category" label="Category" placeholder="e.g. Medications" />
+        <Input v-model="newItem.name" :label="$t('inventory.itemName')" placeholder="e.g. Dewormer" />
+        <Input v-model="newItem.category" :label="$t('inventory.category')" :placeholder="$t('inventory.category_medications')" />
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input v-model="newItem.quantity" label="Quantity" type="number" />
-          <Input v-model="newItem.unitPrice" label="Unit Price" type="number" />
+          <Input v-model="newItem.quantity" :label="$t('inventory.quantity')" type="number" />
+          <Input v-model="newItem.unitPrice" :label="$t('inventory.unitPrice')" type="number" />
         </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" @click="showAddModal = false">Cancel</Button>
-          <Button variant="primary" @click="addInventoryItem">Add</Button>
+          <Button variant="outline" @click="showAddModal = false">{{ $t('common.cancel') }}</Button>
+          <Button variant="primary" @click="addInventoryItem">{{ $t('common.add') }}</Button>
         </div>
       </template>
     </Modal>
 
-    <Modal :is-open="showEditModal" title="Edit Inventory Item" @close="closeEditModal">
+    <Modal :is-open="showEditModal" :title="$t('inventory.editInventoryItem')" @close="closeEditModal">
       <div class="space-y-4" v-if="editingItemId">
-        <Input v-model="editItemForm.name" label="Item Name" placeholder="e.g. Dewormer" :error="editItemError" />
-        <Input v-model="editItemForm.category" label="Category" placeholder="e.g. Medications" :error="editItemError" />
+        <Input v-model="editItemForm.name" :label="$t('inventory.itemName')" placeholder="e.g. Dewormer" :error="editItemError" />
+        <Input v-model="editItemForm.category" :label="$t('inventory.category')" :placeholder="$t('inventory.category_medications')" :error="editItemError" />
         <Input
           v-model="editItemForm.unitPrice"
-          label="Unit Price"
+          :label="$t('inventory.unitPrice')"
           type="number"
           min="0"
           step="0.01"
@@ -203,33 +203,33 @@
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" @click="closeEditModal">Cancel</Button>
-          <Button variant="primary" :loading="editItemLoading" @click="saveEditedItem">Save</Button>
+          <Button variant="outline" @click="closeEditModal">{{ $t('common.cancel') }}</Button>
+          <Button variant="primary" :loading="editItemLoading" @click="saveEditedItem">{{ $t('common.save') }}</Button>
         </div>
       </template>
     </Modal>
 
-    <Modal :is-open="showReorderModal" title="Reorder Item" @close="closeReorderModal">
+    <Modal :is-open="showReorderModal" :title="$t('inventory.reorderItem')" @close="closeReorderModal">
       <div class="space-y-4" v-if="selectedReorderItem">
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
           <p class="font-medium">{{ selectedReorderItem.name }}</p>
-          <p>Current stock: {{ selectedReorderItem.quantity }} {{ localizeUnit(selectedReorderItem.unit) }}</p>
-          <p>Reorder level: {{ selectedReorderItem.reorderLevel }}</p>
+          <p>{{ $t('inventory.currentStock') }}: {{ selectedReorderItem.quantity }} {{ localizeUnit(selectedReorderItem.unit) }}</p>
+          <p>{{ $t('inventory.reorderLevelText') }}: {{ selectedReorderItem.reorderLevel }}</p>
         </div>
 
         <Input
           v-model="reorderQuantity"
           type="number"
-          label="Quantity to reorder"
+          :label="$t('inventory.quantityToReorder')"
           min="1"
-          placeholder="Enter quantity"
+          :placeholder="$t('inventory.enterQuantity')"
           :error="reorderError"
         />
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" :disabled="reorderLoading" @click="closeReorderModal">Cancel</Button>
-          <Button variant="primary" :loading="reorderLoading" @click="submitReorder">Reorder</Button>
+          <Button variant="outline" :disabled="reorderLoading" @click="closeReorderModal">{{ $t('common.cancel') }}</Button>
+          <Button variant="primary" :loading="reorderLoading" @click="submitReorder">{{ $t('inventory.reorder') }}</Button>
         </div>
       </template>
     </Modal>
@@ -253,13 +253,13 @@ import {
   type DeliveredInventoryReorder
 } from '@/services/inventory'
 
-const breadcrumbItems = [
-  { label: 'Inventory' }
-]
-
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+
+const breadcrumbItems = computed(() => [
+  { label: t('navigation.inventory') }
+])
 
 interface InventoryItem {
   id: string
@@ -404,7 +404,7 @@ const loadInventory = async () => {
     items.value = data.map(toInventoryItem)
   } catch (error) {
     console.error('Failed to load inventory', error)
-    loadError.value = 'Failed to load inventory items. Please try again.'
+    loadError.value = t('inventory.loadFailed')
   } finally {
     loading.value = false
   }
@@ -437,9 +437,9 @@ const formatDeliveryTime = (dateUtc: string) => {
 }
 
 const getStatus = (item: InventoryItem) => {
-  if (item.quantity === 0) return 'Out of Stock'
-  if (item.quantity <= item.reorderLevel) return 'Low Stock'
-  return 'In Stock'
+  if (item.quantity === 0) return t('inventory.statusOutOfStock')
+  if (item.quantity <= item.reorderLevel) return t('inventory.statusLowStock')
+  return t('inventory.statusInStock')
 }
 
 const getStatusVariant = (item: InventoryItem) => {
@@ -469,7 +469,7 @@ const submitReorder = async () => {
 
   const quantity = Number(reorderQuantity.value)
   if (!Number.isFinite(quantity) || quantity <= 0) {
-    reorderError.value = 'Please enter a valid quantity greater than zero.'
+    reorderError.value = t('inventory.invalidQuantity')
     return
   }
 
@@ -486,14 +486,14 @@ const submitReorder = async () => {
       minute: '2-digit'
     })
 
-    reorderSuccessMessage.value = `Reorder confirmed for ${result.medicationName}. Package will arrive tomorrow at ${deliveryLocal}.`
+    reorderSuccessMessage.value = `${t('inventory.reorderConfirmed')} ${result.medicationName}. ${t('inventory.packageArrives')} ${deliveryLocal}.`
     closeReorderModal()
     await loadInventory()
     await loadIncomingReorders()
     await loadDeliveredReorders()
   } catch (error) {
     console.error('Failed to reorder inventory item', error)
-    reorderError.value = 'Could not place reorder. Please try again.'
+    reorderError.value = t('inventory.reorderFailed')
   } finally {
     reorderLoading.value = false
   }
@@ -527,17 +527,17 @@ const saveEditedItem = async () => {
   const unitPrice = Number(editItemForm.value.unitPrice)
 
   if (!normalizedName) {
-    editItemError.value = 'Item name is required.'
+    editItemError.value = t('inventory.itemNameRequired')
     return
   }
 
   if (!normalizedCategory) {
-    editItemError.value = 'Category is required.'
+    editItemError.value = t('inventory.categoryRequired')
     return
   }
 
   if (!Number.isFinite(unitPrice) || unitPrice < 0) {
-    editItemError.value = 'Unit price must be a number greater than or equal to zero.'
+    editItemError.value = t('inventory.unitPriceInvalid')
     return
   }
 
@@ -567,7 +567,7 @@ const saveEditedItem = async () => {
     closeEditModal()
   } catch (error) {
     console.error('Failed to update inventory item', error)
-    editItemError.value = 'Could not update inventory item. Please try again.'
+    editItemError.value = t('inventory.updateFailed')
   } finally {
     editItemLoading.value = false
   }
