@@ -59,7 +59,9 @@
         >
           <div>
             <p class="font-medium">{{ item.name }}</p>
-            <p class="text-sm opacity-90">Current: {{ item.quantity }} {{ item.unit }} | Reorder at {{ item.reorderLevel }}</p>
+            <p class="text-sm opacity-90">
+              {{ $t('dashboard.vet.currentStock') }}: {{ item.quantity }} {{ item.unit }} | {{ $t('dashboard.vet.reorderAt') }} {{ item.reorderLevel }}
+            </p>
           </div>
           <div class="flex items-center gap-2">
             <Button variant="danger" size="sm" @click="orderMore(item)">{{ $t('dashboard.vet.orderMore') }}</Button>
@@ -90,7 +92,7 @@
           :key="incoming.reorderId"
           class="rounded-lg border border-primary-200 bg-primary-50 p-3 text-sm text-primary-800 dark:border-primary-700 dark:bg-primary-950/30 dark:text-primary-300"
         >
-          {{ incoming.quantity }} units of {{ incoming.medicationName }} will arrive at {{ formatDeliveryTime(incoming.deliveryAtUtc) }}.
+          {{ $t('dashboard.vet.incomingDeliveryText', { quantity: incoming.quantity, medicationName: incoming.medicationName, time: formatDeliveryTime(incoming.deliveryAtUtc) }) }}
         </div>
       </div>
     </Card>
@@ -112,7 +114,7 @@
           :key="delivered.reorderId"
           class="rounded-lg border border-success-200 bg-success-50 p-3 text-sm text-success-800 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300"
         >
-          {{ delivered.quantity }} units of {{ delivered.medicationName }} were delivered at {{ formatDeliveryTime(delivered.receivedAtUtc) }}.
+          {{ $t('dashboard.vet.deliveredDeliveryText', { quantity: delivered.quantity, medicationName: delivered.medicationName, time: formatDeliveryTime(delivered.receivedAtUtc) }) }}
         </div>
       </div>
     </Card>
@@ -209,14 +211,14 @@
     <Modal :is-open="showCreateVetModal" :title="$t('dashboard.vet.createAccountTitle')" @close="closeCreateVetModal">
       <div class="space-y-4">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input v-model="createVetForm.firstName" label="First Name" placeholder="Sarah" :disabled="createVetLoading" />
-          <Input v-model="createVetForm.lastName" label="Last Name" placeholder="Johnson" :disabled="createVetLoading" />
+          <Input v-model="createVetForm.firstName" :label="$t('auth.firstName')" placeholder="Sarah" :disabled="createVetLoading" />
+          <Input v-model="createVetForm.lastName" :label="$t('auth.lastName')" placeholder="Johnson" :disabled="createVetLoading" />
         </div>
 
         <Input
           v-model="createVetForm.email"
           type="email"
-          label="Email"
+          :label="$t('auth.email')"
           placeholder="new.vet@petclinic.com"
           :disabled="createVetLoading"
         />
@@ -224,14 +226,14 @@
         <Input
           v-model="createVetForm.password"
           type="password"
-          label="Temporary Password"
-          placeholder="Minimum 8 characters"
+          :label="$t('auth.password')"
+          :placeholder="$t('dashboard.vet.minimum8Chars')"
           :disabled="createVetLoading"
         />
 
         <Input
           v-model="createVetForm.licenseNumber"
-          label="License Number"
+          :label="$t('auth.licenseNumber')"
           placeholder="VET-1002"
           :disabled="createVetLoading"
         />
@@ -239,7 +241,7 @@
         <Input
           v-model="createVetForm.phoneNumber"
           type="tel"
-          label="Phone Number (optional)"
+          :label="`${$t('auth.phoneNumber')} (${$t('appointments.optional')})`"
           placeholder="+1 555 123 4567"
           :disabled="createVetLoading"
         />
@@ -542,7 +544,7 @@ const submitReorder = async () => {
 
   const quantity = Number(reorderQuantity.value)
   if (!Number.isFinite(quantity) || quantity <= 0) {
-    reorderError.value = 'Please enter a valid quantity greater than zero.'
+    reorderError.value = t('dashboard.vet.reorderInvalidQuantity')
     return
   }
 
@@ -559,14 +561,14 @@ const submitReorder = async () => {
       minute: '2-digit'
     })
 
-    reorderSuccessMessage.value = `Reorder confirmed for ${result.medicationName}. Package will arrive tomorrow at ${deliveryLocal}.`
+    reorderSuccessMessage.value = `${t('dashboard.vet.reorderConfirmed')} ${result.medicationName}. ${t('dashboard.vet.packageArrives')} ${deliveryLocal}.`
     closeReorderModal()
     await loadLowStockItems()
     await loadIncomingReorders()
     await loadDeliveredReorders()
   } catch (error) {
     console.error('Failed to reorder inventory item', error)
-    reorderError.value = 'Could not place reorder. Please try again.'
+    reorderError.value = t('dashboard.vet.reorderFailed')
   } finally {
     reorderLoading.value = false
   }
@@ -589,22 +591,22 @@ const submitCreateVet = async () => {
   createVetSuccess.value = ''
 
   if (!createVetForm.value.firstName.trim() || !createVetForm.value.lastName.trim()) {
-    createVetError.value = 'First name and last name are required.'
+    createVetError.value = t('dashboard.vet.firstNameRequired')
     return
   }
 
   if (!createVetForm.value.email.trim()) {
-    createVetError.value = 'Email is required.'
+    createVetError.value = t('dashboard.vet.emailRequired')
     return
   }
 
   if (createVetForm.value.password.length < 8) {
-    createVetError.value = 'Password must be at least 8 characters.'
+    createVetError.value = t('dashboard.vet.passwordTooShort')
     return
   }
 
   if (!createVetForm.value.licenseNumber.trim()) {
-    createVetError.value = 'License number is required.'
+    createVetError.value = t('dashboard.vet.licenseRequired')
     return
   }
 
@@ -619,7 +621,7 @@ const submitCreateVet = async () => {
       phoneNumber: createVetForm.value.phoneNumber.trim() || undefined
     })
 
-    createVetSuccess.value = 'Veterinary account created successfully.'
+    createVetSuccess.value = t('dashboard.vet.accountCreated')
     createVetForm.value = {
       firstName: '',
       lastName: '',
@@ -632,7 +634,7 @@ const submitCreateVet = async () => {
     createVetError.value =
       error?.response?.data?.error ||
       error?.response?.data?.message ||
-      'Could not create vet account. Please try again.'
+      t('dashboard.vet.accountCreateFailed')
   } finally {
     createVetLoading.value = false
   }

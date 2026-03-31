@@ -65,6 +65,34 @@ function sanitizeTranslationNode(node: unknown, path: string): unknown {
   return Object.keys(result).length > 0 ? result : undefined
 }
 
+function deepMergeTranslations(
+  base: Record<string, unknown>,
+  incoming: Record<string, unknown>
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...base }
+
+  for (const [key, value] of Object.entries(incoming)) {
+    const existing = merged[key]
+    if (
+      existing &&
+      typeof existing === 'object' &&
+      !Array.isArray(existing) &&
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value)
+    ) {
+      merged[key] = deepMergeTranslations(
+        existing as Record<string, unknown>,
+        value as Record<string, unknown>
+      )
+    } else {
+      merged[key] = value
+    }
+  }
+
+  return merged
+}
+
 // Load translations from database API (exported for use in main.ts and setLanguage)
 export async function loadDbTranslations(languageCode: string): Promise<void> {
   try {
@@ -101,9 +129,16 @@ export async function loadDbTranslations(languageCode: string): Promise<void> {
     for (const [category, translations] of Object.entries(data.translations)) {
       const sanitizedCategory = sanitizeTranslationNode(translations, category)
       if (sanitizedCategory && typeof sanitizedCategory === 'object') {
+        const existingCategory = currentMessages[languageCode][category]
         currentMessages[languageCode] = {
           ...currentMessages[languageCode],
-          [category]: sanitizedCategory
+          [category]:
+            existingCategory && typeof existingCategory === 'object'
+              ? deepMergeTranslations(
+                  existingCategory as Record<string, unknown>,
+                  sanitizedCategory as Record<string, unknown>
+                )
+              : sanitizedCategory
         }
       }
     }
