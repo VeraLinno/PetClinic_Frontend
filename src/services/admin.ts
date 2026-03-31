@@ -1,5 +1,11 @@
 import api from './api'
 
+const resolveAdminBaseUrl = (): string | undefined => {
+  const configuredBaseUrl = String(api.defaults.baseURL || '').replace(/\/+$/, '')
+  const adminBaseUrl = configuredBaseUrl.replace(/\/api\/v\d+$/i, '')
+  return adminBaseUrl || undefined
+}
+
 export interface AdminDashboardMetrics {
   totalUsers: number
   totalVeterinarians: number
@@ -46,7 +52,10 @@ export interface AdminAppointment {
 }
 
 const adminGet = async <T>(url: string, params?: Record<string, unknown>): Promise<T> => {
-  const response = await api.get<T>(url, { params })
+  const response = await api.get<T>(url, {
+    params,
+    baseURL: resolveAdminBaseUrl()
+  })
   return response.data
 }
 
