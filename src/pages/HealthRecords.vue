@@ -3,13 +3,13 @@
     <Breadcrumb :items="breadcrumbItems" />
 
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Health Records</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">View and manage your pets' health information</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('health.recordsTitle') }}</h1>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">{{ $t('health.recordsSubtitle') }}</p>
     </div>
 
     <Card v-if="pets.length > 0">
       <template #header>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Pet Records</h2>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('health.petRecords') }}</h2>
       </template>
       <div class="flex gap-3 overflow-x-auto pb-2">
         <button
@@ -33,7 +33,7 @@
       <template #header>
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Health Records - {{ selectedPet.name }}
+            {{ $t('health.recordsForPet', { name: selectedPet.name }) }}
           </h2>
           <Badge variant="success">{{ petAge(selectedPet.dateOfBirth) }}</Badge>
         </div>
@@ -42,8 +42,8 @@
       <div class="space-y-8">
         <div>
           <div class="mb-3 flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Vaccinations</h3>
-            <Button variant="outline" size="sm">Add Vaccination</Button>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ $t('health.vaccinations') }}</h3>
+            <Button variant="outline" size="sm">{{ $t('health.addVaccination') }}</Button>
           </div>
 
           <div class="space-y-3">
@@ -56,11 +56,11 @@
                 <span class="mt-1 h-2.5 w-2.5 rounded-full bg-success-500" aria-hidden="true" />
                 <div>
                   <p class="font-medium text-gray-900 dark:text-white">{{ vax.name }}</p>
-                  <p class="text-sm text-gray-500">Given: {{ formatDate(vax.date) }}</p>
-                  <p class="text-xs text-slate-400">Next due: {{ nextDueDate(vax.date) }}</p>
+                  <p class="text-sm text-gray-500">{{ $t('health.given') }}: {{ formatDate(vax.date) }}</p>
+                  <p class="text-xs text-slate-400">{{ $t('health.nextDueShort') }}: {{ nextDueDate(vax.date) }}</p>
                 </div>
               </div>
-              <Badge :variant="isDueSoon(vax.date) ? 'warning' : 'success'">{{ isDueSoon(vax.date) ? 'Due Soon' : 'Up to date' }}</Badge>
+              <Badge :variant="isDueSoon(vax.date) ? 'warning' : 'success'">{{ isDueSoon(vax.date) ? $t('health.dueSoon') : $t('health.upToDate') }}</Badge>
             </div>
           </div>
 
@@ -68,10 +68,10 @@
             <table class="min-w-full">
               <thead class="bg-slate-50 dark:bg-slate-800">
                 <tr>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">Vaccination</th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">Date Given</th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">Next Due</th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">Status</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">{{ $t('health.vaccine') }}</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">{{ $t('health.lastGiven') }}</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">{{ $t('health.nextDue') }}</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">{{ $t('invoices.status') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -80,7 +80,7 @@
                   <td class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300">{{ formatDate(vax.date) }}</td>
                   <td class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300">{{ nextDueDate(vax.date) }}</td>
                   <td class="px-4 py-2">
-                    <Badge :variant="isDueSoon(vax.date) ? 'warning' : 'success'" size="sm">{{ isDueSoon(vax.date) ? 'Due Soon' : 'Current' }}</Badge>
+                    <Badge :variant="isDueSoon(vax.date) ? 'warning' : 'success'" size="sm">{{ isDueSoon(vax.date) ? $t('health.dueSoon') : $t('health.current') }}</Badge>
                   </td>
                 </tr>
               </tbody>
@@ -89,25 +89,25 @@
         </div>
 
         <div>
-          <h3 class="mb-3 text-lg font-medium text-gray-900 dark:text-white">Medical Conditions</h3>
+          <h3 class="mb-3 text-lg font-medium text-gray-900 dark:text-white">{{ $t('health.medicalConditions') }}</h3>
           <div class="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
             <Badge v-for="allergy in allergies" :key="allergy" variant="danger">
               {{ allergy }}
             </Badge>
-            <span v-if="allergies.length === 0" class="text-gray-500">No known allergies</span>
+            <span v-if="allergies.length === 0" class="text-gray-500">{{ $t('health.noAllergies') }}</span>
           </div>
         </div>
 
         <div>
-          <h3 class="mb-3 text-lg font-medium text-gray-900 dark:text-white">Medications</h3>
+          <h3 class="mb-3 text-lg font-medium text-gray-900 dark:text-white">{{ $t('health.medications') }}</h3>
           <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
             <table class="min-w-full">
               <thead class="bg-slate-50 dark:bg-slate-800">
                 <tr>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">Medication</th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">Dosage</th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">Frequency</th>
-                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">Status</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">{{ $t('health.medication') }}</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">{{ $t('health.dosage') }}</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">{{ $t('health.frequency') }}</th>
+                  <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500">{{ $t('invoices.status') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -115,7 +115,7 @@
                   <td class="px-4 py-2 text-sm text-slate-900 dark:text-slate-100">{{ med.name }}</td>
                   <td class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300">{{ med.dosage }}</td>
                   <td class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300">{{ med.frequency }}</td>
-                  <td class="px-4 py-2"><Badge :variant="med.active ? 'success' : 'default'" size="sm">{{ med.active ? 'Active' : 'Inactive' }}</Badge></td>
+                  <td class="px-4 py-2"><Badge :variant="med.active ? 'success' : 'default'" size="sm">{{ med.active ? $t('health.active') : $t('health.inactive') }}</Badge></td>
                 </tr>
               </tbody>
             </table>
@@ -123,7 +123,7 @@
         </div>
 
         <div>
-          <h3 class="mb-3 text-lg font-medium text-gray-900 dark:text-white">Medical Notes</h3>
+          <h3 class="mb-3 text-lg font-medium text-gray-900 dark:text-white">{{ $t('health.medicalNotes') }}</h3>
           <div class="space-y-2">
             <div
               v-for="note in medicalNotes"
@@ -139,22 +139,22 @@
     </Card>
 
     <div v-else-if="!loading && pets.length === 0" class="text-center py-8">
-      <p class="text-gray-500 dark:text-gray-400">No pets found. Add a pet to view health records.</p>
+      <p class="text-gray-500 dark:text-gray-400">{{ $t('health.noPetsHealth') }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ownersService, type Pet } from '@/services/owners'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import Button from '@/components/ui/Button.vue'
 
-const breadcrumbItems = [
-  { label: 'Health Records' }
-]
+const { t, locale } = useI18n()
+const breadcrumbItems = computed(() => [{ label: t('health.recordsTitle') }])
 
 const pets = ref<Pet[]>([])
 const selectedPet = ref<Pet | null>(null)
@@ -206,15 +206,15 @@ const petAge = (dateOfBirth: string) => {
   const birth = new Date(dateOfBirth)
   const now = new Date()
   const years = now.getFullYear() - birth.getFullYear()
-  return years > 0 ? `${years} years old` : 'Less than 1 year'
+  return years > 0 ? t('pets.ageYearsOld', { count: years }) : t('pets.ageLessThanYear')
 }
 
-const formatDate = (date: string) => new Date(date).toLocaleDateString()
+const formatDate = (date: string) => new Date(date).toLocaleDateString(locale.value || undefined)
 
 const nextDueDate = (date: string) => {
   const d = new Date(date)
   d.setFullYear(d.getFullYear() + 1)
-  return d.toLocaleDateString()
+  return d.toLocaleDateString(locale.value || undefined)
 }
 
 const isDueSoon = (date: string) => {

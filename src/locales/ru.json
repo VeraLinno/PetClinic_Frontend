@@ -43,7 +43,8 @@
      "visits": "История посещений",
      "account": "Мой аккаунт",
      "admin": "Админ панель",
-    "availability": "Доступность"
+    "availability": "Доступность",
+    "vetAccounts": "Аккаунты ветеринаров"
   },
   "availability": {
     "title": "Управление доступностью",
@@ -259,7 +260,13 @@
   },
   "pets": {
     "title": "Мои питомцы",
+    "manageAllProfiles": "Управляйте всеми профилями питомцев в одном месте.",
     "addNew": "Добавить нового питомца",
+    "petProfiles": "Профили питомцев",
+    "searchByNameOrBreed": "Поиск по имени или породе...",
+    "noPetsFound": "Питомцы не найдены.",
+    "listView": "Список",
+    "gridView": "Сетка",
     "name": "Имя питомца",
     "type": "Вид питомца",
     "breed": "Порода",
@@ -293,11 +300,30 @@
       "speciesRequired": "Вид питомца обязателен",
       "breedRequired": "Порода обязательна",
       "dateOfBirthRequired": "Дата рождения обязательна"
-    }
+    },
+    "ageYears": "{count} лет",
+    "ageYearsOld": "{count} лет",
+    "ageLessThanYear": "Меньше 1 года"
   },
   "health": {
     "title": "История здоровья",
+    "recordsTitle": "Медицинская карта",
+    "recordsSubtitle": "Просматривайте и управляйте информацией о здоровье ваших питомцев",
+    "petRecords": "Карты питомцев",
+    "recordsForPet": "Медицинская карта - {name}",
+    "addVaccination": "Добавить вакцинацию",
     "vaccinations": "Вакцинация",
+    "given": "Сделано",
+    "nextDueShort": "Следующая",
+    "dueSoon": "Скоро срок",
+    "upToDate": "Актуально",
+    "current": "Текущий",
+    "medicalConditions": "Медицинские состояния",
+    "noAllergies": "Известных аллергий нет",
+    "medicalNotes": "Медицинские заметки",
+    "active": "Активен",
+    "inactive": "Неактивен",
+    "noPetsHealth": "Питомцы не найдены. Добавьте питомца, чтобы посмотреть медкарту.",
     "medications": "Лекарства",
     "procedures": "Процедуры",
     "testResults": "Результаты тестов",

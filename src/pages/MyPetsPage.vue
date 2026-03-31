@@ -5,14 +5,14 @@
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">My Pets</h1>
-          <p class="mt-1 text-slate-500 dark:text-slate-400">Manage all pet profiles in one place.</p>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ $t('pets.title') }}</h1>
+          <p class="mt-1 text-slate-500 dark:text-slate-400">{{ $t('pets.manageAllProfiles') }}</p>
         </div>
         <div class="flex gap-2">
           <Button variant="outline" @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'">
-            {{ viewMode === 'grid' ? 'List View' : 'Grid View' }}
+            {{ viewMode === 'grid' ? $t('pets.listView') : $t('pets.gridView') }}
           </Button>
-          <Button variant="primary" @click="showAddModal = true">Add New Pet</Button>
+          <Button variant="primary" @click="showAddModal = true">{{ $t('pets.addNew') }}</Button>
         </div>
       </div>
     </div>
@@ -20,8 +20,8 @@
     <Card>
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Pet Profiles</h2>
-          <Input v-model="search" placeholder="Search by pet name or breed..." class="w-full sm:w-72" />
+          <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('pets.petProfiles') }}</h2>
+          <Input v-model="search" :placeholder="$t('pets.searchByNameOrBreed')" class="w-full sm:w-72" />
         </div>
       </template>
 
@@ -30,7 +30,7 @@
       </div>
 
       <div v-else-if="filteredPets.length === 0" class="py-10 text-center text-slate-500 dark:text-slate-400">
-        No pets found.
+        {{ $t('pets.noPetsFound') }}
       </div>
 
       <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -46,13 +46,13 @@
             <div class="flex-1 min-w-0">
               <h3 class="truncate font-semibold text-slate-900 dark:text-slate-100">{{ pet.name }}</h3>
               <p class="text-sm text-slate-500 dark:text-slate-400">{{ getPetSpeciesLabel(pet) }} • {{ getPetBreedLabel(pet) }}</p>
-              <p class="mt-1 text-xs text-slate-400">Age: {{ petAge(pet.dateOfBirth) }}</p>
+              <p class="mt-1 text-xs text-slate-400">{{ $t('pets.age') }}: {{ petAge(pet.dateOfBirth) }}</p>
             </div>
           </div>
 
           <div class="mt-4 flex gap-2">
-            <Button variant="outline" size="sm" class="flex-1" @click="openDetails(pet)">Details</Button>
-            <Button variant="primary" size="sm" class="flex-1" @click="bookForPet(pet)">Book</Button>
+            <Button variant="outline" size="sm" class="flex-1" @click="openDetails(pet)">{{ $t('common.details') }}</Button>
+            <Button variant="primary" size="sm" class="flex-1" @click="bookForPet(pet)">{{ $t('dashboard.owner.bookAppointment') }}</Button>
           </div>
         </div>
       </div>
@@ -61,11 +61,11 @@
         <table class="min-w-full">
           <thead class="bg-slate-50 dark:bg-slate-800">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">Name</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">Species</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">Breed</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">Age</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">Actions</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">{{ $t('pets.name') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">{{ $t('pets.type') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">{{ $t('pets.breed') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">{{ $t('pets.age') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">{{ $t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -76,8 +76,8 @@
               <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{{ petAge(pet.dateOfBirth) }}</td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <Button variant="outline" size="sm" @click="openDetails(pet)">Details</Button>
-                  <Button variant="primary" size="sm" @click="bookForPet(pet)">Book</Button>
+                  <Button variant="outline" size="sm" @click="openDetails(pet)">{{ $t('common.details') }}</Button>
+                  <Button variant="primary" size="sm" @click="bookForPet(pet)">{{ $t('dashboard.owner.bookAppointment') }}</Button>
                 </div>
               </td>
             </tr>
@@ -90,43 +90,43 @@
       <div v-if="selectedPet" class="space-y-3 text-sm">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <p class="text-slate-500">Species</p>
+            <p class="text-slate-500">{{ $t('pets.type') }}</p>
             <p class="font-medium text-slate-900 dark:text-slate-100">{{ getPetSpeciesLabel(selectedPet) }}</p>
           </div>
           <div>
-            <p class="text-slate-500">Breed</p>
+            <p class="text-slate-500">{{ $t('pets.breed') }}</p>
             <p class="font-medium text-slate-900 dark:text-slate-100">{{ getPetBreedLabel(selectedPet) }}</p>
           </div>
           <div>
-            <p class="text-slate-500">Date of Birth</p>
+            <p class="text-slate-500">{{ $t('pets.dateOfBirth') }}</p>
             <p class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(selectedPet.dateOfBirth) }}</p>
           </div>
           <div>
-            <p class="text-slate-500">Age</p>
+            <p class="text-slate-500">{{ $t('pets.age') }}</p>
             <p class="font-medium text-slate-900 dark:text-slate-100">{{ petAge(selectedPet.dateOfBirth) }}</p>
           </div>
         </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" @click="showDetailsModal = false">Close</Button>
-          <Button variant="primary" @click="bookForPet(selectedPet!)">Book Appointment</Button>
+          <Button variant="outline" @click="showDetailsModal = false">{{ $t('common.close') }}</Button>
+          <Button variant="primary" @click="bookForPet(selectedPet!)">{{ $t('dashboard.owner.bookAppointment') }}</Button>
         </div>
       </template>
     </Modal>
 
-    <Modal :is-open="showAddModal" title="Add New Pet" @close="showAddModal = false">
+    <Modal :is-open="showAddModal" :title="$t('dashboard.owner.addPetModalTitle')" @close="showAddModal = false">
       <div class="space-y-4">
         <div v-if="addPetError" class="rounded-lg border border-danger-300 bg-danger-50 p-3 text-sm text-danger-700 dark:border-danger-700 dark:bg-danger-950/30 dark:text-danger-300">{{ addPetError }}</div>
-        <Input v-model="newPet.name" label="Pet Name" />
-        <Input v-model="newPet.species" label="Species" />
-        <Input v-model="newPet.breed" label="Breed" />
-        <Input v-model="newPet.dateOfBirth" type="date" label="Date of Birth" />
+        <Input v-model="newPet.name" :label="$t('pets.name')" />
+        <Input v-model="newPet.species" :label="$t('pets.type')" />
+        <Input v-model="newPet.breed" :label="$t('pets.breed')" />
+        <Input v-model="newPet.dateOfBirth" type="date" :label="$t('pets.dateOfBirth')" />
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" @click="showAddModal = false">Cancel</Button>
-          <Button variant="primary" @click="addPet">Add Pet</Button>
+          <Button variant="outline" @click="showAddModal = false">{{ $t('common.cancel') }}</Button>
+          <Button variant="primary" @click="addPet">{{ $t('dashboard.owner.addPet') }}</Button>
         </div>
       </template>
     </Modal>
@@ -146,8 +146,8 @@ import Modal from '@/components/ui/Modal.vue'
 
 const router = useRouter()
 const route = useRoute()
-const { t } = useI18n()
-const breadcrumbItems = [{ label: 'My Pets' }]
+const { t, locale } = useI18n()
+const breadcrumbItems = computed(() => [{ label: t('pets.title') }])
 
 const pets = ref<Pet[]>([])
 const loading = ref(true)
@@ -242,13 +242,13 @@ const getPetBreedLabel = (pet: Pet) => {
   return translated === key ? pet.breed : translated
 }
 
-const formatDate = (date: string) => new Date(date).toLocaleDateString()
+const formatDate = (date: string) => new Date(date).toLocaleDateString(locale.value || undefined)
 
 const petAge = (date: string) => {
   const birth = new Date(date)
   const now = new Date()
   const y = now.getFullYear() - birth.getFullYear()
-  return y <= 0 ? 'Less than 1 year' : `${y} years`
+  return y <= 0 ? t('pets.ageLessThanYear') : t('pets.ageYears', { count: y })
 }
 
 const openDetails = (pet: Pet) => {
@@ -270,7 +270,7 @@ const addPet = async () => {
     newPet.value = { name: '', species: '', breed: '', dateOfBirth: '' }
     showAddModal.value = false
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Failed to add pet. Please try again.'
+    const message = error.response?.data?.message || t('dashboard.owner.petAddFailed')
     console.error('Error adding pet:', error)
     addPetError.value = message
   }
