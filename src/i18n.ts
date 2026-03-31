@@ -71,6 +71,11 @@ function deepMergeTranslations(
 ): Record<string, unknown> {
   const merged: Record<string, unknown> = { ...base }
 
+  const isLikelyTranslationKey = (value: string): boolean => {
+    // Detect key-like payloads such as "pets.manageAllProfiles" from faulty DB rows.
+    return /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/i.test(value.trim())
+  }
+
   for (const [key, value] of Object.entries(incoming)) {
     const existing = merged[key]
     if (
@@ -86,6 +91,10 @@ function deepMergeTranslations(
         value as Record<string, unknown>
       )
     } else {
+      if (typeof value === 'string' && isLikelyTranslationKey(value)) {
+        // Keep existing local/fallback translation instead of writing raw key text.
+        continue
+      }
       merged[key] = value
     }
   }
