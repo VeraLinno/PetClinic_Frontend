@@ -30,9 +30,15 @@ export async function loadDbTranslations(languageCode: string): Promise<void> {
   try {
     const response = await api.get(`/translations/language/${languageCode}`)
     
+    // Check HTTP status before processing
+    if (!response || response.status >= 400) {
+      console.debug(`Translation API returned status ${response?.status || 'unknown'} for ${languageCode}`)
+      return
+    }
+    
     // Check if response is successful and has valid data structure
-    if (!response || !response.data) {
-      console.warn(`No translation data received for language: ${languageCode}`)
+    if (!response.data) {
+      console.debug(`No translation data received for language: ${languageCode}`)
       return
     }
     
@@ -40,7 +46,7 @@ export async function loadDbTranslations(languageCode: string): Promise<void> {
     
     // Validate that we have translation data
     if (!data.translations || typeof data.translations !== 'object') {
-      console.warn(`Invalid translation data format for language: ${languageCode}`)
+      console.debug(`Invalid translation data format for language: ${languageCode}`)
       return
     }
     
@@ -62,14 +68,22 @@ export async function loadDbTranslations(languageCode: string): Promise<void> {
     }
     
     dbTranslationsLoaded = true
-    console.log(`Loaded translations from database for ${languageCode}`)
+    console.debug(`Loaded translations from database for ${languageCode}`)
   } catch (error: any) {
-    // Silently fail with detailed logging
+    // Log error details for debugging but don't break the app
     const errorMessage = error?.message || 'Unknown error'
-    const errorStatus = error?.response?.status || 'N/A'
-    console.warn(
-      `Failed to load translations from database for ${languageCode} (Status: ${errorStatus}): ${errorMessage}. Using local files as fallback.`
-    )
+    const errorStatus = error?.response?.status
+    
+    // Only log actual errors, not network failures (401, 403, 503, etc.)
+    if (errorStatus && (errorStatus === 401 || errorStatus === 403 || errorStatus >= 500)) {
+      console.debug(
+        `Translation API unavailable (${errorStatus}). Using local translations for ${languageCode}.`
+      )
+    } else if (!errorStatus) {
+      // Network or other errors
+      console.debug(`Could not load translations from database: ${errorMessage}`)
+    }
+    
     // Continue gracefully - local translations will be used as fallback
   }
 }
