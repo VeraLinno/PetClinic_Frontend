@@ -32,15 +32,17 @@ export async function loadDbTranslations(languageCode: string): Promise<void> {
     const data = response.data as { translations: Record<string, Record<string, Record<string, string>>> }
     
     if (data.translations) {
-      const messagesRef = i18n.global.messages as any
-      if (!messagesRef.value) {
-        messagesRef.value = {}
+      const currentMessages = i18n.global.messages as any
+      
+      // Initialize language object if it doesn't exist
+      if (!currentMessages[languageCode]) {
+        currentMessages[languageCode] = {}
       }
       
       // Merge database translations with existing messages
       for (const [category, translations] of Object.entries(data.translations)) {
-        messagesRef.value[languageCode] = {
-          ...messagesRef.value[languageCode],
+        currentMessages[languageCode] = {
+          ...currentMessages[languageCode],
           [category]: translations
         }
       }
@@ -61,21 +63,17 @@ export async function setLanguage(lang: string) {
     lang = 'en'
   }
   
-  if (i18n.global.locale) {
-    (i18n.global.locale as any).value = lang
-    localStorage.setItem('language', lang)
-    
-    // Try to load translations from database
-    await loadDbTranslations(lang)
-  }
+  // Set the locale with type cast since we've already validated it
+  i18n.global.locale.value = lang as keyof typeof messages
+  localStorage.setItem('language', lang)
+  
+  // Try to load translations from database
+  await loadDbTranslations(lang)
 }
 
 // Get current language
 export function getCurrentLanguage() {
-  if (i18n.global.locale) {
-    return i18n.global.locale.value
-  }
-  return 'en'
+  return i18n.global.locale.value || 'en'
 }
 
 // Available languages
