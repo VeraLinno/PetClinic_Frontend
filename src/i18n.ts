@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n'
+import { baseCompile } from '@intlify/message-compiler'
 import en from './locales/en.json'
 import et from './locales/et.json'
 import ru from './locales/ru.json'
@@ -24,6 +25,33 @@ const i18n = createI18n({
 let dbTranslationsLoaded = false
 
 export default i18n
+
+function sanitizeTranslationNode(node: unknown, path: string): unknown {
+  if (typeof node === 'string') {
+    try {
+      // Validate ICU/Vue-i18n message syntax before adding DB strings.
+      baseCompile(node, { mode: 'normal' })
+      return node
+    } catch {
+      console.debug(`Skipping invalid translation message at ${path}`)
+      return undefined
+    }
+  }
+
+  if (!node || typeof node !== 'object' || Array.isArray(node)) {
+    return undefined
+  }
+
+  const result: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+    const sanitized = sanitizeTranslationNode(value, `${path}.${key}`)
+    if (sanitized !== undefined) {
+      result[key] = sanitized
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined
+}
 
 // Load translations from database API (exported for use in main.ts and setLanguage)
 export async function loadDbTranslations(languageCode: string): Promise<void> {
@@ -59,10 +87,11 @@ export async function loadDbTranslations(languageCode: string): Promise<void> {
     
     // Merge database translations with existing messages
     for (const [category, translations] of Object.entries(data.translations)) {
-      if (typeof translations === 'object') {
+      const sanitizedCategory = sanitizeTranslationNode(translations, category)
+      if (sanitizedCategory && typeof sanitizedCategory === 'object') {
         currentMessages[languageCode] = {
           ...currentMessages[languageCode],
-          [category]: translations
+          [category]: sanitizedCategory
         }
       }
     }
@@ -115,9 +144,3 @@ export const availableLanguages = [
   { code: 'et', name: 'Eesti', flag: '🇪🇪' },
   { code: 'ru', name: 'Русский', flag: '🇷🇺' }
 ]
-
-// Load translations from database for the saved language on initialization
-// This will silently fail and use local translations as fallback if the API is unavailable
-loadDbTranslations(savedLanguage).catch(() => {
-  // Silently ignore errors - local translations are used as fallback
-})
