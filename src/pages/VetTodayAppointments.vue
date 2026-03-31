@@ -3,7 +3,7 @@
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Today's Appointments</h1>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ $t('dashboard.vet.todaySchedule') }}</h1>
           <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ formattedToday }}</p>
         </div>
         <Button variant="primary" size="sm" @click="refreshAppointments">
@@ -27,7 +27,7 @@
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">No appointments scheduled for today.</p>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $t('dashboard.vet.noAppointments') }}</p>
       </div>
 
       <div v-else>

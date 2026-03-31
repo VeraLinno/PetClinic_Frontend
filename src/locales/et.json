@@ -27,17 +27,28 @@
     "dashboard": "Juhtpaneel",
     "home": "Avaleht"
   },
-  "navigation": {
-    "dashboard": "Juhtpaneel",
-    "appointments": "Aja saadiused",
-    "pets": "Minu lemmikloomad",
-    "health": "Tervisekartoteek",
-    "invoices": "Arved",
-    "inventory": "Varud",
-    "patients": "Patsiendid",
-    "visits": "Külastuste ajalugu",
-    "account": "Minu konto",
-    "admin": "Administraatori paneel"
+   "navigation": {
+     "dashboard": "Juhtpaneel",
+     "appointments": "Aja saadiused",
+     "pets": "Minu lemmikloomad",
+     "health": "Tervisekartoteek",
+     "invoices": "Arved",
+     "inventory": "Varud",
+     "patients": "Patsiendid",
+     "visits": "Külastuste ajalugu",
+     "account": "Minu konto",
+     "admin": "Administraatori paneel",
+    "availability": "Kättesaadavus"
+  },
+  "availability": {
+    "reasons": {
+      "vacation": "Veterinaar on puhkusel",
+      "sickLeave": "Veterinaar on haiguslehel",
+      "conference": "Veterinaar osaleb konverentsil",
+      "training": "Veterinaar osaleb koolitusel",
+      "personal": "Veterinaaril on isiklik kohtumine",
+      "other": "Veterinaar ei ole saadaval"
+    }
   },
   "auth": {
     "loginPortalTitle": "Kliiniku ligipääsuportaal",
@@ -78,15 +89,21 @@
       "bookAppointment": "Broneerida aeg",
       "addPet": "Lisa uus lemmikloom"
     },
-    "vet": {
-      "title": "Veterinaarspetsialisti juhtpaneel",
-      "todaySchedule": "Tänase plaan",
-      "myPatients": "Minu patsiendid",
-      "pendingVisits": "Ootel olevad külastused",
-      "appointments": "Aja saadiused",
-      "noAppointments": "Aja saadeseid pole planeeritud",
-      "startVisit": "Alusta külastust"
-    }
+   "vet": {
+     "title": "Veterinaarspetsialisti juhtpaneel",
+     "todaySchedule": "Tänase plaan",
+     "myPatients": "Minu patsiendid",
+     "pendingVisits": "Ootel olevad külastused",
+     "appointments": "Aja saadiused",
+     "noAppointments": "Aja saadeseid pole planeeritud",
+     "startVisit": "Alusta külastust",
+     "goodMorning": "Tere hommikust",
+     "goodAfternoon": "Tere päevast",
+     "goodEvening": "Tere õhtust",
+     "today": "Täna",
+     "thisWeek": "See nädal",
+     "thisMonth": "See kuu"
+   }
   },
   "appointments": {
     "title": "Aja saadiused",
@@ -98,6 +115,21 @@
     "selectTime": "Valige aeg",
     "reason": "Külastuse põhjus",
     "notes": "Lisateave",
+    "optional": "valikuline",
+    "notesPlaceholder": "Erisoovid aja kohta...",
+    "confirmBooking": "Kinnita broneering",
+    "bookedSuccess": "Aeg broneeritud edukalt.",
+    "redirectingDashboard": "Teid suunatakse varsti edasi või saate kohe juhtpaneelile minna.",
+    "goToDashboard": "Mine juhtpaneelile",
+    "dateUnavailable": "Kuupäev pole saadaval",
+    "selectDifferentDate": "Palun valige teine kuupäev.",
+    "loadingSlots": "Saadavate aegade laadimine...",
+    "noAvailableSlots": "Sellel kuupäeval pole vabu aegu.",
+    "bookingInProgress": "Broneerimine...",
+    "dateUnavailableWithReason": "Kuupäev pole saadaval",
+    "requiredFields": "Palun täitke enne aja kinnitamist kõik kohustuslikud väljad.",
+    "timeInPast": "Valitud aeg on minevikus. Palun valige tulevane aeg.",
+    "bookingFailed": "Aja broneerimine ebaõnnestus. Palun proovige uuesti.",
     "scheduled": "Aeg broneeritud edukalt",
     "cancelled": "Aeg tühistatud",
     "confirmCancel": "Olete kindel, et soovite seda aega tühistada?",
@@ -110,7 +142,8 @@
     "status_scheduled": "Planeeritud",
     "status_completed": "Lõpetatud",
     "status_cancelled": "Tühistatud",
-    "veterinarian": "Veterinaarspetsialist"
+    "veterinarian": "Veterinaarspetsialist",
+    "pet": "Lemmikloom"
   },
   "pets": {
     "title": "Minu lemmikloomad",

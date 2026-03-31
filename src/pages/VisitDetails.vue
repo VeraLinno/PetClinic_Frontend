@@ -311,14 +311,14 @@ const visitId = route.params.id as string
 const breadcrumbItems = computed(() => {
   if (authStore.roles.includes('Vet')) {
     return [
-      { label: "Today's Appointments", to: '/vet/appointments' },
-      { label: `Visit ${visitId}` }
+      { label: t('dashboard.vet.todaySchedule'), to: '/vet/appointments' },
+      { label: `${t('visits.title')} ${visitId}` }
     ]
   }
 
   return [
-    { label: 'Visit History', to: '/owner/history' },
-    { label: `Visit ${visitId}` }
+    { label: t('visits.title'), to: '/owner/history' },
+    { label: `${t('visits.title')} ${visitId}` }
   ]
 })
 

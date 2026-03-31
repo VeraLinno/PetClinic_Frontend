@@ -8,7 +8,7 @@
           </div>
           <div>
             <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              Good {{ timeOfDay }}, Dr. {{ vetName }}
+              {{ greeting }}, Dr. {{ vetName }}
             </h1>
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ specialization }}</p>
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ formattedToday }}</p>
@@ -271,6 +271,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   ArrowPathIcon,
   ExclamationTriangleIcon,
@@ -293,6 +294,7 @@ import {
 } from '@/services/inventory'
 
 const router = useRouter()
+const { t } = useI18n()
 
 // Data
 const appointments = ref<Appointment[]>([])
@@ -323,11 +325,11 @@ const createVetForm = ref({
   phoneNumber: ''
 })
 
-const ranges = [
-  { label: 'Today', value: 'today' as const },
-  { label: 'This week', value: 'week' as const },
-  { label: 'This month', value: 'month' as const }
-]
+const ranges = computed(() => [
+  { label: t('dashboard.vet.today'), value: 'today' as const },
+  { label: t('dashboard.vet.thisWeek'), value: 'week' as const },
+  { label: t('dashboard.vet.thisMonth'), value: 'month' as const }
+])
 
 type LowStockItem = {
   id: string
@@ -347,11 +349,11 @@ const vetInitials = computed(() => {
   return vetName.value ? vetName.value[0].toUpperCase() : 'V'
 })
 
-const timeOfDay = computed(() => {
+const greeting = computed(() => {
   const hour = new Date().getHours()
-  if (hour < 12) return 'morning'
-  if (hour < 17) return 'afternoon'
-  return 'evening'
+  if (hour < 12) return t('dashboard.vet.goodMorning')
+  if (hour < 17) return t('dashboard.vet.goodAfternoon')
+  return t('dashboard.vet.goodEvening')
 })
 
 const formattedToday = computed(() => {
@@ -405,7 +407,7 @@ const visibleAlerts = computed(() => {
 })
 
 const activeRangeLabel = computed(() => {
-  return ranges.find((r) => r.value === activeRange.value)?.label || 'Today'
+  return ranges.value.find((r) => r.value === activeRange.value)?.label || t('dashboard.vet.today')
 })
 
 const activeStatusLabel = computed(() => {

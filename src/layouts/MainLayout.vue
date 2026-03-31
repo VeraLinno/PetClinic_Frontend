@@ -354,7 +354,7 @@ const menuItems = computed(() => {
       { path: '/vet', label: t('navigation.dashboard'), icon: HomeIcon },
       { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },
       { path: '/vet/appointments', label: t('dashboard.vet.todaySchedule'), icon: CalendarDaysIcon },
-      { path: '/vet/availability', label: 'Availability', icon: CalendarDaysIcon },
+       { path: '/vet/availability', label: t('navigation.availability'), icon: CalendarDaysIcon },
       { path: '/vet/inventory', label: t('navigation.inventory'), icon: ShoppingBagIcon },
       { path: '/vet/patients', label: t('navigation.patients'), icon: UsersIcon },
       { path: '/vet/accounts', label: 'Vet Accounts', icon: IdentificationIcon }

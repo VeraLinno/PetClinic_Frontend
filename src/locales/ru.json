@@ -27,17 +27,28 @@
     "dashboard": "Панель управления",
     "home": "Главная"
   },
-  "navigation": {
-    "dashboard": "Панель управления",
-    "appointments": "Записи",
-    "pets": "Мои питомцы",
-    "health": "История здоровья",
-    "invoices": "Счета",
-    "inventory": "Инвентарь",
-    "patients": "Пациенты",
-    "visits": "История посещений",
-    "account": "Мой аккаунт",
-    "admin": "Админ панель"
+   "navigation": {
+     "dashboard": "Панель управления",
+     "appointments": "Записи",
+     "pets": "Мои питомцы",
+     "health": "История здоровья",
+     "invoices": "Счета",
+     "inventory": "Инвентарь",
+     "patients": "Пациенты",
+     "visits": "История посещений",
+     "account": "Мой аккаунт",
+     "admin": "Админ панель",
+    "availability": "Доступность"
+  },
+  "availability": {
+    "reasons": {
+      "vacation": "Ветеринар в отпуске",
+      "sickLeave": "Ветеринар на больничном",
+      "conference": "Ветеринар на конференции",
+      "training": "Ветеринар на обучении",
+      "personal": "У ветеринара личная встреча",
+      "other": "Ветеринар недоступен"
+    }
   },
   "auth": {
     "loginPortalTitle": "Портал доступа клиники",
@@ -78,15 +89,21 @@
       "bookAppointment": "Записаться на прием",
       "addPet": "Добавить нового питомца"
     },
-    "vet": {
-      "title": "Панель управления ветеринара",
-      "todaySchedule": "Расписание на сегодня",
-      "myPatients": "Мои пациенты",
-      "pendingVisits": "Ожидающие визиты",
-      "appointments": "Записи",
-      "noAppointments": "Визиты не запланированы",
-      "startVisit": "Начать визит"
-    }
+   "vet": {
+     "title": "Панель управления ветеринара",
+     "todaySchedule": "Расписание на сегодня",
+     "myPatients": "Мои пациенты",
+     "pendingVisits": "Ожидающие визиты",
+     "appointments": "Записи",
+     "noAppointments": "Визиты не запланированы",
+     "startVisit": "Начать визит",
+     "goodMorning": "Доброе утро",
+     "goodAfternoon": "Добрый день",
+     "goodEvening": "Добрый вечер",
+     "today": "Сегодня",
+     "thisWeek": "На этой неделе",
+     "thisMonth": "В этом месяце"
+   }
   },
   "appointments": {
     "title": "Записи",
@@ -98,6 +115,21 @@
     "selectTime": "Выберите время",
     "reason": "Причина визита",
     "notes": "Дополнительные заметки",
+    "optional": "необязательно",
+    "notesPlaceholder": "Особые пожелания к приему...",
+    "confirmBooking": "Подтвердить запись",
+    "bookedSuccess": "Запись успешно создана.",
+    "redirectingDashboard": "Скоро произойдет перенаправление, либо вы можете перейти на панель управления сейчас.",
+    "goToDashboard": "Перейти на панель управления",
+    "dateUnavailable": "Дата недоступна",
+    "selectDifferentDate": "Пожалуйста, выберите другую дату.",
+    "loadingSlots": "Загрузка доступных окон...",
+    "noAvailableSlots": "На эту дату нет доступных окон.",
+    "bookingInProgress": "Оформление записи...",
+    "dateUnavailableWithReason": "Дата недоступна",
+    "requiredFields": "Пожалуйста, заполните все обязательные поля перед подтверждением записи.",
+    "timeInPast": "Выбранное время уже прошло. Пожалуйста, выберите будущее время.",
+    "bookingFailed": "Не удалось создать запись. Пожалуйста, попробуйте снова.",
     "scheduled": "Запись успешно создана",
     "cancelled": "Запись отменена",
     "confirmCancel": "Вы уверены, что хотите отменить эту запись?",
@@ -110,7 +142,8 @@
     "status_scheduled": "Запланировано",
     "status_completed": "Завершено",
     "status_cancelled": "Отменено",
-    "veterinarian": "Ветеринар"
+    "veterinarian": "Ветеринар",
+    "pet": "Питомец"
   },
   "pets": {
     "title": "Мои питомцы",

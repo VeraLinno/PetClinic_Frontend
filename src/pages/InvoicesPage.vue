@@ -46,7 +46,7 @@
               class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="30d">Last 30 days</option>
-              <option value="month">This month</option>
+              <option value="month">{{ $t('dashboard.vet.thisMonth') }}</option>
               <option value="3m">Last 3 months</option>
               <option value="all">All time</option>
             </select>

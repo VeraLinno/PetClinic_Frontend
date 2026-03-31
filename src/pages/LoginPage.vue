@@ -32,8 +32,9 @@
 
     <section class="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
       <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-card dark:border-slate-700 dark:bg-slate-800">
-        <div class="mb-8 text-center">
-          <h2 class="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('common.login') }}</h2>
+        <div class="mb-8 flex items-center justify-between">
+          <h2 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('common.login') }}</h2>
+          <LanguageSwitcher />
         </div>
 
         <form class="space-y-4" @submit.prevent="handleLogin">
@@ -89,6 +90,7 @@ import { authService } from '@/services/auth'
 import { useAuthStore } from '@/stores/auth'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const email = ref('')
 const password = ref('')

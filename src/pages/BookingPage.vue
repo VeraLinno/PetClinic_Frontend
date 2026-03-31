@@ -71,10 +71,10 @@
         </div>
 
         <div v-if="currentStep === 1" class="space-y-4">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Select Date</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('appointments.selectDate') }}</h2>
           <div class="max-w-sm">
             <Input
-              label="Appointment Date"
+              :label="$t('appointments.selectDate')"
               type="date"
               v-model="selectedDate"
               :min="minDate"
@@ -82,19 +82,19 @@
             />
           </div>
           <div v-if="isSelectedDateUnavailable" class="rounded-lg border border-warning-300 bg-warning-50 p-4 text-warning-700 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
-            <p class="font-medium">⚠️ Date unavailable</p>
+            <p class="font-medium">⚠️ {{ $t('appointments.dateUnavailable') }}</p>
             <p v-if="getUnavailableReason" class="mt-2 text-sm">
               {{ getUnavailableReason }}
             </p>
-            <p class="mt-2 text-sm">Please select a different date.</p>
+            <p class="mt-2 text-sm">{{ $t('appointments.selectDifferentDate') }}</p>
           </div>
         </div>
 
         <div v-if="currentStep === 2" class="space-y-4">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Select Time Slot</h2>
-          <div v-if="loadingSlots" class="py-8 text-center text-slate-500 dark:text-slate-400">Loading available slots...</div>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('appointments.selectTime') }}</h2>
+          <div v-if="loadingSlots" class="py-8 text-center text-slate-500 dark:text-slate-400">{{ $t('appointments.loadingSlots') }}</div>
           <div v-else-if="availableSlots.length === 0" class="rounded-lg border border-warning-300 bg-warning-50 py-8 text-center text-warning-700 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-300">
-            No available slots for this date.
+            {{ $t('appointments.noAvailableSlots') }}
           </div>
           <div v-else class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
             <button
@@ -114,31 +114,31 @@
         </div>
 
         <div v-if="currentStep === 3" class="space-y-4">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Confirm Booking</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('appointments.confirmBooking') }}</h2>
           <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/70">
             <dl class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
               <div>
-                <dt class="text-slate-500 dark:text-slate-400">Pet</dt>
+                <dt class="text-slate-500 dark:text-slate-400">{{ $t('appointments.pet') }}</dt>
                 <dd class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ selectedPet?.name }}</dd>
               </div>
               <div>
-                <dt class="text-slate-500 dark:text-slate-400">Date</dt>
+                <dt class="text-slate-500 dark:text-slate-400">{{ $t('appointments.date') }}</dt>
                 <dd class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ formatDate(selectedDate) }}</dd>
               </div>
               <div>
-                <dt class="text-slate-500 dark:text-slate-400">Time</dt>
+                <dt class="text-slate-500 dark:text-slate-400">{{ $t('appointments.time') }}</dt>
                 <dd class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ formatTime(selectedTime) }}</dd>
               </div>
             </dl>
           </div>
 
           <div>
-            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Veterinarian <span class="text-danger-600">*</span></label>
+            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('appointments.veterinarian') }} <span class="text-danger-600">*</span></label>
             <select
               v-model="selectedVeterinarianId"
               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
             >
-              <option value="" disabled>Select veterinarian</option>
+              <option value="" disabled>{{ $t('appointments.selectVet') }}</option>
               <option v-for="vet in veterinarians" :key="vet.id" :value="vet.id">
                 {{ vet.name }} ({{ vet.email }})
               </option>
@@ -146,12 +146,12 @@
           </div>
 
           <div>
-            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Notes (optional)</label>
+            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('appointments.notes') }} ({{ $t('appointments.optional') }})</label>
             <textarea
               v-model="notes"
               rows="3"
               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-              placeholder="Any special notes for the appointment..."
+              :placeholder="$t('appointments.notesPlaceholder')"
             />
           </div>
         </div>
@@ -159,10 +159,10 @@
         <div v-if="bookingSuccess" class="rounded-xl border border-success-300 bg-success-50 p-5 text-success-800 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300">
           <div class="flex items-center gap-3">
             <CheckCircleIcon class="h-6 w-6" aria-hidden="true" />
-            <p class="font-medium">Appointment booked successfully.</p>
+            <p class="font-medium">{{ $t('appointments.bookedSuccess') }}</p>
           </div>
-          <p class="mt-2 text-sm">You will be redirected shortly, or you can go to your dashboard now.</p>
-          <Button class="mt-4" variant="success" size="sm" @click="router.push(dashboardRoute)">Go to Dashboard</Button>
+          <p class="mt-2 text-sm">{{ $t('appointments.redirectingDashboard') }}</p>
+          <Button class="mt-4" variant="success" size="sm" @click="router.push(dashboardRoute)">{{ $t('appointments.goToDashboard') }}</Button>
         </div>
 
         <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
@@ -171,17 +171,17 @@
             @click="previousStep"
             :disabled="currentStep === 0 || bookingSuccess"
           >
-            Previous
+            {{ $t('common.previous') }}
           </Button>
           <div class="flex flex-wrap gap-2">
-            <Button variant="outline" @click="$router.push(dashboardRoute)" :disabled="loading">Cancel</Button>
+            <Button variant="outline" @click="$router.push(dashboardRoute)" :disabled="loading">{{ $t('common.cancel') }}</Button>
             <Button
               v-if="currentStep < steps.length - 1"
               variant="primary"
               @click="nextStep"
               :disabled="!canProceed || bookingSuccess"
             >
-              Next
+              {{ $t('common.next') }}
             </Button>
             <Button
               v-else
@@ -190,7 +190,7 @@
               :disabled="loading || bookingSuccess"
               :loading="loading"
             >
-              {{ loading ? 'Booking...' : 'Confirm Booking' }}
+              {{ loading ? $t('appointments.bookingInProgress') : $t('appointments.confirmBooking') }}
             </Button>
           </div>
         </div>
@@ -224,10 +224,10 @@ const { t } = useI18n()
 // Wizard state
 const currentStep = ref(0)
 const steps = [
-  { id: 'pet', title: 'Select Pet' },
-  { id: 'date', title: 'Select Date' },
-  { id: 'time', title: 'Select Time' },
-  { id: 'confirm', title: 'Confirm' }
+  { id: 'pet', title: t('appointments.selectPet') },
+  { id: 'date', title: t('appointments.selectDate') },
+  { id: 'time', title: t('appointments.selectTime') },
+  { id: 'confirm', title: t('appointments.confirmBooking') }
 ]
 
 // Data
@@ -270,12 +270,12 @@ const getUnavailableReason = computed(() => {
   if (!period?.reason) return null
 
   const reasonMessages: Record<string, string> = {
-    'Vacation': 'The veterinarian is on vacation',
-    'Sick Leave': 'The veterinarian is on sick leave',
-    'Conference': 'The veterinarian is attending a conference',
-    'Training': 'The veterinarian is attending training',
-    'Personal': 'The veterinarian has a personal appointment',
-    'Other': 'The veterinarian is unavailable'
+    'Vacation': t('availability.reasons.vacation'),
+    'Sick Leave': t('availability.reasons.sickLeave'),
+    'Conference': t('availability.reasons.conference'),
+    'Training': t('availability.reasons.training'),
+    'Personal': t('availability.reasons.personal'),
+    'Other': t('availability.reasons.other')
   }
 
   return reasonMessages[period.reason] || period.reason
@@ -392,8 +392,8 @@ const nextStep = () => {
         (p) => selectedDate.value >= p.startDate && selectedDate.value <= p.endDate
       )
       error.value = period?.reason
-        ? `This date is unavailable: ${period.reason}`
-        : 'This date is unavailable'
+        ? `${t('appointments.dateUnavailableWithReason')}: ${period.reason}`
+        : t('appointments.dateUnavailable')
       return
     }
     loadAvailableSlots()
@@ -452,12 +452,12 @@ const toLocalDateTimeString = (date: Date) => {
 
   const confirmBooking = async () => {
     if (!selectedPet.value || !selectedDate.value || !selectedTime.value || !selectedVeterinarianId.value) {
-      error.value = 'Please fill in all required fields before confirming the appointment.'
+      error.value = t('appointments.requiredFields')
       return
     }
 
   if (isSelectedDateUnavailable.value) {
-    error.value = 'Selected date is unavailable. Please choose another date.'
+    error.value = t('appointments.dateUnavailable')
     return
   }
 
@@ -467,7 +467,7 @@ const toLocalDateTimeString = (date: Date) => {
     const startDateTime = new Date(`${selectedDate.value}T${selectedTime.value}:00`)
 
     if (startDateTime.getTime() <= Date.now()) {
-      error.value = 'Selected time is in the past. Please choose a future time slot.'
+      error.value = t('appointments.timeInPast')
       return
     }
 
@@ -487,7 +487,7 @@ const toLocalDateTimeString = (date: Date) => {
       router.push(dashboardRoute.value)
     }, 1200)
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Failed to book appointment. Please try again.'
+    error.value = err.response?.data?.message || t('appointments.bookingFailed')
     console.error('Error booking appointment:', err)
   } finally {
     loading.value = false

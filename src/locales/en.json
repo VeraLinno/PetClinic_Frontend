@@ -27,18 +27,19 @@
     "dashboard": "Dashboard",
     "home": "Home"
   },
-  "navigation": {
-    "dashboard": "Dashboard",
-    "appointments": "Appointments",
-    "pets": "My Pets",
-    "health": "Health Records",
-    "invoices": "Invoices",
-    "inventory": "Inventory",
-    "patients": "Patients",
-    "visits": "Visit History",
-    "account": "My Account",
-    "admin": "Admin Panel"
-  },
+   "navigation": {
+     "dashboard": "Dashboard",
+     "appointments": "Appointments",
+     "pets": "My Pets",
+     "health": "Health Records",
+     "invoices": "Invoices",
+     "inventory": "Inventory",
+     "patients": "Patients",
+     "visits": "Visit History",
+     "account": "My Account",
+     "admin": "Admin Panel",
+     "availability": "Availability"
+   },
   "auth": {
     "loginPortalTitle": "Pet Clinic",
     "email": "Email",
@@ -78,15 +79,21 @@
       "bookAppointment": "Book Appointment",
       "addPet": "Add New Pet"
     },
-    "vet": {
-      "title": "Veterinarian Dashboard",
-      "todaySchedule": "Today's Schedule",
-      "myPatients": "My Patients",
-      "pendingVisits": "Pending Visits",
-      "appointments": "Appointments",
-      "noAppointments": "No appointments scheduled",
-      "startVisit": "Start Visit"
-    }
+   "vet": {
+     "title": "Veterinarian Dashboard",
+     "todaySchedule": "Today's Schedule",
+     "myPatients": "My Patients",
+     "pendingVisits": "Pending Visits",
+     "appointments": "Appointments",
+     "noAppointments": "No appointments scheduled",
+     "startVisit": "Start Visit",
+     "goodMorning": "Good morning",
+     "goodAfternoon": "Good afternoon",
+     "goodEvening": "Good evening",
+     "today": "Today",
+     "thisWeek": "This week",
+     "thisMonth": "This month"
+   }
   },
   "appointments": {
     "title": "Appointments",
