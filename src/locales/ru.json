@@ -53,6 +53,7 @@
   "auth": {
     "loginPortalTitle": "Портал доступа клиники",
     "email": "Электронная почта",
+    "emailPlaceholder": "you\u0040clinic.com",
     "password": "Пароль",
     "firstName": "Имя",
     "lastName": "Фамилия",
@@ -143,7 +144,8 @@
     "status_completed": "Завершено",
     "status_cancelled": "Отменено",
     "veterinarian": "Ветеринар",
-    "pet": "Питомец"
+    "pet": "Питомец",
+    "stepIndicator": "Шаг {current} из {total}"
   },
   "pets": {
     "title": "Мои питомцы",

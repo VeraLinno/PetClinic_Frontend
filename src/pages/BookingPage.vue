@@ -8,7 +8,7 @@
             <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('common.ok') }}</p>
           </div>
           <div class="text-sm font-medium text-primary-700 dark:text-primary-300">
-            Step {{ currentStep + 1 }} of {{ steps.length }}
+            {{ $t('appointments.stepIndicator', { current: currentStep + 1, total: steps.length }) }}
           </div>
         </div>
 
@@ -278,7 +278,8 @@ const getUnavailableReason = computed(() => {
     'Other': t('availability.reasons.other')
   }
 
-  return reasonMessages[period.reason] || period.reason
+  const resolvedReason = reasonMessages[period.reason] || period.reason
+  return `${t('appointments.dateUnavailableWithReason')}: ${resolvedReason}`
 })
 
 const getLocalDateKey = (date: Date) => {

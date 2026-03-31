@@ -7,7 +7,7 @@
       <div class="flex items-center justify-between w-full">
         <div>
           <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20">
-            Pet Clinic Platform
+            {{ $t('auth.platformTagline') }}
           </div>
           <h1 class="mt-8 text-4xl font-semibold leading-tight">{{ $t('auth.loginPortalTitle') }}</h1>
         </div>
@@ -43,7 +43,7 @@
             v-model="email"
             type="email"
             :label="$t('auth.email')"
-            placeholder="you@clinic.com"
+            :placeholder="$t('auth.emailPlaceholder')"
             :disabled="loading"
             required
           />
@@ -86,12 +86,14 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { CheckCircleIcon } from '@heroicons/vue/24/outline'
+import { useI18n } from 'vue-i18n'
 import { authService } from '@/services/auth'
 import { useAuthStore } from '@/stores/auth'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
+const { t } = useI18n()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -120,9 +122,9 @@ const handleLogin = async () => {
     } else {
       router.push('/owner')
     }
-  } catch (err: any) {
-    error.value = err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again.'
-  } finally {
+    } catch (err: any) {
+      error.value = err.response?.data?.error || err.response?.data?.message || t('auth.loginFailed')
+    } finally {
     loading.value = false
   }
 }
