@@ -3,7 +3,7 @@ import api from './api'
 const resolveAdminBaseUrl = (): string | undefined => {
   const configuredBaseUrl = String(api.defaults.baseURL || '').replace(/\/+$/, '')
   const adminBaseUrl = configuredBaseUrl.replace(/\/api\/v\d+$/i, '')
-  return adminBaseUrl || undefined
+  return adminBaseUrl || '/'
 }
 
 export interface AdminDashboardMetrics {
