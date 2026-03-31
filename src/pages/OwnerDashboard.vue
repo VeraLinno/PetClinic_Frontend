@@ -100,12 +100,12 @@
       <template #header>
         <div class="flex justify-between items-center">
           <div>
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">My Pets</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Manage profiles and book care quickly</p>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.owner.myPets') }}</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('dashboard.owner.managePets') }}</p>
           </div>
           <Button variant="primary" size="sm" @click="showAddPetModal = true">
             <PlusCircleIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-            Add New Pet
+            {{ $t('dashboard.owner.addPet') }}
           </Button>
         </div>
       </template>
@@ -120,8 +120,8 @@
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">No pets found. Add your first pet to get started.</p>
-        <Button variant="primary" class="mt-4" @click="showAddPetModal = true">Add Your First Pet</Button>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $t('dashboard.owner.noPetsCta') }}</p>
+        <Button variant="primary" class="mt-4" @click="showAddPetModal = true">{{ $t('dashboard.owner.addFirstPet') }}</Button>
       </div>
       
       <!-- Pets Grid -->
@@ -141,15 +141,15 @@
       <template #header>
         <div class="flex justify-between items-center">
           <div>
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Upcoming Appointments</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Stay on top of your scheduled visits</p>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.owner.upcomingAppointments') }}</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('dashboard.owner.upcomingAppointmentsSubtitle') }}</p>
           </div>
           <div class="flex gap-2">
             <Button variant="outline" size="sm" @click="$router.push('/owner/history')">
-              View History
+              {{ $t('dashboard.owner.viewHistory') }}
             </Button>
             <Button variant="primary" size="sm" @click="$router.push('/booking')">
-              Book New
+              {{ $t('dashboard.owner.bookNew') }}
             </Button>
           </div>
         </div>
@@ -184,18 +184,18 @@
     </Card>
 
     <!-- Add Pet Modal -->
-    <Modal :is-open="showAddPetModal" title="Add New Pet" @close="showAddPetModal = false">
+    <Modal :is-open="showAddPetModal" :title="$t('dashboard.owner.addPetModalTitle')" @close="showAddPetModal = false">
       <form @submit.prevent="submitPet" class="space-y-4">
         <Input
           v-model="newPet.name"
-          label="Pet Name"
-          placeholder="Enter pet name"
+          :label="$t('pets.name')"
+          :placeholder="$t('pets.name')"
           required
           :error="petErrors.name"
         />
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Species</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('pets.type') }}</label>
             <select
               v-model="newPet.species"
               :class="[
@@ -204,29 +204,29 @@
               ]"
               required
             >
-              <option value="">Select species</option>
-              <option value="Dog">Dog</option>
-              <option value="Cat">Cat</option>
-              <option value="Bird">Bird</option>
-              <option value="Rabbit">Rabbit</option>
-              <option value="Hamster">Hamster</option>
-              <option value="Fish">Fish</option>
-              <option value="Reptile">Reptile</option>
-              <option value="Other">Other</option>
+              <option value="">{{ $t('appointments.selectPet') }}</option>
+              <option value="Dog">{{ $t('pets.species_dog') }}</option>
+              <option value="Cat">{{ $t('pets.species_cat') }}</option>
+              <option value="Bird">{{ $t('pets.species_bird') }}</option>
+              <option value="Rabbit">{{ $t('pets.species_rabbit') }}</option>
+              <option value="Hamster">{{ $t('pets.species_hamster') }}</option>
+              <option value="Fish">{{ $t('pets.species_fish') }}</option>
+              <option value="Reptile">{{ $t('pets.species_reptile') }}</option>
+              <option value="Other">{{ $t('pets.species_other') }}</option>
             </select>
             <p v-if="petErrors.species" class="mt-1 text-sm text-danger-600 dark:text-danger-400">{{ petErrors.species }}</p>
           </div>
           <Input
             v-model="newPet.breed"
-            label="Breed"
-            placeholder="Enter breed"
+            :label="$t('pets.breed')"
+            :placeholder="$t('pets.breed')"
             required
             :error="petErrors.breed"
           />
         </div>
         <Input
           v-model="newPet.dateOfBirth"
-          label="Date of Birth"
+          :label="$t('pets.dateOfBirth')"
           type="date"
           required
           :error="petErrors.dateOfBirth"
@@ -234,60 +234,60 @@
       </form>
       <template #footer>
         <div class="flex justify-end gap-3">
-          <Button variant="outline" @click="showAddPetModal = false">Cancel</Button>
+          <Button variant="outline" @click="showAddPetModal = false">{{ $t('common.cancel') }}</Button>
           <Button variant="primary" @click="submitPet" :disabled="submittingPet">
-            {{ submittingPet ? 'Adding...' : 'Add Pet' }}
+            {{ submittingPet ? $t('dashboard.owner.adding') : $t('dashboard.owner.addPet') }}
           </Button>
         </div>
       </template>
     </Modal>
 
     <!-- Delete Confirmation Modal -->
-    <Modal :is-open="showDeleteModal" title="Delete Pet" @close="showDeleteModal = false">
+    <Modal :is-open="showDeleteModal" :title="$t('dashboard.owner.deletePetTitle')" @close="showDeleteModal = false">
       <p class="text-gray-600 dark:text-gray-400">
-        Are you sure you want to delete <strong>{{ petToDelete?.name }}</strong>? This action cannot be undone.
+        {{ $t('dashboard.owner.deletePetConfirm') }} <strong>{{ petToDelete?.name }}</strong>? {{ $t('dashboard.owner.deletePetWarning') }}
       </p>
       <template #footer>
         <div class="flex justify-end gap-3">
-          <Button variant="outline" @click="showDeleteModal = false">Cancel</Button>
+          <Button variant="outline" @click="showDeleteModal = false">{{ $t('common.cancel') }}</Button>
           <Button variant="danger" @click="deletePet" :disabled="deletingPet">
-            {{ deletingPet ? 'Deleting...' : 'Delete' }}
+            {{ deletingPet ? $t('pets.deleting') : $t('common.delete') }}
           </Button>
         </div>
       </template>
     </Modal>
 
     <!-- Edit Profile Modal -->
-    <Modal :is-open="showEditProfile" title="Edit Profile" @close="showEditProfile = false">
+    <Modal :is-open="showEditProfile" :title="$t('dashboard.owner.editProfileTitle')" @close="showEditProfile = false">
       <form @submit.prevent="submitProfile" class="space-y-4">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
             v-model="profileForm.firstName"
-            label="First Name"
-            placeholder="Enter first name"
+            :label="$t('auth.firstName')"
+            :placeholder="$t('auth.firstName')"
             :error="profileErrors.firstName"
           />
           <Input
             v-model="profileForm.lastName"
-            label="Last Name"
-            placeholder="Enter last name"
+            :label="$t('auth.lastName')"
+            :placeholder="$t('auth.lastName')"
             :error="profileErrors.lastName"
           />
         </div>
         <Input
           v-model="profileForm.email"
-          label="Email"
+          :label="$t('auth.email')"
           type="email"
-          placeholder="Enter email"
+          :placeholder="$t('auth.email')"
           required
           :error="profileErrors.email"
         />
       </form>
       <template #footer>
         <div class="flex justify-end gap-3">
-          <Button variant="outline" @click="showEditProfile = false">Cancel</Button>
+          <Button variant="outline" @click="showEditProfile = false">{{ $t('common.cancel') }}</Button>
           <Button variant="primary" @click="submitProfile" :disabled="submittingProfile">
-            {{ submittingProfile ? 'Saving...' : 'Save Changes' }}
+            {{ submittingProfile ? $t('dashboard.owner.saving') : $t('dashboard.owner.saveChanges') }}
           </Button>
         </div>
       </template>
@@ -300,6 +300,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { appointmentsService, type Appointment } from '@/services/appointments'
@@ -322,6 +323,7 @@ import {
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Data
 const appointments = ref<Appointment[]>([])
@@ -411,7 +413,7 @@ const loadAppointments = async () => {
     appointments.value = filterAppointmentsToOwnedPets(data)
   } catch (error) {
     console.error('Failed to load appointments', error)
-    showNotification('error', 'Failed to load appointments')
+    showNotification('error', t('dashboard.owner.appointmentsLoadFailed'))
   } finally {
     loadingAppointments.value = false
   }
@@ -423,7 +425,7 @@ const loadPets = async () => {
     pets.value = data
   } catch (error) {
     console.error('Failed to load pets', error)
-    showNotification('error', 'Failed to load pets')
+    showNotification('error', t('dashboard.owner.petsLoadFailed'))
   } finally {
     loadingPets.value = false
   }
@@ -458,10 +460,10 @@ const viewAppointment = (appointment: Appointment) => {
 const cancelAppointment = async (appointment: Appointment) => {
   try {
     await appointmentsService.cancelAppointment(appointment.id)
-    showNotification('success', 'Appointment cancelled successfully')
+    showNotification('success', t('appointments.cancelled'))
     await loadAppointments()
   } catch (error) {
-    showNotification('error', 'Failed to cancel appointment')
+    showNotification('error', t('appointments.cancelFailed'))
   }
 }
 
@@ -481,11 +483,11 @@ const deletePet = async () => {
   deletingPet.value = true
   try {
     await ownersService.deletePet(petToDelete.value.id)
-    showNotification('success', 'Pet deleted successfully')
+    showNotification('success', t('dashboard.owner.petDeletedSuccess'))
     showDeleteModal.value = false
     await loadPets()
   } catch (error) {
-    showNotification('error', 'Failed to delete pet')
+    showNotification('error', t('dashboard.owner.petDeleteFailed'))
   } finally {
     deletingPet.value = false
   }
@@ -495,31 +497,31 @@ const submitPet = async () => {
   petErrors.value = {}
   
   if (!newPet.value.name) {
-    petErrors.value.name = 'Pet name is required'
+    petErrors.value.name = t('pets.validation.nameRequired')
     return
   }
   if (!newPet.value.species) {
-    petErrors.value.species = 'Species is required'
+    petErrors.value.species = t('pets.validation.speciesRequired')
     return
   }
   if (!newPet.value.breed) {
-    petErrors.value.breed = 'Breed is required'
+    petErrors.value.breed = t('pets.validation.breedRequired')
     return
   }
   if (!newPet.value.dateOfBirth) {
-    petErrors.value.dateOfBirth = 'Date of birth is required'
+    petErrors.value.dateOfBirth = t('pets.validation.dateOfBirthRequired')
     return
   }
   
   submittingPet.value = true
   try {
     await ownersService.createPet(newPet.value)
-    showNotification('success', 'Pet added successfully')
+    showNotification('success', t('dashboard.owner.petAddedSuccess'))
     showAddPetModal.value = false
     newPet.value = { name: '', species: '', breed: '', dateOfBirth: '' }
     await loadPets()
   } catch (error) {
-    showNotification('error', 'Failed to add pet')
+    showNotification('error', t('dashboard.owner.petAddFailed'))
   } finally {
     submittingPet.value = false
   }
@@ -533,23 +535,23 @@ const submitProfile = async () => {
   const email = profileForm.value.email.trim().toLowerCase()
 
   if (!email) {
-    profileErrors.value.email = 'Email is required'
+    profileErrors.value.email = t('dashboard.owner.validation.emailRequired')
     return
   }
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailPattern.test(email)) {
-    profileErrors.value.email = 'Please enter a valid email address'
+    profileErrors.value.email = t('dashboard.owner.validation.invalidEmail')
     return
   }
 
   if (firstName.length > 100) {
-    profileErrors.value.firstName = 'First name must be 100 characters or fewer'
+    profileErrors.value.firstName = t('dashboard.owner.validation.firstNameMax')
     return
   }
 
   if (lastName.length > 100) {
-    profileErrors.value.lastName = 'Last name must be 100 characters or fewer'
+    profileErrors.value.lastName = t('dashboard.owner.validation.lastNameMax')
     return
   }
 
@@ -563,7 +565,7 @@ const submitProfile = async () => {
 
     owner.value = updatedOwner
     showEditProfile.value = false
-    showNotification('success', 'Profile updated successfully')
+    showNotification('success', t('dashboard.owner.profileUpdated'))
 
     try {
       await authStore.refreshAccessToken()
@@ -572,11 +574,11 @@ const submitProfile = async () => {
     }
   } catch (error: any) {
     if (error?.response?.status === 409) {
-      profileErrors.value.email = 'This email is already in use'
+      profileErrors.value.email = t('auth.emailTaken')
       return
     }
 
-    showNotification('error', 'Failed to update profile')
+    showNotification('error', t('dashboard.owner.profileUpdateFailed'))
   } finally {
     submittingProfile.value = false
   }

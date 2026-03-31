@@ -8,19 +8,19 @@
         </div>
         <Button variant="primary" size="sm" @click="refreshAppointments">
           <ArrowPathIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-          Refresh
+          {{ $t('common.refresh') }}
         </Button>
       </div>
     </div>
 
     <Card>
       <template #header>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Appointments List</h2>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('appointments.listTitle') }}</h2>
       </template>
 
       <div v-if="loadingAppointments" class="py-8 text-center">
         <div class="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">Loading appointments...</p>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $t('dashboard.vet.loadingAppointments') }}</p>
       </div>
 
       <div v-else-if="todayAppointments.length === 0" class="py-8 text-center">
@@ -48,6 +48,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ArrowPathIcon } from '@heroicons/vue/24/outline'
 import { appointmentsService, type Appointment } from '@/services/appointments'
@@ -56,12 +57,13 @@ import Button from '@/components/ui/Button.vue'
 import AppointmentList from '@/components/AppointmentList.vue'
 
 const router = useRouter()
+const { locale } = useI18n()
 
 const appointments = ref<Appointment[]>([])
 const loadingAppointments = ref(true)
 
 const formattedToday = computed(() => {
-  return new Date().toLocaleDateString(undefined, {
+  return new Date().toLocaleDateString(locale.value || undefined, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',

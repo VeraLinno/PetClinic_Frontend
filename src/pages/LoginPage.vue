@@ -38,7 +38,7 @@
             v-model="password"
             type="password"
             :label="$t('auth.password')"
-            :placeholder="$t('forms.pleaseWait')"
+            :placeholder="$t('auth.password')"
             :disabled="loading"
             required
           />

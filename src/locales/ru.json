@@ -25,7 +25,12 @@
     "settings": "Настройки",
     "profile": "Профиль",
     "dashboard": "Панель управления",
-    "home": "Главная"
+    "home": "Главная",
+    "actions": "Действия",
+    "reset": "Сброс",
+    "update": "Обновить",
+    "none": "Нет",
+    "refresh": "Обновить"
   },
    "navigation": {
      "dashboard": "Панель управления",
@@ -41,19 +46,53 @@
     "availability": "Доступность"
   },
   "availability": {
+    "title": "Управление доступностью",
+    "subtitle": "Отметьте дни, когда вы недоступны (отпуск, выходные и т.д.). Эти даты будут закрыты для записи.",
+    "addUnavailablePeriod": "Добавить период недоступности",
+    "unavailablePeriods": "Периоды недоступности",
+    "startDate": "Дата начала",
+    "endDate": "Дата окончания",
+    "selectStartDate": "Выберите дату начала",
+    "selectEndDate": "Выберите дату окончания",
+    "reason": "Причина",
+    "reasonOptional": "Причина (необязательно)",
+    "dateRange": "Диапазон дат",
+    "duration": "Длительность",
+    "addPeriod": "Добавить период",
+    "deleteTitle": "Удалить период недоступности",
+    "deleteConfirmation": "Вы уверены, что хотите удалить период недоступности на",
+    "deleteWarning": "Это действие нельзя отменить.",
+    "editTitle": "Редактировать период недоступности",
+    "noUnavailablePeriods": "Периодов недоступности пока нет.",
+    "addFirstUnavailablePeriod": "Добавьте первый период недоступности с помощью формы выше.",
+    "day": "день",
+    "days": "дней",
+    "messages": {
+      "addSuccess": "Период недоступности успешно добавлен",
+      "addFailed": "Не удалось добавить период недоступности",
+      "deleteSuccess": "Период недоступности успешно удален",
+      "deleteFailed": "Не удалось удалить период недоступности",
+      "updateSuccess": "Период недоступности успешно обновлен",
+      "updateFailed": "Не удалось обновить период недоступности"
+    },
+    "validation": {
+      "bothDatesRequired": "Требуются даты начала и окончания",
+      "endDateAfterStart": "Дата окончания должна быть не раньше даты начала",
+      "overlapWithPeriod": "Диапазон дат пересекается с существующим периодом:"
+    },
     "reasons": {
-      "vacation": "Ветеринар в отпуске",
-      "sickLeave": "Ветеринар на больничном",
-      "conference": "Ветеринар на конференции",
-      "training": "Ветеринар на обучении",
-      "personal": "У ветеринара личная встреча",
-      "other": "Ветеринар недоступен"
+      "vacation": "Отпуск",
+      "sickLeave": "Больничный",
+      "conference": "Конференция",
+      "training": "Обучение",
+      "personal": "Личное",
+      "other": "Другое"
     }
   },
   "auth": {
     "loginPortalTitle": "Портал доступа клиники",
     "email": "Электронная почта",
-    "emailPlaceholder": "you\u0040clinic.com",
+    "emailPlaceholder": "you@petclinic.com",
     "password": "Пароль",
     "firstName": "Имя",
     "lastName": "Фамилия",
@@ -89,7 +128,35 @@
       "noPets": "Питомцы не зарегистрированы",
       "noVisits": "Нет недавних визитов",
       "bookAppointment": "Записаться на прием",
-      "addPet": "Добавить нового питомца"
+      "addPet": "Добавить нового питомца",
+      "managePets": "Управляйте профилями и быстро записывайтесь на прием",
+      "noPetsCta": "Питомцы не найдены. Добавьте первого питомца, чтобы начать.",
+      "addFirstPet": "Добавить первого питомца",
+      "upcomingAppointmentsSubtitle": "Следите за запланированными визитами",
+      "viewHistory": "История",
+      "bookNew": "Записаться",
+      "petDeletedSuccess": "Питомец успешно удален",
+      "petDeleteFailed": "Не удалось удалить питомца",
+      "petAddedSuccess": "Питомец успешно добавлен",
+      "petAddFailed": "Не удалось добавить питомца",
+      "appointmentsLoadFailed": "Не удалось загрузить записи",
+      "petsLoadFailed": "Не удалось загрузить питомцев",
+      "addPetModalTitle": "Добавить нового питомца",
+      "deletePetTitle": "Удалить питомца",
+      "deletePetConfirm": "Вы уверены, что хотите удалить",
+      "deletePetWarning": "Это действие нельзя отменить.",
+      "editProfileTitle": "Редактировать профиль",
+      "profileUpdated": "Профиль успешно обновлен",
+      "profileUpdateFailed": "Не удалось обновить профиль",
+      "saving": "Сохранение...",
+      "saveChanges": "Сохранить изменения",
+      "adding": "Добавление...",
+      "validation": {
+        "emailRequired": "Email обязателен",
+        "invalidEmail": "Введите корректный email",
+        "firstNameMax": "Имя должно быть не длиннее 100 символов",
+        "lastNameMax": "Фамилия должна быть не длиннее 100 символов"
+      }
     },
    "vet": {
      "title": "Панель управления ветеринара",
@@ -173,6 +240,7 @@
     "bookingFailed": "Не удалось создать запись. Пожалуйста, попробуйте снова.",
     "scheduled": "Запись успешно создана",
     "cancelled": "Запись отменена",
+    "cancelFailed": "Не удалось отменить запись",
     "confirmCancel": "Вы уверены, что хотите отменить эту запись?",
     "date": "Дата",
     "time": "Время",
@@ -186,7 +254,8 @@
     "status_all": "Все",
     "veterinarian": "Ветеринар",
     "pet": "Питомец",
-    "stepIndicator": "Шаг {current} из {total}"
+    "stepIndicator": "Шаг {current} из {total}",
+    "listTitle": "Список записей"
   },
   "pets": {
     "title": "Мои питомцы",
@@ -203,6 +272,7 @@
     "petAdded": "Питомец успешно добавлен",
     "petUpdated": "Информация о питомце обновлена",
     "petDeleted": "Питомец удален",
+    "deleting": "Удаление...",
     "noDescription": "Описание не предоставлено",
     "lastVisit": "Последний визит",
     "nextBooster": "Следующее усиление",
@@ -217,7 +287,13 @@
     "species_other": "Другое",
     "breed_golden_retriever": "Золотистый ретривер",
     "breed_persian": "Персидская",
-    "breed_mixed_breed": "Смешанная порода"
+    "breed_mixed_breed": "Смешанная порода",
+    "validation": {
+      "nameRequired": "Имя питомца обязательно",
+      "speciesRequired": "Вид питомца обязателен",
+      "breedRequired": "Порода обязательна",
+      "dateOfBirthRequired": "Дата рождения обязательна"
+    }
   },
   "health": {
     "title": "История здоровья",
@@ -242,6 +318,14 @@
   },
   "invoices": {
     "title": "Счета",
+    "subtitle": "Просматривайте и оплачивайте ваши счета",
+    "totalDue": "К оплате",
+    "paidThisMonth": "Оплачено в этом месяце",
+    "totalInvoices": "Всего счетов",
+    "allInvoices": "Все счета",
+    "last30Days": "Последние 30 дней",
+    "last3Months": "Последние 3 месяца",
+    "allTime": "За все время",
     "invoiceNumber": "Счет №",
     "date": "Дата",
     "amount": "Сумма",
@@ -253,6 +337,7 @@
     "dueDate": "Дата платежа",
     "total": "Итого",
     "pay": "Оплатить счет",
+    "payNow": "Оплатить",
     "download": "Загрузить PDF",
     "noInvoices": "Счета не найдены"
   },

@@ -3,21 +3,21 @@
     <Breadcrumb :items="breadcrumbItems" />
 
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Invoices</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">View and pay your invoices</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('invoices.title') }}</h1>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">{{ $t('invoices.subtitle') }}</p>
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
       <Card>
-        <p class="text-sm text-slate-500 dark:text-slate-400">Total Due</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('invoices.totalDue') }}</p>
         <p class="mt-1 text-3xl font-bold text-danger-700 dark:text-danger-300">${{ totalDue }}</p>
       </Card>
       <Card>
-        <p class="text-sm text-slate-500 dark:text-slate-400">Paid This Month</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('invoices.paidThisMonth') }}</p>
         <p class="mt-1 text-3xl font-bold text-success-700 dark:text-success-300">${{ paidThisMonth }}</p>
       </Card>
       <Card>
-        <p class="text-sm text-slate-500 dark:text-slate-400">Total Invoices</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('invoices.totalInvoices') }}</p>
         <p class="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">{{ invoices.length }}</p>
       </Card>
     </div>
@@ -25,30 +25,30 @@
     <Card>
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">All Invoices</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('invoices.allInvoices') }}</h2>
           <div class="flex flex-wrap gap-2">
             <button
               v-for="option in statusOptions"
-              :key="option"
+              :key="option.value"
               :class="[
                 'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
-                statusFilter === option
+                statusFilter === option.value
                   ? 'bg-primary-500 text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
               ]"
-              @click="statusFilter = option"
+              @click="statusFilter = option.value"
             >
-              {{ option }}
+              {{ option.label }}
             </button>
 
             <select
               v-model="dateRange"
               class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
-              <option value="30d">Last 30 days</option>
+              <option value="30d">{{ $t('invoices.last30Days') }}</option>
               <option value="month">{{ $t('dashboard.vet.thisMonth') }}</option>
-              <option value="3m">Last 3 months</option>
-              <option value="all">All time</option>
+              <option value="3m">{{ $t('invoices.last3Months') }}</option>
+              <option value="all">{{ $t('invoices.allTime') }}</option>
             </select>
           </div>
         </div>
@@ -59,7 +59,7 @@
       </div>
 
       <div v-else-if="filteredInvoices.length === 0" class="py-8 text-center text-gray-500">
-        No invoices found.
+        {{ $t('invoices.noInvoices') }}
       </div>
 
       <div v-else class="space-y-3">
@@ -75,20 +75,20 @@
               </svg>
             </div>
             <div>
-              <h3 class="font-medium text-gray-900 dark:text-white">Invoice #{{ invoice.id }}</h3>
+              <h3 class="font-medium text-gray-900 dark:text-white">{{ $t('invoices.invoiceNumber') }}{{ invoice.id }}</h3>
               <p class="text-sm text-gray-500">{{ invoice.petName }} - {{ formatDate(invoice.date) }}</p>
             </div>
           </div>
           <div class="flex items-center gap-3">
             <div class="text-right">
-              <p class="font-bold" :class="invoice.status === 'Overdue' ? 'text-danger-700 dark:text-danger-300' : 'text-gray-900 dark:text-white'">${{ invoice.total }}</p>
-              <Badge :variant="getStatusVariant(invoice.status)" size="sm">{{ invoice.status }}</Badge>
+              <p class="font-bold" :class="invoice.status === 'overdue' ? 'text-danger-700 dark:text-danger-300' : 'text-gray-900 dark:text-white'">${{ invoice.total }}</p>
+              <Badge :variant="getStatusVariant(invoice.status)" size="sm">{{ getStatusLabel(invoice.status) }}</Badge>
             </div>
-            <Button v-if="invoice.status !== 'Paid'" variant="primary" size="sm" @click="payInvoice(invoice)">
-              Pay Now
+            <Button v-if="invoice.status !== 'paid'" variant="primary" size="sm" @click="payInvoice(invoice)">
+              {{ $t('invoices.payNow') }}
             </Button>
             <Button variant="outline" size="sm" @click="downloadInvoice(invoice)">
-              Download
+              {{ $t('invoices.download') }}
             </Button>
           </div>
         </div>
@@ -99,13 +99,16 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 
+const { t } = useI18n()
+
 const breadcrumbItems = [
-  { label: 'Invoices' }
+  { label: t('invoices.title') }
 ]
 
 interface Invoice {
@@ -113,13 +116,20 @@ interface Invoice {
   petName: string
   date: string
   total: number
-  status: 'Paid' | 'Pending' | 'Overdue'
+  status: 'paid' | 'pending' | 'overdue'
 }
+
+type InvoiceStatusFilter = 'all' | 'pending' | 'paid' | 'overdue'
 
 const invoices = ref<Invoice[]>([])
 const loading = ref(true)
-const statusOptions = ['All', 'Pending', 'Paid', 'Overdue']
-const statusFilter = ref('All')
+const statusOptions = computed<{ value: InvoiceStatusFilter; label: string }[]>(() => [
+  { value: 'all', label: t('appointments.status_all') },
+  { value: 'pending', label: t('invoices.status_pending') },
+  { value: 'paid', label: t('invoices.status_paid') },
+  { value: 'overdue', label: t('invoices.status_overdue') }
+])
+const statusFilter = ref<InvoiceStatusFilter>('all')
 const dateRange = ref('30d')
 
 const filteredInvoices = computed(() => {
@@ -140,18 +150,18 @@ const filteredInvoices = computed(() => {
     return d >= from
   })
 
-  if (statusFilter.value === 'All') return byDate
+  if (statusFilter.value === 'all') return byDate
   return byDate.filter(i => i.status === statusFilter.value)
 })
 
 const totalDue = computed(() => {
-  return invoices.value.filter(i => i.status !== 'Paid').reduce((acc, cur) => acc + cur.total, 0)
+  return invoices.value.filter(i => i.status !== 'paid').reduce((acc, cur) => acc + cur.total, 0)
 })
 
 const paidThisMonth = computed(() => {
   const now = new Date()
   return invoices.value
-    .filter(i => i.status === 'Paid')
+    .filter(i => i.status === 'paid')
     .filter(i => {
       const d = new Date(i.date)
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
@@ -162,9 +172,9 @@ const paidThisMonth = computed(() => {
 onMounted(() => {
   // Mock data
   invoices.value = [
-    { id: 'INV001', petName: 'Buddy', date: '2024-02-20', total: 200, status: 'Pending' },
-    { id: 'INV002', petName: 'Buddy', date: '2024-01-15', total: 150, status: 'Paid' },
-    { id: 'INV003', petName: 'Whiskers', date: '2024-01-08', total: 340, status: 'Overdue' }
+    { id: 'INV001', petName: 'Buddy', date: '2024-02-20', total: 200, status: 'pending' },
+    { id: 'INV002', petName: 'Buddy', date: '2024-01-15', total: 150, status: 'paid' },
+    { id: 'INV003', petName: 'Whiskers', date: '2024-01-08', total: 340, status: 'overdue' }
   ]
   loading.value = false
 })
@@ -172,10 +182,12 @@ onMounted(() => {
 const formatDate = (date: string) => new Date(date).toLocaleDateString()
 
 const getStatusVariant = (status: string) => {
-  if (status === 'Paid') return 'success'
-  if (status === 'Overdue') return 'danger'
+  if (status === 'paid') return 'success'
+  if (status === 'overdue') return 'danger'
   return 'warning'
 }
+
+const getStatusLabel = (status: 'paid' | 'pending' | 'overdue') => t(`invoices.status_${status}`)
 
 const payInvoice = (invoice: Invoice) => {
   console.log('Pay', invoice.id)

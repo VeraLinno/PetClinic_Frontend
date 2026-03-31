@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-slate-800">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Manage Availability</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('availability.title') }}</h1>
         <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Mark days when you are unavailable (vacation, time off, etc.). These dates will be blocked for booking appointments.
+          {{ $t('availability.subtitle') }}
         </p>
       </div>
     </div>
@@ -13,33 +13,33 @@
     <!-- Add Unavailability Form -->
     <Card>
       <template #header>
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Add Unavailable Period</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('availability.addUnavailablePeriod') }}</h2>
       </template>
       <div class="space-y-4 p-6">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label for="start-date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Start Date <span class="text-danger-600">*</span>
+              {{ $t('availability.startDate') }} <span class="text-danger-600">*</span>
             </label>
             <Input
               id="start-date"
               v-model="formData.startDate"
               type="date"
               :min="today"
-              placeholder="Select start date"
+              :placeholder="$t('availability.selectStartDate')"
               @input="clearError"
             />
           </div>
           <div>
             <label for="end-date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              End Date <span class="text-danger-600">*</span>
+              {{ $t('availability.endDate') }} <span class="text-danger-600">*</span>
             </label>
             <Input
               id="end-date"
               v-model="formData.endDate"
               type="date"
               :min="today"
-              placeholder="Select end date"
+              :placeholder="$t('availability.selectEndDate')"
               @input="clearError"
             />
           </div>
@@ -47,20 +47,20 @@
 
         <div>
           <label for="reason" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Reason (optional)
+            {{ $t('availability.reasonOptional') }}
           </label>
           <select
             id="reason"
             v-model="formData.reason"
             class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
           >
-            <option value="">None</option>
-            <option value="Vacation">Vacation</option>
-            <option value="Sick Leave">Sick Leave</option>
-            <option value="Conference">Conference</option>
-            <option value="Training">Training</option>
-            <option value="Personal">Personal</option>
-            <option value="Other">Other</option>
+            <option value="">{{ $t('common.none') }}</option>
+            <option value="Vacation">{{ $t('availability.reasons.vacation') }}</option>
+            <option value="Sick Leave">{{ $t('availability.reasons.sickLeave') }}</option>
+            <option value="Conference">{{ $t('availability.reasons.conference') }}</option>
+            <option value="Training">{{ $t('availability.reasons.training') }}</option>
+            <option value="Personal">{{ $t('availability.reasons.personal') }}</option>
+            <option value="Other">{{ $t('availability.reasons.other') }}</option>
           </select>
         </div>
 
@@ -76,7 +76,7 @@
             @click="resetForm"
             :disabled="loading"
           >
-            Reset
+            {{ $t('common.reset') }}
           </Button>
           <Button
             variant="primary"
@@ -84,7 +84,7 @@
             :loading="loading"
             :disabled="!isFormValid || loading"
           >
-            Add Period
+            {{ $t('availability.addPeriod') }}
           </Button>
         </div>
       </div>
@@ -94,7 +94,7 @@
     <Card>
       <template #header>
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Unavailable Periods</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('availability.unavailablePeriods') }}</h2>
           <Badge v-if="availabilityStore.unavailablePeriods.length > 0" variant="primary" size="sm">
             {{ availabilityStore.unavailablePeriods.length }}
           </Badge>
@@ -116,8 +116,8 @@
 
         <!-- Empty State -->
         <div v-else-if="availabilityStore.unavailablePeriods.length === 0" class="rounded-lg border border-slate-200 bg-slate-50 py-12 text-center dark:border-slate-700 dark:bg-slate-800/40">
-          <p class="text-slate-500 dark:text-slate-400">No unavailable periods yet.</p>
-          <p class="text-sm text-slate-400 dark:text-slate-500">Add your first unavailable period using the form above.</p>
+          <p class="text-slate-500 dark:text-slate-400">{{ $t('availability.noUnavailablePeriods') }}</p>
+          <p class="text-sm text-slate-400 dark:text-slate-500">{{ $t('availability.addFirstUnavailablePeriod') }}</p>
         </div>
 
         <!-- List Table -->
@@ -125,10 +125,10 @@
           <table class="w-full">
             <thead>
               <tr class="border-b border-slate-200 dark:border-slate-700">
-                <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Date Range</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Reason</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Duration</th>
-                <th class="px-4 py-3 text-right text-sm font-semibold text-slate-700 dark:text-slate-300">Action</th>
+                <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">{{ $t('availability.dateRange') }}</th>
+                <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">{{ $t('availability.reason') }}</th>
+                <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">{{ $t('availability.duration') }}</th>
+                <th class="px-4 py-3 text-right text-sm font-semibold text-slate-700 dark:text-slate-300">{{ $t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -142,9 +142,9 @@
                 </td>
                 <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100">
                   <Badge v-if="period.reason" variant="primary" size="sm">
-                    {{ period.reason }}
+                    {{ getReasonLabel(period.reason) }}
                   </Badge>
-                  <span v-else class="text-slate-400 dark:text-slate-500">—</span>
+                  <span v-else class="text-slate-400 dark:text-slate-500">{{ $t('common.none') }}</span>
                 </td>
                 <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
                   {{ getDuration(period.startDate, period.endDate) }}
@@ -157,7 +157,7 @@
                       @click="openEditModal(period)"
                       :disabled="loading"
                     >
-                      Edit
+                      {{ $t('common.edit') }}
                     </Button>
                     <Button
                       variant="outline"
@@ -166,7 +166,7 @@
                       :disabled="loading"
                       class="text-danger-600 dark:text-danger-400"
                     >
-                      Delete
+                      {{ $t('common.delete') }}
                     </Button>
                   </div>
                 </td>
@@ -180,18 +180,18 @@
     <!-- Delete Confirmation Modal -->
     <Modal
       :isOpen="!!deleteConfirmPeriod"
-      title="Delete Unavailable Period"
+      :title="$t('availability.deleteTitle')"
       @close="deleteConfirmPeriod = null"
     >
       <template #default>
         <div class="space-y-4">
           <p class="text-slate-600 dark:text-slate-400">
-            Are you sure you want to delete the unavailable period for
+            {{ $t('availability.deleteConfirmation') }}
             <span class="font-semibold text-slate-900 dark:text-slate-100">
               {{ deleteConfirmPeriod ? formatDateRange(deleteConfirmPeriod.startDate, deleteConfirmPeriod.endDate) : '' }}
-            </span>?
+            </span>
           </p>
-          <p class="text-sm text-slate-500 dark:text-slate-400">This action cannot be undone.</p>
+          <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('availability.deleteWarning') }}</p>
         </div>
       </template>
 
@@ -202,7 +202,7 @@
             @click="deleteConfirmPeriod = null"
             :disabled="loading"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </Button>
           <Button
             variant="danger"
@@ -210,7 +210,7 @@
             :loading="loading"
             :disabled="loading"
           >
-            Delete
+            {{ $t('common.delete') }}
           </Button>
         </div>
       </template>
@@ -219,7 +219,7 @@
     <!-- Edit Modal -->
     <Modal
       :isOpen="!!editingPeriod"
-      title="Edit Unavailable Period"
+      :title="$t('availability.editTitle')"
       @close="editingPeriod = null"
     >
       <template #default>
@@ -227,46 +227,46 @@
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label for="edit-start-date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Start Date <span class="text-danger-600">*</span>
+                {{ $t('availability.startDate') }} <span class="text-danger-600">*</span>
               </label>
               <Input
                 id="edit-start-date"
                 v-model="editFormData.startDate"
                 type="date"
                 :min="today"
-                placeholder="Select start date"
+                :placeholder="$t('availability.selectStartDate')"
               />
             </div>
             <div>
               <label for="edit-end-date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                End Date <span class="text-danger-600">*</span>
+                {{ $t('availability.endDate') }} <span class="text-danger-600">*</span>
               </label>
               <Input
                 id="edit-end-date"
                 v-model="editFormData.endDate"
                 type="date"
                 :min="today"
-                placeholder="Select end date"
+                :placeholder="$t('availability.selectEndDate')"
               />
             </div>
           </div>
 
           <div>
             <label for="edit-reason" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Reason (optional)
+              {{ $t('availability.reasonOptional') }}
             </label>
             <select
               id="edit-reason"
               v-model="editFormData.reason"
               class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
             >
-              <option value="">None</option>
-              <option value="Vacation">Vacation</option>
-              <option value="Sick Leave">Sick Leave</option>
-              <option value="Conference">Conference</option>
-              <option value="Training">Training</option>
-              <option value="Personal">Personal</option>
-              <option value="Other">Other</option>
+              <option value="">{{ $t('common.none') }}</option>
+              <option value="Vacation">{{ $t('availability.reasons.vacation') }}</option>
+              <option value="Sick Leave">{{ $t('availability.reasons.sickLeave') }}</option>
+              <option value="Conference">{{ $t('availability.reasons.conference') }}</option>
+              <option value="Training">{{ $t('availability.reasons.training') }}</option>
+              <option value="Personal">{{ $t('availability.reasons.personal') }}</option>
+              <option value="Other">{{ $t('availability.reasons.other') }}</option>
             </select>
           </div>
 
@@ -284,7 +284,7 @@
             @click="editingPeriod = null"
             :disabled="loading"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </Button>
           <Button
             variant="primary"
@@ -292,7 +292,7 @@
             :loading="loading"
             :disabled="loading || !isEditFormValid"
           >
-            Update
+            {{ $t('common.update') }}
           </Button>
         </div>
       </template>
@@ -310,6 +310,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { useAvailabilityStore, type UnavailablePeriod } from '@/stores/availability'
 import Card from '@/components/ui/Card.vue'
@@ -319,6 +320,7 @@ import Modal from '@/components/ui/Modal.vue'
 import Badge from '@/components/ui/Badge.vue'
 
 const availabilityStore = useAvailabilityStore()
+const { t, locale } = useI18n()
 
 const formData = ref({
   startDate: '',
@@ -369,12 +371,12 @@ const validateDateRange = (): boolean => {
   clearError()
 
   if (!formData.value.startDate || !formData.value.endDate) {
-    formError.value = 'Both start and end dates are required'
+    formError.value = t('availability.validation.bothDatesRequired')
     return false
   }
 
   if (formData.value.startDate > formData.value.endDate) {
-    formError.value = 'End date must be on or after start date'
+    formError.value = t('availability.validation.endDateAfterStart')
     return false
   }
 
@@ -387,7 +389,7 @@ const validateDateRange = (): boolean => {
     const existingEnd = new Date(period.endDate)
 
     if (newStart <= existingEnd && newEnd >= existingStart) {
-      formError.value = `Date range overlaps with existing period: ${formatDateRange(period.startDate, period.endDate)}`
+      formError.value = `${t('availability.validation.overlapWithPeriod')} ${formatDateRange(period.startDate, period.endDate)}`
       return false
     }
   }
@@ -408,7 +410,7 @@ const submitForm = async () => {
       formData.value.reason || undefined
     )
 
-    successMessage.value = 'Unavailable period added successfully'
+    successMessage.value = t('availability.messages.addSuccess')
     showSuccessMessage.value = true
     setTimeout(() => {
       showSuccessMessage.value = false
@@ -416,7 +418,7 @@ const submitForm = async () => {
 
     resetForm()
   } catch (err: any) {
-    formError.value = err.response?.data?.message || 'Failed to add unavailable period'
+    formError.value = err.response?.data?.message || t('availability.messages.addFailed')
   } finally {
     loading.value = false
   }
@@ -433,7 +435,7 @@ const resetForm = () => {
 
 const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr + 'T00:00:00')
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat(locale.value || undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -452,7 +454,22 @@ const getDuration = (startStr: string, endStr: string): string => {
   const end = new Date(endStr)
   const diffTime = Math.abs(end.getTime() - start.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
-  return `${diffDays} day${diffDays !== 1 ? 's' : ''}`
+  const dayLabel = diffDays === 1 ? t('availability.day') : t('availability.days')
+  return `${diffDays} ${dayLabel}`
+}
+
+const getReasonLabel = (reason: string): string => {
+  const reasonKeyMap: Record<string, string> = {
+    Vacation: 'vacation',
+    'Sick Leave': 'sickLeave',
+    Conference: 'conference',
+    Training: 'training',
+    Personal: 'personal',
+    Other: 'other'
+  }
+
+  const key = reasonKeyMap[reason]
+  return key ? t(`availability.reasons.${key}`) : reason
 }
 
 const openDeleteConfirm = (period: UnavailablePeriod) => {
@@ -475,14 +492,14 @@ const confirmDelete = async () => {
   loading.value = true
   try {
     await availabilityStore.deleteUnavailablePeriod(deleteConfirmPeriod.value.id)
-    successMessage.value = 'Unavailable period deleted successfully'
+    successMessage.value = t('availability.messages.deleteSuccess')
     showSuccessMessage.value = true
     setTimeout(() => {
       showSuccessMessage.value = false
     }, 3000)
     deleteConfirmPeriod.value = null
   } catch (err: any) {
-    formError.value = err.response?.data?.message || 'Failed to delete unavailable period'
+    formError.value = err.response?.data?.message || t('availability.messages.deleteFailed')
   } finally {
     loading.value = false
   }
@@ -492,12 +509,12 @@ const validateEditDateRange = (): boolean => {
   editFormError.value = ''
 
   if (!editFormData.value.startDate || !editFormData.value.endDate) {
-    editFormError.value = 'Both start and end dates are required'
+    editFormError.value = t('availability.validation.bothDatesRequired')
     return false
   }
 
   if (editFormData.value.startDate > editFormData.value.endDate) {
-    editFormError.value = 'End date must be on or after start date'
+    editFormError.value = t('availability.validation.endDateAfterStart')
     return false
   }
 
@@ -515,7 +532,7 @@ const validateEditDateRange = (): boolean => {
     const existingEnd = new Date(period.endDate)
 
     if (editStart <= existingEnd && editEnd >= existingStart) {
-      editFormError.value = `Date range overlaps with existing period: ${formatDateRange(period.startDate, period.endDate)}`
+      editFormError.value = `${t('availability.validation.overlapWithPeriod')} ${formatDateRange(period.startDate, period.endDate)}`
       return false
     }
   }
@@ -537,7 +554,7 @@ const saveEdit = async () => {
       editFormData.value.reason || undefined
     )
 
-    successMessage.value = 'Unavailable period updated successfully'
+    successMessage.value = t('availability.messages.updateSuccess')
     showSuccessMessage.value = true
     setTimeout(() => {
       showSuccessMessage.value = false
@@ -546,7 +563,7 @@ const saveEdit = async () => {
     editingPeriod.value = null
     editFormData.value = { startDate: '', endDate: '', reason: '' }
   } catch (err: any) {
-    editFormError.value = err.response?.data?.message || 'Failed to update unavailable period'
+    editFormError.value = err.response?.data?.message || t('availability.messages.updateFailed')
   } finally {
     loading.value = false
   }

@@ -58,10 +58,54 @@
     "availability": "Availability",
     "vetAccounts": "Vet Accounts"
   },
+  "availability": {
+    "title": "Manage Availability",
+    "subtitle": "Mark days when you are unavailable (vacation, time off, etc.). These dates will be blocked for booking appointments.",
+    "addUnavailablePeriod": "Add Unavailable Period",
+    "unavailablePeriods": "Unavailable Periods",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "selectStartDate": "Select start date",
+    "selectEndDate": "Select end date",
+    "reason": "Reason",
+    "reasonOptional": "Reason (optional)",
+    "dateRange": "Date Range",
+    "duration": "Duration",
+    "addPeriod": "Add Period",
+    "deleteTitle": "Delete Unavailable Period",
+    "deleteConfirmation": "Are you sure you want to delete the unavailable period for",
+    "deleteWarning": "This action cannot be undone.",
+    "editTitle": "Edit Unavailable Period",
+    "noUnavailablePeriods": "No unavailable periods yet.",
+    "addFirstUnavailablePeriod": "Add your first unavailable period using the form above.",
+    "day": "day",
+    "days": "days",
+    "messages": {
+      "addSuccess": "Unavailable period added successfully",
+      "addFailed": "Failed to add unavailable period",
+      "deleteSuccess": "Unavailable period deleted successfully",
+      "deleteFailed": "Failed to delete unavailable period",
+      "updateSuccess": "Unavailable period updated successfully",
+      "updateFailed": "Failed to update unavailable period"
+    },
+    "validation": {
+      "bothDatesRequired": "Both start and end dates are required",
+      "endDateAfterStart": "End date must be on or after start date",
+      "overlapWithPeriod": "Date range overlaps with existing period:"
+    },
+    "reasons": {
+      "vacation": "Vacation",
+      "sickLeave": "Sick Leave",
+      "conference": "Conference",
+      "training": "Training",
+      "personal": "Personal",
+      "other": "Other"
+    }
+  },
   "auth": {
     "loginPortalTitle": "Pet Clinic",
     "email": "Email",
-    "emailPlaceholder": "you\\@clinic.com",
+    "emailPlaceholder": "you@petclinic.com",
     "password": "Password",
     "firstName": "First Name",
     "lastName": "Last Name",
@@ -122,7 +166,13 @@
       "profileUpdateFailed": "Failed to update profile",
       "saving": "Saving...",
       "saveChanges": "Save Changes",
-      "adding": "Adding..."
+      "adding": "Adding...",
+      "validation": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Please enter a valid email address",
+        "firstNameMax": "First name must be 100 characters or fewer",
+        "lastNameMax": "Last name must be 100 characters or fewer"
+      }
     },
     "vet": {
       "title": "Veterinarian Dashboard",
@@ -191,6 +241,7 @@
     "notes": "Additional Notes",
     "scheduled": "Appointment scheduled successfully",
     "cancelled": "Appointment cancelled",
+    "cancelFailed": "Failed to cancel appointment",
     "confirmCancel": "Are you sure you want to cancel this appointment?",
     "date": "Date",
     "time": "Time",
@@ -222,6 +273,7 @@
     "petAdded": "Pet added successfully",
     "petUpdated": "Pet information updated",
     "petDeleted": "Pet deleted",
+    "deleting": "Deleting...",
     "noDescription": "No description provided",
     "lastVisit": "Last Visit",
     "nextBooster": "Next Booster Due",
@@ -290,10 +342,24 @@
     "noPetsHealth": "No pets found. Add a pet to view health records.",
     "ageYears": "{count} years",
     "ageYearsOld": "{count} years old",
-    "ageLessThanYear": "Less than 1 year"
+    "ageLessThanYear": "Less than 1 year",
+    "validation": {
+      "nameRequired": "Pet name is required",
+      "speciesRequired": "Species is required",
+      "breedRequired": "Breed is required",
+      "dateOfBirthRequired": "Date of birth is required"
+    }
   },
   "invoices": {
     "title": "Invoices",
+    "subtitle": "View and pay your invoices",
+    "totalDue": "Total Due",
+    "paidThisMonth": "Paid This Month",
+    "totalInvoices": "Total Invoices",
+    "allInvoices": "All Invoices",
+    "last30Days": "Last 30 days",
+    "last3Months": "Last 3 months",
+    "allTime": "All time",
     "invoiceNumber": "Invoice #",
     "date": "Date",
     "amount": "Amount",
@@ -305,6 +371,7 @@
     "dueDate": "Due Date",
     "total": "Total",
     "pay": "Pay Invoice",
+    "payNow": "Pay Now",
     "download": "Download PDF",
     "noInvoices": "No invoices found"
   },
