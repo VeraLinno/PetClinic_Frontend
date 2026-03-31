@@ -13,21 +13,6 @@
         </div>
         <LanguageSwitcher class="ml-4" />
       </div>
-
-      <ul class="space-y-4 text-sm text-white/95">
-        <li class="flex items-center gap-3">
-          <CheckCircleIcon class="h-5 w-5 text-white" aria-hidden="true" />
-          {{ $t('appointments.title') }}
-        </li>
-        <li class="flex items-center gap-3">
-          <CheckCircleIcon class="h-5 w-5 text-white" aria-hidden="true" />
-          {{ $t('health.title') }}
-        </li>
-        <li class="flex items-center gap-3">
-          <CheckCircleIcon class="h-5 w-5 text-white" aria-hidden="true" />
-          {{ $t('admin.title') }}
-        </li>
-      </ul>
     </section>
 
     <section class="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
