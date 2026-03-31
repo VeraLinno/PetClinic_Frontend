@@ -18,11 +18,11 @@
           </div>
 
           <p class="truncate text-sm text-slate-500 dark:text-slate-400">
-            {{ pet.breedLocalized || pet.breed || 'Mixed Breed' }}
+            {{ breedLabel || $t('pets.breed_mixed_breed') }}
           </p>
 
           <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
-            Born: {{ formatDate(pet.dateOfBirth) }}
+            {{ $t('pets.born') }}: {{ formatDate(pet.dateOfBirth) }}
           </p>
         </div>
       </div>
@@ -33,28 +33,28 @@
           size="sm"
           class="col-span-2"
           @click="$emit('book-appointment', pet)"
-          :aria-label="`Book appointment for ${pet.name}`"
+          :aria-label="$t('pets.bookAppointment')"
         >
-          Book Appointment
+          {{ $t('pets.bookAppointment') }}
         </Button>
 
         <Button
           variant="outline"
           size="sm"
           class="w-full"
-          :aria-label="`View details for ${pet.name}`"
+          :aria-label="$t('common.details')"
         >
-          Details
+          {{ $t('common.details') }}
         </Button>
 
         <Button
           variant="danger"
           size="sm"
           class="w-full"
-          :aria-label="`Delete ${pet.name}`"
+          :aria-label="$t('common.delete')"
           @click="$emit('delete-pet', pet)"
         >
-          Delete
+          {{ $t('common.delete') }}
         </Button>
       </div>
     </div>
@@ -63,14 +63,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import type { Pet } from '@/services/owners'
+import { resolvePetSpeciesKey, translatePetBreed, translatePetSpecies } from '@/utils/petLocalization'
 
 const props = defineProps<{
   pet: Pet
 }>()
+
+const { t, locale } = useI18n()
 
 defineEmits<{
   'book-appointment': [pet: Pet]
@@ -79,32 +83,34 @@ defineEmits<{
 
 const petEmoji = computed(() => {
   if (!props.pet) return '🐾'
-  const species = props.pet.species.toLowerCase()
-  if (species.includes('dog')) return '🐕'
-  if (species.includes('cat')) return '🐱'
-  if (species.includes('bird')) return '🐦'
-  if (species.includes('fish')) return '🐠'
-  if (species.includes('rabbit')) return '🐰'
-  if (species.includes('hamster')) return '🐹'
+  const speciesKey = resolvePetSpeciesKey(props.pet.species)
+  if (speciesKey === 'dog') return '🐕'
+  if (speciesKey === 'cat') return '🐱'
+  if (speciesKey === 'bird') return '🐦'
+  if (speciesKey === 'fish') return '🐠'
+  if (speciesKey === 'rabbit') return '🐰'
+  if (speciesKey === 'hamster') return '🐹'
   return '🐾'
 })
 
 const speciesBadge = computed(() => {
-  const speciesLabel = props.pet.speciesLocalized || props.pet.species
-  const species = props.pet.species.toLowerCase()
-  if (species.includes('dog')) return { label: speciesLabel, variant: 'info' as const }
-  if (species.includes('cat')) return { label: speciesLabel, variant: 'primary' as const }
-  if (species.includes('bird')) return { label: speciesLabel, variant: 'warning' as const }
-  if (species.includes('rabbit')) return { label: speciesLabel, variant: 'success' as const }
+  const speciesLabel = translatePetSpecies(props.pet.species, t, props.pet.speciesLocalized)
+  const speciesKey = resolvePetSpeciesKey(props.pet.species)
+  if (speciesKey === 'dog') return { label: speciesLabel, variant: 'info' as const }
+  if (speciesKey === 'cat') return { label: speciesLabel, variant: 'primary' as const }
+  if (speciesKey === 'bird') return { label: speciesLabel, variant: 'warning' as const }
+  if (speciesKey === 'rabbit') return { label: speciesLabel, variant: 'success' as const }
   return { label: speciesLabel, variant: 'default' as const }
 })
 
+const breedLabel = computed(() => translatePetBreed(props.pet.breed, t, props.pet.breedLocalized))
+
 const formatDate = (date: string) => {
-  if (!date) return 'N/A'
+  if (!date) return t('common.notAvailable')
   try {
-    return new Date(date).toLocaleDateString()
+    return new Date(date).toLocaleDateString(locale.value || undefined)
   } catch {
-    return 'Invalid date'
+    return t('common.invalidDate')
   }
 }
 </script>

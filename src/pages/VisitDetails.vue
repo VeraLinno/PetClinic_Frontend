@@ -284,6 +284,7 @@ import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import Badge from '@/components/ui/Badge.vue'
+import { resolvePetSpeciesKey, translatePetBreed, translatePetSpecies } from '@/utils/petLocalization'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -325,10 +326,10 @@ const breadcrumbItems = computed(() => {
 const canEdit = computed(() => authStore.roles.includes('Vet'))
 
 const petEmoji = computed(() => {
-  const species = pet.value?.species?.toLowerCase() || ''
-  if (species.includes('dog')) return '🐕'
-  if (species.includes('cat')) return '🐱'
-  if (species.includes('bird')) return '🐦'
+  const speciesKey = resolvePetSpeciesKey(pet.value?.species || '')
+  if (speciesKey === 'dog') return '🐕'
+  if (speciesKey === 'cat') return '🐱'
+  if (speciesKey === 'bird') return '🐦'
   return '🐾'
 })
 
@@ -476,31 +477,12 @@ const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-const normalizeTranslationKey = (value: string) => {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-}
-
 const getPetSpeciesLabel = (item: Pet) => {
-  if (item.speciesLocalized) {
-    return item.speciesLocalized
-  }
-
-  const key = `pets.species_${normalizeTranslationKey(item.species)}`
-  const translated = t(key)
-  return translated === key ? item.species : translated
+  return translatePetSpecies(item.species, t, item.speciesLocalized)
 }
 
 const getPetBreedLabel = (item: Pet) => {
-  if (item.breedLocalized) {
-    return item.breedLocalized
-  }
-
-  const key = `pets.breed_${normalizeTranslationKey(item.breed)}`
-  const translated = t(key)
-  return translated === key ? item.breed : translated
+  return translatePetBreed(item.breed, t, item.breedLocalized)
 }
 
 const addTreatment = () => {

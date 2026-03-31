@@ -143,6 +143,7 @@ import Card from '@/components/ui/Card.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import Modal from '@/components/ui/Modal.vue'
+import { translatePetBreed, translatePetSpecies } from '@/utils/petLocalization'
 
 const router = useRouter()
 const route = useRoute()
@@ -215,31 +216,12 @@ const getPetEmoji = (species: string) => {
   return '🐾'
 }
 
-const normalizeTranslationKey = (value: string) => {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-}
-
 const getPetSpeciesLabel = (pet: Pet) => {
-  if (pet.speciesLocalized) {
-    return pet.speciesLocalized
-  }
-
-  const key = `pets.species_${normalizeTranslationKey(pet.species)}`
-  const translated = t(key)
-  return translated === key ? pet.species : translated
+  return translatePetSpecies(pet.species, t, pet.speciesLocalized)
 }
 
 const getPetBreedLabel = (pet: Pet) => {
-  if (pet.breedLocalized) {
-    return pet.breedLocalized
-  }
-
-  const key = `pets.breed_${normalizeTranslationKey(pet.breed)}`
-  const translated = t(key)
-  return translated === key ? pet.breed : translated
+  return translatePetBreed(pet.breed, t, pet.breedLocalized)
 }
 
 const formatDate = (date: string) => new Date(date).toLocaleDateString(locale.value || undefined)
