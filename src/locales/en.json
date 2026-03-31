@@ -40,7 +40,7 @@
     "admin": "Admin Panel"
   },
   "auth": {
-    "loginPortalTitle": "Clinic Access Portal",
+    "loginPortalTitle": "Pet Clinic",
     "email": "Email",
     "password": "Password",
     "firstName": "First Name",
