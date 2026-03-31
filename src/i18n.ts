@@ -21,6 +21,18 @@ const i18n = createI18n({
   messages
 })
 
+// Guard translation calls so a single malformed key/message cannot crash app rendering.
+const originalGlobalT = i18n.global.t.bind(i18n.global) as (...args: any[]) => unknown
+;(i18n.global as any).t = (...args: any[]) => {
+  try {
+    return originalGlobalT(...args)
+  } catch (error) {
+    const key = args[0]
+    console.error('i18n translation failed for key:', key, error)
+    return typeof key === 'string' ? key : ''
+  }
+}
+
 // Flag to track if translations are loaded from database
 let dbTranslationsLoaded = false
 
