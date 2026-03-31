@@ -198,6 +198,7 @@
     "status_scheduled": "Scheduled",
     "status_completed": "Completed",
     "status_cancelled": "Cancelled",
+    "status_all": "All",
     "veterinarian": "Veterinarian",
     "noAppointmentsFound": "No appointments found.",
     "stepIndicator": "Step {current} of {total}",

@@ -75,7 +75,8 @@
     "emailTaken": "Этот адрес электронной почты уже используется",
     "registrationSuccess": "Регистрация прошла успешно! Теперь вы можете войти.",
     "loginSuccess": "Вход выполнен успешно!",
-    "logoutSuccess": "Вы вышли из системы."
+    "logoutSuccess": "Вы вышли из системы.",
+    "platformTagline": "Платформа Клиники Домашних Животных"
   },
   "dashboard": {
     "owner": {
@@ -103,7 +104,43 @@
      "goodEvening": "Добрый вечер",
      "today": "Сегодня",
      "thisWeek": "На этой неделе",
-     "thisMonth": "В этом месяце"
+     "thisMonth": "В этом месяце",
+     "newAppointment": "Новая запись",
+     "viewPatients": "Просмотр пациентов",
+     "createVetAccount": "Создать учетную запись ветеринара",
+     "lowStockAlerts": "Оповещения о низком запасе",
+     "currentStock": "Текущий",
+     "reorderAt": "Переупорядочить при",
+     "orderMore": "Заказать еще",
+     "dismiss": "Отклонить",
+     "incoming": "Входящий",
+     "scheduledDeliveries": "Запланированные доставки",
+     "delivered": "Доставлено",
+     "deliveredHistory": "История доставок",
+     "noDeliveredReorders": "Нет доставленных переутверждений.",
+     "appointmentsSummary": "Записи",
+     "completedVisits": "Завершенные визиты",
+     "pendingItems": "Ожидающие элементы",
+     "activeWindow": "Активное окно",
+     "filter": "Фильтр",
+     "loadingAppointments": "Загрузка записей...",
+     "noAppointmentsForRange": "Нет записей для выбранного диапазона/фильтра.",
+     "reorderItem": "Переупорядочить элемент",
+     "currentStockLabel": "Текущий запас",
+     "reorderLevel": "Уровень переупорядочения",
+     "quantityToReorder": "Количество для переупорядочения",
+     "enterQuantity": "Введите количество",
+     "reorderConfirmed": "Переупорядочение подтверждено для",
+     "packageArrives": "Пакет прибудет завтра в",
+     "reorderInvalidQuantity": "Пожалуйста, введите действительное количество больше нуля.",
+     "reorderFailed": "Не удалось разместить переупорядочение. Пожалуйста, попробуйте снова.",
+     "createAccountTitle": "Создать учетную запись ветеринара",
+     "firstNameRequired": "Имя и фамилия обязательны.",
+     "emailRequired": "Email обязателен.",
+     "passwordTooShort": "Пароль должен содержать не менее 8 символов.",
+     "licenseRequired": "Номер лицензии обязателен.",
+     "accountCreated": "Учетная запись ветеринара успешно создана.",
+     "accountCreateFailed": "Не удалось создать учетную запись ветеринара. Пожалуйста, попробуйте снова."
    }
   },
   "appointments": {
@@ -143,6 +180,7 @@
     "status_scheduled": "Запланировано",
     "status_completed": "Завершено",
     "status_cancelled": "Отменено",
+    "status_all": "Все",
     "veterinarian": "Ветеринар",
     "pet": "Питомец",
     "stepIndicator": "Шаг {current} из {total}"

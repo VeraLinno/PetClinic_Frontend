@@ -27,15 +27,15 @@
           </Button>
           <Button variant="primary" size="sm" @click="$router.push('/booking')">
             <PlusCircleIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-            New Appointment
+            {{ $t('dashboard.vet.newAppointment') }}
           </Button>
           <Button variant="outline" size="sm" @click="$router.push('/vet/patients')">
             <UsersIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-            View Patients
+            {{ $t('dashboard.vet.viewPatients') }}
           </Button>
           <Button variant="outline" size="sm" @click="openCreateVetModal">
             <UserPlusIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-            Create Vet Account
+            {{ $t('dashboard.vet.createVetAccount') }}
           </Button>
         </div>
       </div>
@@ -45,7 +45,7 @@
       <template #header>
         <div class="flex items-center gap-2">
           <ExclamationTriangleIcon class="h-5 w-5 text-danger-500" aria-hidden="true" />
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Low Stock Alerts</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.vet.lowStockAlerts') }}</h2>
           <Badge variant="danger" size="sm">{{ visibleAlerts.length }}</Badge>
         </div>
       </template>
@@ -62,8 +62,8 @@
             <p class="text-sm opacity-90">Current: {{ item.quantity }} {{ item.unit }} | Reorder at {{ item.reorderLevel }}</p>
           </div>
           <div class="flex items-center gap-2">
-            <Button variant="danger" size="sm" @click="orderMore(item)">Order More</Button>
-            <Button variant="ghost" size="sm" @click="dismissAlert(item.id)">Dismiss</Button>
+            <Button variant="danger" size="sm" @click="orderMore(item)">{{ $t('dashboard.vet.orderMore') }}</Button>
+            <Button variant="ghost" size="sm" @click="dismissAlert(item.id)">{{ $t('common.dismiss') }}</Button>
           </div>
         </div>
       </div>
@@ -79,8 +79,8 @@
     <Card v-if="incomingReorders.length > 0">
       <template #header>
         <div class="flex items-center gap-2">
-          <Badge variant="primary" size="sm">Incoming</Badge>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Scheduled Deliveries</h2>
+          <Badge variant="primary" size="sm">{{ $t('dashboard.vet.incoming') }}</Badge>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.vet.scheduledDeliveries') }}</h2>
         </div>
       </template>
 
@@ -98,13 +98,13 @@
     <Card>
       <template #header>
         <div class="flex items-center gap-2">
-          <Badge variant="success" size="sm">Delivered</Badge>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Delivered History</h2>
+          <Badge variant="success" size="sm">{{ $t('dashboard.vet.delivered') }}</Badge>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.vet.deliveredHistory') }}</h2>
         </div>
       </template>
 
       <div v-if="deliveredReorders.length === 0" class="text-sm text-slate-500 dark:text-slate-400">
-        No delivered reorders yet.
+        {{ $t('dashboard.vet.noDeliveredReorders') }}
       </div>
       <div v-else class="space-y-2">
         <div
@@ -123,7 +123,7 @@
         class="rounded-xl border border-slate-200 bg-gradient-to-br from-blue-50 to-blue-100 p-5 text-left shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:from-blue-900/20 dark:to-blue-800/20"
         @click="activeStatusFilter = 'all'"
       >
-        <p class="text-sm text-slate-600 dark:text-slate-300">Appointments</p>
+        <p class="text-sm text-slate-600 dark:text-slate-300">{{ $t('dashboard.vet.appointmentsSummary') }}</p>
         <p class="mt-1 text-3xl font-bold text-blue-700 dark:text-blue-300">{{ filteredByRange.length }}</p>
       </button>
       <button
@@ -131,7 +131,7 @@
         class="rounded-xl border border-slate-200 bg-gradient-to-br from-green-50 to-green-100 p-5 text-left shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:from-green-900/20 dark:to-green-800/20"
         @click="activeStatusFilter = 'completed'"
       >
-        <p class="text-sm text-slate-600 dark:text-slate-300">Completed Visits</p>
+        <p class="text-sm text-slate-600 dark:text-slate-300">{{ $t('dashboard.vet.completedVisits') }}</p>
         <p class="mt-1 text-3xl font-bold text-green-700 dark:text-green-300">{{ completedVisits }}</p>
       </button>
       <button
@@ -139,7 +139,7 @@
         class="rounded-xl border border-slate-200 bg-gradient-to-br from-yellow-50 to-yellow-100 p-5 text-left shadow-card transition-all hover:shadow-card-hover dark:border-slate-700 dark:from-yellow-900/20 dark:to-yellow-800/20"
         @click="activeStatusFilter = 'pending'"
       >
-        <p class="text-sm text-slate-600 dark:text-slate-300">Pending Items</p>
+        <p class="text-sm text-slate-600 dark:text-slate-300">{{ $t('dashboard.vet.pendingItems') }}</p>
         <p class="mt-1 text-3xl font-bold text-yellow-700 dark:text-yellow-300">{{ pendingVisits }}</p>
       </button>
     </div>
@@ -148,24 +148,24 @@
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Appointments</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Active window: {{ activeRangeLabel }} | Filter: {{ activeStatusLabel }}</p>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.vet.appointmentsSummary') }}</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('dashboard.vet.activeWindow') }}: {{ activeRangeLabel }} | {{ $t('dashboard.vet.filter') }}: {{ activeStatusLabel }}</p>
           </div>
           <Button variant="primary" size="sm" @click="refreshAppointments">
             <ArrowPathIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-            Refresh
+            {{ $t('common.refresh') }}
           </Button>
         </div>
       </template>
       <div v-if="loadingAppointments" class="text-center py-8">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">Loading appointments...</p>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $t('dashboard.vet.loadingAppointments') }}</p>
       </div>
       <div v-else-if="displayAppointments.length === 0" class="text-center py-8">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">No appointments for the selected range/filter.</p>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $t('dashboard.vet.noAppointmentsForRange') }}</p>
       </div>
       <div v-else>
         <AppointmentList
@@ -181,32 +181,32 @@
       </div>
     </Card>
 
-    <Modal :is-open="showReorderModal" title="Reorder Item" @close="closeReorderModal">
+    <Modal :is-open="showReorderModal" :title="$t('dashboard.vet.reorderItem')" @close="closeReorderModal">
       <div class="space-y-4" v-if="selectedReorderItem">
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
           <p class="font-medium">{{ selectedReorderItem.name }}</p>
-          <p>Current stock: {{ selectedReorderItem.quantity }} {{ selectedReorderItem.unit }}</p>
-          <p>Reorder level: {{ selectedReorderItem.reorderLevel }}</p>
+          <p>{{ $t('dashboard.vet.currentStockLabel') }}: {{ selectedReorderItem.quantity }} {{ selectedReorderItem.unit }}</p>
+          <p>{{ $t('dashboard.vet.reorderLevel') }}: {{ selectedReorderItem.reorderLevel }}</p>
         </div>
 
         <Input
           v-model="reorderQuantity"
           type="number"
-          label="Quantity to reorder"
+          :label="$t('dashboard.vet.quantityToReorder')"
           min="1"
-          placeholder="Enter quantity"
+          :placeholder="$t('dashboard.vet.enterQuantity')"
           :error="reorderError"
         />
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" :disabled="reorderLoading" @click="closeReorderModal">Cancel</Button>
-          <Button variant="primary" :loading="reorderLoading" @click="submitReorder">Reorder</Button>
+          <Button variant="outline" :disabled="reorderLoading" @click="closeReorderModal">{{ $t('common.cancel') }}</Button>
+          <Button variant="primary" :loading="reorderLoading" @click="submitReorder">{{ $t('dashboard.vet.orderMore') }}</Button>
         </div>
       </template>
     </Modal>
 
-    <Modal :is-open="showCreateVetModal" title="Create Veterinary Account" @close="closeCreateVetModal">
+    <Modal :is-open="showCreateVetModal" :title="$t('dashboard.vet.createAccountTitle')" @close="closeCreateVetModal">
       <div class="space-y-4">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input v-model="createVetForm.firstName" label="First Name" placeholder="Sarah" :disabled="createVetLoading" />
@@ -260,8 +260,8 @@
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="outline" :disabled="createVetLoading" @click="closeCreateVetModal">Cancel</Button>
-          <Button variant="primary" :loading="createVetLoading" @click="submitCreateVet">Create Account</Button>
+          <Button variant="outline" :disabled="createVetLoading" @click="closeCreateVetModal">{{ $t('common.cancel') }}</Button>
+          <Button variant="primary" :loading="createVetLoading" @click="submitCreateVet">{{ $t('dashboard.vet.createVetAccount') }}</Button>
         </div>
       </template>
     </Modal>
@@ -411,9 +411,9 @@ const activeRangeLabel = computed(() => {
 })
 
 const activeStatusLabel = computed(() => {
-  if (activeStatusFilter.value === 'completed') return 'Completed'
-  if (activeStatusFilter.value === 'pending') return 'Pending'
-  return 'All'
+  if (activeStatusFilter.value === 'completed') return t('appointments.status_completed')
+  if (activeStatusFilter.value === 'pending') return t('appointments.status_pending')
+  return t('appointments.status_all')
 })
 
 // Load data

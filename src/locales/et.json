@@ -223,6 +223,7 @@
     "status_scheduled": "Planeeritud",
     "status_completed": "Lõpetatud",
     "status_cancelled": "Tühistatud",
+    "status_all": "Kõik",
     "veterinarian": "Veterinaarspetsialist",
     "pet": "Lemmikloom",
     "noAppointmentsFound": "Aegu ei leitud.",
