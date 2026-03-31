@@ -29,29 +29,48 @@ export default i18n
 export async function loadDbTranslations(languageCode: string): Promise<void> {
   try {
     const response = await api.get(`/translations/language/${languageCode}`)
-    const data = response.data as { translations: Record<string, Record<string, Record<string, string>>> }
     
-    if (data.translations) {
-      const currentMessages = i18n.global.messages as any
-      
-      // Initialize language object if it doesn't exist
-      if (!currentMessages[languageCode]) {
-        currentMessages[languageCode] = {}
-      }
-      
-      // Merge database translations with existing messages
-      for (const [category, translations] of Object.entries(data.translations)) {
+    // Check if response is successful and has valid data structure
+    if (!response || !response.data) {
+      console.warn(`No translation data received for language: ${languageCode}`)
+      return
+    }
+    
+    const data = response.data as any
+    
+    // Validate that we have translation data
+    if (!data.translations || typeof data.translations !== 'object') {
+      console.warn(`Invalid translation data format for language: ${languageCode}`)
+      return
+    }
+    
+    const currentMessages = i18n.global.messages as any
+    
+    // Initialize language object if it doesn't exist
+    if (!currentMessages[languageCode]) {
+      currentMessages[languageCode] = {}
+    }
+    
+    // Merge database translations with existing messages
+    for (const [category, translations] of Object.entries(data.translations)) {
+      if (typeof translations === 'object') {
         currentMessages[languageCode] = {
           ...currentMessages[languageCode],
           [category]: translations
         }
       }
-      
-      dbTranslationsLoaded = true
-      console.log(`Loaded translations from database for ${languageCode}`)
     }
-  } catch (error) {
-    console.warn('Failed to load translations from database, using local files:', error)
+    
+    dbTranslationsLoaded = true
+    console.log(`Loaded translations from database for ${languageCode}`)
+  } catch (error: any) {
+    // Silently fail with detailed logging
+    const errorMessage = error?.message || 'Unknown error'
+    const errorStatus = error?.response?.status || 'N/A'
+    console.warn(
+      `Failed to load translations from database for ${languageCode} (Status: ${errorStatus}): ${errorMessage}. Using local files as fallback.`
+    )
+    // Continue gracefully - local translations will be used as fallback
   }
 }
 
@@ -84,6 +103,7 @@ export const availableLanguages = [
 ]
 
 // Load translations from database for the saved language on initialization
-loadDbTranslations(savedLanguage).catch(err => {
-  console.warn('Failed to load translations from database on init:', err)
+// This will silently fail and use local translations as fallback if the API is unavailable
+loadDbTranslations(savedLanguage).catch(() => {
+  // Silently ignore errors - local translations are used as fallback
 })

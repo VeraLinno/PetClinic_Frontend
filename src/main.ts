@@ -17,12 +17,20 @@ async function bootstrap() {
 	await authStore.initializeAuth()
 
 	// Load translations from database for the saved language
+	// This will silently fall back to local translations if the API is unavailable
 	const savedLanguage = localStorage.getItem('language') || 'en'
-	await loadDbTranslations(savedLanguage)
+	try {
+		await loadDbTranslations(savedLanguage)
+	} catch (error) {
+		// Silently ignore errors - local translations are used as fallback
+		console.debug('Using local translations as fallback')
+	}
 
 	app.use(router)
 	await router.isReady()
 	app.mount('#app')
 }
 
-bootstrap()
+bootstrap().catch(error => {
+	console.error('Failed to bootstrap application:', error)
+})
