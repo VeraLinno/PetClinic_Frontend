@@ -103,6 +103,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, roles: ['Vet', 'Admin'] }
   },
   {
+    path: '/admin/cleanup-preview',
+    name: 'VetCleanupPreview',
+    component: () => import('@/pages/VetCleanupPreviewPage.vue'),
+    meta: { requiresAuth: true, roles: ['Admin'] }
+  },
+  {
     path: '/',
     redirect: '/login'
   }
