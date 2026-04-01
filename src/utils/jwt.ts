@@ -21,18 +21,31 @@ export function decodeToken(token: string): any {
     )
     const payload = JSON.parse(jsonPayload)
 
+    const roleClaimKeys = [
+      'roles',
+      'role',
+      'http://schemas.microsoft.com/ws/2008/06/identity/claims/role',
+      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role'
+    ]
+
+    const rawRoleClaims = roleClaimKeys.flatMap((key) => {
+      const value = payload[key]
+      if (Array.isArray(value)) return value
+      if (typeof value === 'string') return [value]
+      return []
+    })
+
+    const normalizedRoles = rawRoleClaims
+      .flatMap((role) => (typeof role === 'string' ? role.split(',') : []))
+      .map((role) => role.trim())
+      .filter(Boolean)
+
     // Transform the JWT payload to match the User interface
     return {
+      ...payload,
       id: payload.sub || payload.nameid || '',
       email: payload.email || '',
-      roles: payload.roles
-        ? typeof payload.roles === 'string'
-          ? payload.roles.split(',').map((r: string) => r.trim()).filter(Boolean)
-          : Array.isArray(payload.roles)
-            ? payload.roles
-            : []
-        : [],
-      ...payload // Keep all original claims
+      roles: [...new Set(normalizedRoles)]
     }
   } catch {
     throw new Error('Invalid token payload')

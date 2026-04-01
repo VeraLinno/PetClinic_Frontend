@@ -140,13 +140,17 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { adminService, type AdminAppointment, type AdminDashboardMetrics, type AdminSystemHealth, type AdminUser } from '@/services/admin'
+import { useAuthStore } from '@/stores/auth'
 
 const { t, locale } = useI18n()
+const router = useRouter()
+const authStore = useAuthStore()
 
 const loading = ref(false)
 const errorMessage = ref('')
@@ -170,7 +174,33 @@ const healthVariant = computed(() => {
   return 'warning'
 })
 
+const normalizedRoles = computed(() => {
+  const rawRoles = authStore.roles as unknown
+  if (Array.isArray(rawRoles)) {
+    return rawRoles
+      .filter((role): role is string => typeof role === 'string')
+      .map((role) => role.trim())
+      .filter(Boolean)
+  }
+
+  if (typeof rawRoles === 'string') {
+    return rawRoles
+      .split(',')
+      .map((role) => role.trim())
+      .filter(Boolean)
+  }
+
+  return [] as string[]
+})
+
+const canAccessAdmin = computed(() => authStore.isAuthenticated && normalizedRoles.value.includes('Admin'))
+
 const loadDashboardData = async () => {
+  if (!canAccessAdmin.value) {
+    errorMessage.value = t('admin.forbidden')
+    return
+  }
+
   loading.value = true
   errorMessage.value = ''
 
@@ -231,6 +261,11 @@ const statusVariant = (status: string) => {
 }
 
 onMounted(() => {
+  if (!canAccessAdmin.value) {
+    void router.replace('/login')
+    return
+  }
+
   void loadDashboardData()
 })
 </script>

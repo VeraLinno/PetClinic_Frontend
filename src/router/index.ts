@@ -120,6 +120,24 @@ function getDefaultAuthenticatedRoute(roles: string[]): string {
   return '/owner'
 }
 
+function normalizeRoles(rawRoles: unknown): string[] {
+  if (Array.isArray(rawRoles)) {
+    return rawRoles
+      .filter((role): role is string => typeof role === 'string')
+      .map((role) => role.trim())
+      .filter(Boolean)
+  }
+
+  if (typeof rawRoles === 'string') {
+    return rawRoles
+      .split(',')
+      .map((role) => role.trim())
+      .filter(Boolean)
+  }
+
+  return []
+}
+
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
@@ -131,7 +149,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ path: '/login', query: { redirect: to.fullPath } })
   } else if (to.meta.roles) {
-    const userRoles = authStore.roles
+    const userRoles = normalizeRoles(authStore.roles)
     const requiredRoles = to.meta.roles as string[]
     if (!requiredRoles.some(role => userRoles.includes(role))) {
       next(getDefaultAuthenticatedRoute(userRoles))

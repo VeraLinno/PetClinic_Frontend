@@ -419,8 +419,41 @@ const pendingAppointments = computed(() => {
   return appointments.value.filter(a => a.status === 'Pending').length
 })
 
+const normalizedRoles = computed(() => {
+  const rawRoles = authStore.roles as unknown
+  if (Array.isArray(rawRoles)) {
+    return rawRoles
+      .filter((role): role is string => typeof role === 'string')
+      .map((role) => role.trim())
+      .filter(Boolean)
+  }
+
+  if (typeof rawRoles === 'string') {
+    return rawRoles
+      .split(',')
+      .map((role) => role.trim())
+      .filter(Boolean)
+  }
+
+  return [] as string[]
+})
+
+const canLoadOwnerData = computed(() => authStore.isAuthenticated && normalizedRoles.value.includes('Owner'))
+
+const isExpectedAuthError = (error: unknown) => {
+  const status = (error as any)?.response?.status
+  return (status === 401 || status === 403) && !canLoadOwnerData.value
+}
+
 // Load data
 onMounted(async () => {
+  if (!canLoadOwnerData.value) {
+    loadingPets.value = false
+    loadingOwner.value = false
+    loadingAppointments.value = false
+    return
+  }
+
   await Promise.all([
     loadPets(),
     loadOwner()
@@ -442,35 +475,56 @@ const filterAppointmentsToOwnedPets = (items: Appointment[]) => {
 }
 
 const loadAppointments = async () => {
+  if (!canLoadOwnerData.value) {
+    loadingAppointments.value = false
+    return
+  }
+
   try {
     const data = await appointmentsService.getAppointments()
     appointments.value = filterAppointmentsToOwnedPets(data)
   } catch (error) {
-    console.error('Failed to load appointments', error)
-    showNotification('error', t('dashboard.owner.appointmentsLoadFailed'))
+    if (!isExpectedAuthError(error)) {
+      console.error('Failed to load appointments', error)
+      showNotification('error', t('dashboard.owner.appointmentsLoadFailed'))
+    }
   } finally {
     loadingAppointments.value = false
   }
 }
 
 const loadPets = async () => {
+  if (!canLoadOwnerData.value) {
+    loadingPets.value = false
+    return
+  }
+
   try {
     const data = await ownersService.getPets()
     pets.value = data
   } catch (error) {
-    console.error('Failed to load pets', error)
-    showNotification('error', t('dashboard.owner.petsLoadFailed'))
+    if (!isExpectedAuthError(error)) {
+      console.error('Failed to load pets', error)
+      showNotification('error', t('dashboard.owner.petsLoadFailed'))
+    }
   } finally {
     loadingPets.value = false
   }
 }
 
 const loadOwner = async () => {
+  if (!canLoadOwnerData.value) {
+    loadingOwner.value = false
+    return
+  }
+
   try {
     const data = await ownersService.getMe()
     owner.value = data
   } catch (error) {
-    console.error('Failed to load owner', error)
+    if (!isExpectedAuthError(error)) {
+      console.error('Failed to load owner', error)
+    }
   } finally {
     loadingOwner.value = false
   }

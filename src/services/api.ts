@@ -26,6 +26,7 @@ api.interceptors.request.use(
 
 // Response interceptor for refresh
 let isLoggingOut = false
+let refreshPromise: Promise<void> | null = null
 
 api.interceptors.response.use(
   (response) => response,
@@ -44,14 +45,25 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest?._retry && !isAuthEndpoint && !isTranslationEndpoint) {
       originalRequest._retry = true
       try {
-        await authStore.refreshAccessToken()
+        if (!refreshPromise) {
+          refreshPromise = authStore.refreshAccessToken().finally(() => {
+            refreshPromise = null
+          })
+        }
+
+        await refreshPromise
         originalRequest._retry = false
         return api(originalRequest)
       } catch (refreshError) {
         originalRequest._retry = false
-        isLoggingOut = true
-        authStore.logout()
-        router.push('/login')
+        if (!isLoggingOut) {
+          isLoggingOut = true
+          try {
+            await authStore.logout()
+          } finally {
+            await router.push('/login')
+          }
+        }
         return Promise.reject(refreshError)
       }
     }
