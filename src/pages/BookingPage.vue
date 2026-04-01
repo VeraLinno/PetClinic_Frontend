@@ -479,6 +479,8 @@ const toLocalDateTimeString = (date: Date) => {
 onMounted(async () => {
   await loadVeterinarians()
   await loadPets()
-  await availabilityStore.fetchUnavailablePeriods()
+  if (isVet.value) {
+    await availabilityStore.fetchUnavailablePeriods()
+  }
 })
 </script>
