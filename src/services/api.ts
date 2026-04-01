@@ -25,16 +25,23 @@ api.interceptors.request.use(
 )
 
 // Response interceptor for refresh
+let isLoggingOut = false
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as any
     const requestUrl = String(originalRequest?.url || '')
-    const isAuthEndpoint = requestUrl === '/auth/refresh' || requestUrl === '/auth/login'
+    const isAuthEndpoint = requestUrl === '/auth/refresh' || requestUrl === '/auth/login' || requestUrl === '/auth/logout'
     const isTranslationEndpoint = requestUrl.startsWith('/translations/')
+    const authStore = useAuthStore()
+
+    // Don't retry if already logging out or if not authenticated
+    if (isLoggingOut || !authStore.isAuthenticated) {
+      return Promise.reject(error)
+    }
 
     if (error.response?.status === 401 && !originalRequest?._retry && !isAuthEndpoint && !isTranslationEndpoint) {
-      const authStore = useAuthStore()
       originalRequest._retry = true
       try {
         await authStore.refreshAccessToken()
@@ -42,6 +49,7 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (refreshError) {
         originalRequest._retry = false
+        isLoggingOut = true
         authStore.logout()
         router.push('/login')
         return Promise.reject(refreshError)
@@ -50,5 +58,9 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+export const setLoggingOut = (value: boolean) => {
+  isLoggingOut = value
+}
 
 export default api

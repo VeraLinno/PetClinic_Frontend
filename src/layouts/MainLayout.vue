@@ -434,8 +434,10 @@ const updateDarkMode = () => {
 }
 
 const logout = async () => {
-  router.push('/login')
+  // Clear auth state first, then navigate
+  // This prevents any pending requests from triggering data fetches
   await authStore.logout()
+  router.push('/login')
 }
 
 // Initialize dark mode from localStorage

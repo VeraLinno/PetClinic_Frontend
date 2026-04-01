@@ -98,10 +98,17 @@ export const useAuthStore = defineStore('auth', {
       const response = await api.post('/auth/refresh')
       this.setAccessToken(response.data.accessToken)
     },
-    logout() {
+    async logout() {
+      // Make logout request BEFORE clearing auth state (so it includes token)
+      try {
+        if (this.accessToken) {
+          await api.post('/auth/logout')
+        }
+      } catch (error) {
+        // Ignore logout errors - still clear state
+        console.debug('Logout request failed', error)
+      }
       this.clearAuthState()
-      // Optionally call backend logout
-      api.post('/auth/logout').catch(() => {})
     }
   }
 })
