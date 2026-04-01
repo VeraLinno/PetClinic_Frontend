@@ -9,9 +9,14 @@
             {{ t('admin.lastUpdated') }}: {{ formatDateTime(lastUpdatedAt) }}
           </p>
         </div>
-        <Button variant="primary" size="sm" :loading="loading" @click="loadDashboardData">
-          {{ t('admin.refresh') }}
-        </Button>
+        <div class="flex items-center gap-2">
+          <Button variant="outline" size="sm" @click="openVetAccountCreation">
+            {{ t('vetAccounts.addAccount') }}
+          </Button>
+          <Button variant="primary" size="sm" :loading="loading" @click="loadDashboardData">
+            {{ t('admin.refresh') }}
+          </Button>
+        </div>
       </div>
     </div>
 
@@ -152,6 +157,11 @@ const normalizedRoles = computed(() => {
 })
 
 const canAccessAdmin = computed(() => authStore.isAuthenticated && normalizedRoles.value.includes('Admin'))
+
+const openVetAccountCreation = async () => {
+  authStore.setAdminViewMode('vet')
+  await router.push('/vet/accounts?create=1')
+}
 
 const loadDashboardData = async () => {
   if (!canAccessAdmin.value) {

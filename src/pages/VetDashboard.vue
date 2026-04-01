@@ -33,10 +33,6 @@
             <UsersIcon class="mr-2 h-4 w-4" aria-hidden="true" />
             {{ $t('dashboard.vet.viewPatients') }}
           </Button>
-          <Button variant="outline" size="sm" @click="openCreateVetModal">
-            <UserPlusIcon class="mr-2 h-4 w-4" aria-hidden="true" />
-            {{ $t('dashboard.vet.createVetAccount') }}
-          </Button>
         </div>
       </div>
     </div>
@@ -208,65 +204,6 @@
       </template>
     </Modal>
 
-    <Modal :is-open="showCreateVetModal" :title="$t('dashboard.vet.createAccountTitle')" @close="closeCreateVetModal">
-      <div class="space-y-4">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input v-model="createVetForm.firstName" :label="$t('auth.firstName')" placeholder="Sarah" :disabled="createVetLoading" />
-          <Input v-model="createVetForm.lastName" :label="$t('auth.lastName')" placeholder="Johnson" :disabled="createVetLoading" />
-        </div>
-
-        <Input
-          v-model="createVetForm.email"
-          type="email"
-          :label="$t('auth.email')"
-          placeholder="new.vet@petclinic.com"
-          :disabled="createVetLoading"
-        />
-
-        <Input
-          v-model="createVetForm.password"
-          type="password"
-          :label="$t('auth.password')"
-          :placeholder="$t('dashboard.vet.minimum8Chars')"
-          :disabled="createVetLoading"
-        />
-
-        <Input
-          v-model="createVetForm.licenseNumber"
-          :label="$t('auth.licenseNumber')"
-          placeholder="VET-1002"
-          :disabled="createVetLoading"
-        />
-
-        <Input
-          v-model="createVetForm.phoneNumber"
-          type="tel"
-          :label="`${$t('auth.phoneNumber')} (${$t('appointments.optional')})`"
-          placeholder="+1 555 123 4567"
-          :disabled="createVetLoading"
-        />
-
-        <div
-          v-if="createVetError"
-          class="rounded-lg border border-danger-300 bg-danger-50 px-3 py-2 text-sm text-danger-700 dark:border-danger-700 dark:bg-danger-950/30 dark:text-danger-300"
-        >
-          {{ createVetError }}
-        </div>
-        <div
-          v-if="createVetSuccess"
-          class="rounded-lg border border-success-300 bg-success-50 px-3 py-2 text-sm text-success-700 dark:border-success-700 dark:bg-success-950/30 dark:text-success-300"
-        >
-          {{ createVetSuccess }}
-        </div>
-      </div>
-
-      <template #footer>
-        <div class="flex justify-end gap-2">
-          <Button variant="outline" :disabled="createVetLoading" @click="closeCreateVetModal">{{ $t('common.cancel') }}</Button>
-          <Button variant="primary" :loading="createVetLoading" @click="submitCreateVet">{{ $t('dashboard.vet.createVetAccount') }}</Button>
-        </div>
-      </template>
-    </Modal>
   </div>
 </template>
 
@@ -278,11 +215,9 @@ import {
   ArrowPathIcon,
   ExclamationTriangleIcon,
   PlusCircleIcon,
-  UserPlusIcon,
   UsersIcon
 } from '@heroicons/vue/24/outline'
 import { appointmentsService, type Appointment } from '@/services/appointments'
-import { authService } from '@/services/auth'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -314,18 +249,6 @@ const reorderError = ref('')
 const reorderLoading = ref(false)
 const incomingReorders = ref<PendingInventoryReorder[]>([])
 const deliveredReorders = ref<DeliveredInventoryReorder[]>([])
-const showCreateVetModal = ref(false)
-const createVetLoading = ref(false)
-const createVetError = ref('')
-const createVetSuccess = ref('')
-const createVetForm = ref({
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-  licenseNumber: '',
-  phoneNumber: ''
-})
 
 const ranges = computed(() => [
   { label: t('dashboard.vet.today'), value: 'today' as const },
@@ -574,69 +497,4 @@ const submitReorder = async () => {
   }
 }
 
-const openCreateVetModal = () => {
-  createVetError.value = ''
-  createVetSuccess.value = ''
-  showCreateVetModal.value = true
-}
-
-const closeCreateVetModal = () => {
-  showCreateVetModal.value = false
-  createVetLoading.value = false
-  createVetError.value = ''
-}
-
-const submitCreateVet = async () => {
-  createVetError.value = ''
-  createVetSuccess.value = ''
-
-  if (!createVetForm.value.firstName.trim() || !createVetForm.value.lastName.trim()) {
-    createVetError.value = t('dashboard.vet.firstNameRequired')
-    return
-  }
-
-  if (!createVetForm.value.email.trim()) {
-    createVetError.value = t('dashboard.vet.emailRequired')
-    return
-  }
-
-  if (createVetForm.value.password.length < 8) {
-    createVetError.value = t('dashboard.vet.passwordTooShort')
-    return
-  }
-
-  if (!createVetForm.value.licenseNumber.trim()) {
-    createVetError.value = t('dashboard.vet.licenseRequired')
-    return
-  }
-
-  createVetLoading.value = true
-  try {
-    await authService.createVetAccount({
-      firstName: createVetForm.value.firstName.trim(),
-      lastName: createVetForm.value.lastName.trim(),
-      email: createVetForm.value.email.trim(),
-      password: createVetForm.value.password,
-      licenseNumber: createVetForm.value.licenseNumber.trim(),
-      phoneNumber: createVetForm.value.phoneNumber.trim() || undefined
-    })
-
-    createVetSuccess.value = t('dashboard.vet.accountCreated')
-    createVetForm.value = {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      licenseNumber: '',
-      phoneNumber: ''
-    }
-  } catch (error: any) {
-    createVetError.value =
-      error?.response?.data?.error ||
-      error?.response?.data?.message ||
-      t('dashboard.vet.accountCreateFailed')
-  } finally {
-    createVetLoading.value = false
-  }
-}
 </script>

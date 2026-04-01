@@ -17,6 +17,8 @@ export interface Pet {
   breedLocalized?: string
   dateOfBirth: string
   ownerId: string
+  ownerName?: string
+  lastVisitAt?: string | null
   photoUrl?: string
 }
 

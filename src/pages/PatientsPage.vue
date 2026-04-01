@@ -39,6 +39,10 @@
         {{ $t('patients.noPatients') }}
       </div>
 
+      <div v-if="loadError" class="mt-3 rounded-lg border border-danger-300 bg-danger-50 px-3 py-2 text-sm text-danger-700 dark:border-danger-700 dark:bg-danger-950/30 dark:text-danger-300">
+        {{ loadError }}
+      </div>
+
       <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div
           v-for="patient in filteredPatients"
@@ -70,6 +74,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { ownersService, type Pet } from '@/services/owners'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
@@ -81,7 +86,7 @@ interface Patient {
   species: string
   breed: string
   ownerName: string
-  lastVisit: string
+  lastVisit?: string | null
 }
 
 const router = useRouter()
@@ -94,6 +99,7 @@ const breadcrumbItems = computed(() => [
 
 const patients = ref<Patient[]>([])
 const loading = ref(true)
+const loadError = ref('')
 const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '')
 const speciesFilter = ref('')
 
@@ -107,15 +113,29 @@ const filteredPatients = computed(() => {
   })
 })
 
+const loadPatients = async () => {
+  loading.value = true
+  loadError.value = ''
+  try {
+    const pets = await ownersService.getAllPets()
+    patients.value = pets.map((pet: Pet) => ({
+      id: pet.id,
+      name: pet.name,
+      species: pet.species,
+      breed: pet.breed,
+      ownerName: pet.ownerName || t('common.notAvailable'),
+      lastVisit: pet.lastVisitAt || null
+    }))
+  } catch (error: any) {
+    loadError.value = error?.response?.data?.error || t('common.loadFailed')
+    patients.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
-  // Mock data
-  patients.value = [
-    { id: '1', name: 'Buddy', species: 'Dog', breed: 'Golden Retriever', ownerName: 'John Smith', lastVisit: '2024-02-15' },
-    { id: '2', name: 'Whiskers', species: 'Cat', breed: 'Persian', ownerName: 'Jane Doe', lastVisit: '2024-02-10' },
-    { id: '3', name: 'Max', species: 'Dog', breed: 'German Shepherd', ownerName: 'Bob Wilson', lastVisit: '2024-02-20' },
-    { id: '4', name: 'Tweety', species: 'Bird', breed: 'Canary', ownerName: 'Alice Brown', lastVisit: '2024-01-28' }
-  ]
-  loading.value = false
+  void loadPatients()
 })
 
 watch(
@@ -179,7 +199,8 @@ const startVisit = (patient: Patient) => {
   console.log('Start visit for', patient.name)
 }
 
-const formatDate = (date: string) => {
+const formatDate = (date?: string | null) => {
+  if (!date) return t('common.notAvailable')
   return new Date(date).toLocaleDateString()
 }
 </script>

@@ -9,7 +9,6 @@
           </div>
           <div class="flex items-center gap-2">
             <Button variant="outline" size="sm" @click="loadVetAccounts">{{ $t('vetAccounts.refresh') }}</Button>
-            <Button variant="primary" size="sm" @click="openCreateModal">{{ $t('vetAccounts.addAccount') }}</Button>
           </div>
         </div>
       </template>
@@ -55,7 +54,7 @@
                 <div class="inline-flex items-center gap-2">
                   <Button variant="outline" size="sm" @click="openEditModal(account)">{{ $t('common.edit') }}</Button>
                   <Button
-                    v-if="canDeleteAccount(account)"
+                    v-if="isAdminUser"
                     variant="danger"
                     size="sm"
                     @click="confirmDelete(account)"
@@ -112,7 +111,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import Card from '@/components/ui/Card.vue'
@@ -124,9 +124,15 @@ import {
   type VetAccount
 } from '@/services/vetAccounts'
 
-const MAIN_VET_EMAIL = 'vet@petclinic.com'
 const authStore = useAuthStore()
+const route = useRoute()
+const router = useRouter()
 const { t } = useI18n()
+
+const isAdminUser = computed(() => {
+  const baseRoles = authStore.user?.roles || []
+  return baseRoles.includes('Admin')
+})
 
 const vetAccounts = ref<VetAccount[]>([])
 const loading = ref(false)
@@ -169,6 +175,13 @@ const loadVetAccounts = async () => {
 
 onMounted(async () => {
   await loadVetAccounts()
+
+  if (isAdminUser.value && route.query.create === '1') {
+    openCreateModal()
+    const nextQuery = { ...route.query }
+    delete nextQuery.create
+    void router.replace({ query: nextQuery })
+  }
 })
 
 const openCreateModal = () => {
@@ -227,6 +240,11 @@ const submitCreate = async () => {
   modalError.value = ''
   successMessage.value = ''
 
+  if (!isAdminUser.value) {
+    modalError.value = t('admin.forbidden')
+    return
+  }
+
   const validationError = validateCreate()
   if (validationError) {
     modalError.value = validationError
@@ -282,37 +300,14 @@ const submitEdit = async () => {
   }
 }
 
-const getCurrentUserId = () => {
-  const currentUserRecord = (authStore.user || {}) as Record<string, unknown>
-  return String(currentUserRecord.sub || currentUserRecord.id || '')
-}
-
-const isCurrentUserMainVet = () => {
-  const currentUserId = getCurrentUserId()
-  if (!currentUserId) {
-    return false
-  }
-
-  const mainVetAccount = vetAccounts.value.find(
-    (account) => account.email.toLowerCase() === MAIN_VET_EMAIL
-  )
-
-  return !!mainVetAccount && mainVetAccount.id === currentUserId
-}
-
-const canDeleteAccount = (account: VetAccount) => {
-  const currentUserId = getCurrentUserId()
-  const isMainVet = isCurrentUserMainVet()
-  if (isMainVet) {
-    return true
-  }
-
-  return currentUserId !== '' && currentUserId === account.id
-}
-
 const confirmDelete = async (account: VetAccount) => {
   modalError.value = ''
   successMessage.value = ''
+
+  if (!isAdminUser.value) {
+    error.value = t('admin.forbidden')
+    return
+  }
 
   const confirmed = window.confirm(t('vetAccounts.confirmDelete'))
   if (!confirmed) {
