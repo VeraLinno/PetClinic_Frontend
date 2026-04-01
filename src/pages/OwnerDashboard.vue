@@ -131,6 +131,7 @@
           :key="pet.id"
           :pet="pet"
           @book-appointment="bookAppointmentForPet"
+          @view-details="viewPetDetails"
           @delete-pet="confirmDeletePet"
         />
       </div>
@@ -242,6 +243,36 @@
       </template>
     </Modal>
 
+    <!-- Pet Details Modal -->
+    <Modal :is-open="showPetDetailsModal" :title="selectedPetForDetails?.name" @close="showPetDetailsModal = false">
+      <div v-if="selectedPetForDetails" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('pets.type') }}</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ getPetSpeciesLabel(selectedPetForDetails) }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('pets.breed') }}</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ getPetBreedLabel(selectedPetForDetails) }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('pets.dateOfBirth') }}</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(selectedPetForDetails.dateOfBirth) }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('pets.age') }}</p>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ petAge(selectedPetForDetails.dateOfBirth) }}</p>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-3">
+          <Button variant="outline" @click="showPetDetailsModal = false">{{ $t('common.close') }}</Button>
+          <Button variant="primary" @click="bookAppointmentForPet(selectedPetForDetails!)">{{ $t('dashboard.owner.bookAppointment') }}</Button>
+        </div>
+      </template>
+    </Modal>
+
     <!-- Delete Confirmation Modal -->
     <Modal :is-open="showDeleteModal" :title="$t('dashboard.owner.deletePetTitle')" @close="showDeleteModal = false">
       <p class="text-gray-600 dark:text-gray-400">
@@ -305,6 +336,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { appointmentsService, type Appointment } from '@/services/appointments'
 import { ownersService, type Owner, type Pet } from '@/services/owners'
+import { translatePetBreed, translatePetSpecies } from '@/utils/petLocalization'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
@@ -337,7 +369,9 @@ const loadingOwner = ref(true)
 const showAddPetModal = ref(false)
 const showDeleteModal = ref(false)
 const showEditProfile = ref(false)
+const showPetDetailsModal = ref(false)
 const petToDelete = ref<Pet | null>(null)
+const selectedPetForDetails = ref<Pet | null>(null)
 
 // Form states
 const newPet = ref({
@@ -582,6 +616,41 @@ const submitProfile = async () => {
   } finally {
     submittingProfile.value = false
   }
+}
+
+const getPetSpeciesLabel = (pet: Pet) => {
+  return translatePetSpecies(pet.species, t, pet.speciesLocalized)
+}
+
+const getPetBreedLabel = (pet: Pet) => {
+  return translatePetBreed(pet.breed, t, pet.breedLocalized)
+}
+
+const formatDate = (date: string) => {
+  if (!date) return t('common.notAvailable')
+  try {
+    return new Date(date).toLocaleDateString(undefined)
+  } catch {
+    return t('common.invalidDate')
+  }
+}
+
+const petAge = (date: string) => {
+  const birth = new Date(date)
+  const now = new Date()
+  const y = now.getFullYear() - birth.getFullYear()
+  if (y <= 0) return t('pets.ageLessThanYear')
+
+  const ageText = t('pets.ageYears', { count: y })
+  if (ageText === 'pets.ageYears') {
+    return t('pets.ageYearsOld', { count: y })
+  }
+  return ageText
+}
+
+const viewPetDetails = (pet: Pet) => {
+  selectedPetForDetails.value = pet
+  showPetDetailsModal.value = true
 }
 
 const showNotification = (type: 'success' | 'error' | 'warning', message: string) => {

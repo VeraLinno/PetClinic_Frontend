@@ -43,6 +43,7 @@
           size="sm"
           class="w-full"
           :aria-label="$t('common.details')"
+          @click="$emit('view-details', pet)"
         >
           {{ $t('common.details') }}
         </Button>
@@ -78,6 +79,7 @@ const { t, locale } = useI18n()
 
 defineEmits<{
   'book-appointment': [pet: Pet]
+  'view-details': [pet: Pet]
   'delete-pet': [pet: Pet]
 }>()
 

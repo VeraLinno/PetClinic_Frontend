@@ -69,7 +69,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/owner/appointments',
     name: 'OwnerAppointments',
-    component: () => import('@/pages/OwnerDashboard.vue'),
+    component: () => import('@/pages/OwnerAppointmentsPage.vue'),
     meta: { requiresAuth: true, roles: ['Owner'] }
   },
   {
