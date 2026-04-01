@@ -30,6 +30,7 @@
             :label="$t('auth.email')"
             :placeholder="$t('auth.emailPlaceholder')"
             :disabled="loading"
+            autocomplete="email"
             required
           />
 
@@ -40,6 +41,7 @@
             :label="$t('auth.password')"
             :placeholder="$t('auth.password')"
             :disabled="loading"
+            autocomplete="current-password"
             required
           />
 

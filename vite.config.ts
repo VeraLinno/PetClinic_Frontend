@@ -44,6 +44,17 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true
         }
       }
+    },
+    build: {
+      target: 'esnext',
+      minify: 'terser',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['vue', 'vue-router', 'pinia', 'axios', 'vue-i18n'],
+          }
+        }
+      }
     }
   }
 })
