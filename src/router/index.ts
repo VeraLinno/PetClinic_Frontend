@@ -113,8 +113,12 @@ const router = createRouter({
   routes
 })
 
-function getDefaultAuthenticatedRoute(roles: string[]): string {
-  if (roles.includes('Admin')) return '/admin'
+function getDefaultAuthenticatedRoute(roles: string[], adminViewMode: 'admin' | 'vet' | 'owner' | null): string {
+  if (roles.includes('Admin')) {
+    if (adminViewMode === 'vet') return '/vet'
+    if (adminViewMode === 'owner') return '/owner'
+    return '/admin'
+  }
   if (roles.includes('Vet')) return '/vet'
   if (roles.includes('Owner')) return '/owner'
   return '/owner'
@@ -140,19 +144,39 @@ function normalizeRoles(rawRoles: unknown): string[] {
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+  const userRoles = normalizeRoles(authStore.roles)
 
   if ((to.path === '/login' || to.path === '/register') && authStore.isAuthenticated) {
-    next(getDefaultAuthenticatedRoute(authStore.roles))
+    next(getDefaultAuthenticatedRoute(userRoles, authStore.adminViewMode))
     return
+  }
+
+  if (authStore.isAuthenticated && userRoles.includes('Admin')) {
+    const adminViewMode = authStore.adminViewMode || 'admin'
+    const requiredRoles = (to.meta.roles as string[] | undefined) || []
+
+    if (adminViewMode === 'admin' && to.path !== '/admin') {
+      next('/admin')
+      return
+    }
+
+    if (adminViewMode === 'vet' && requiredRoles.length > 0 && !requiredRoles.includes('Vet')) {
+      next('/vet')
+      return
+    }
+
+    if (adminViewMode === 'owner' && requiredRoles.length > 0 && !requiredRoles.includes('Owner')) {
+      next('/owner')
+      return
+    }
   }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ path: '/login', query: { redirect: to.fullPath } })
   } else if (to.meta.roles) {
-    const userRoles = normalizeRoles(authStore.roles)
     const requiredRoles = to.meta.roles as string[]
     if (!requiredRoles.some(role => userRoles.includes(role))) {
-      next(getDefaultAuthenticatedRoute(userRoles))
+      next(getDefaultAuthenticatedRoute(userRoles, authStore.adminViewMode))
     } else {
       next()
     }

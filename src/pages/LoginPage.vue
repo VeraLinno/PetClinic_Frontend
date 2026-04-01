@@ -137,7 +137,10 @@ const handleLogin = async () => {
     }
 
     const userRoles = authStore.roles
-    if (userRoles.includes('Vet')) {
+    if (userRoles.includes('Admin')) {
+      authStore.setAdminViewMode('admin')
+      router.push('/admin')
+    } else if (userRoles.includes('Vet')) {
       router.push('/vet')
     } else if (userRoles.includes('Owner')) {
       router.push('/owner')

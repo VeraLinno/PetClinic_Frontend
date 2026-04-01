@@ -3,6 +3,16 @@ import api from '@/services/api'
 import { decodeToken } from '@/utils/jwt'
 
 const ACCESS_TOKEN_STORAGE_KEY = 'petclinic.accessToken'
+const ADMIN_VIEW_MODE_STORAGE_KEY = 'petclinic.adminViewMode'
+
+type AdminViewMode = 'admin' | 'vet' | 'owner' | null
+
+const normalizeAdminViewMode = (value: string | null): AdminViewMode => {
+  if (value === 'admin' || value === 'vet' || value === 'owner') {
+    return value
+  }
+  return null
+}
 
 interface User {
   id: string
@@ -13,6 +23,7 @@ interface User {
 interface AuthState {
   accessToken: string | null
   user: User | null
+  adminViewMode: AdminViewMode
   initialized: boolean
 }
 
@@ -20,6 +31,7 @@ export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     accessToken: null,
     user: null,
+    adminViewMode: normalizeAdminViewMode(localStorage.getItem(ADMIN_VIEW_MODE_STORAGE_KEY)),
     initialized: false
   }),
   getters: {
@@ -36,7 +48,9 @@ export const useAuthStore = defineStore('auth', {
       if (!token) {
         this.accessToken = null
         this.user = null
+        this.adminViewMode = null
         localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+        localStorage.removeItem(ADMIN_VIEW_MODE_STORAGE_KEY)
         return
       }
 
@@ -45,12 +59,33 @@ export const useAuthStore = defineStore('auth', {
         this.accessToken = token
         this.user = decoded
         localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token)
+
+        const isAdminUser = Array.isArray(decoded.roles) && decoded.roles.includes('Admin')
+        if (!isAdminUser) {
+          this.adminViewMode = null
+          localStorage.removeItem(ADMIN_VIEW_MODE_STORAGE_KEY)
+        } else if (!this.adminViewMode) {
+          this.adminViewMode = 'admin'
+          localStorage.setItem(ADMIN_VIEW_MODE_STORAGE_KEY, 'admin')
+        }
       } catch {
         this.accessToken = null
         this.user = null
+        this.adminViewMode = null
         localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+        localStorage.removeItem(ADMIN_VIEW_MODE_STORAGE_KEY)
         throw new Error('Invalid access token')
       }
+    },
+    setAdminViewMode(mode: Exclude<AdminViewMode, null>) {
+      if (!this.user?.roles?.includes('Admin')) {
+        this.adminViewMode = null
+        localStorage.removeItem(ADMIN_VIEW_MODE_STORAGE_KEY)
+        return
+      }
+
+      this.adminViewMode = mode
+      localStorage.setItem(ADMIN_VIEW_MODE_STORAGE_KEY, mode)
     },
     setAccessToken(token: string) {
       this.setAuthenticatedState(token)

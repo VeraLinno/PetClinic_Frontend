@@ -41,21 +41,6 @@
       </Card>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <Card>
-        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('admin.monthAppointments') }}</p>
-        <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ metrics?.totalAppointmentsThisMonth ?? 0 }}</p>
-      </Card>
-      <Card>
-        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('admin.monthCompletedVisits') }}</p>
-        <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ metrics?.completedVisitsThisMonth ?? 0 }}</p>
-      </Card>
-      <Card>
-        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('admin.lowStock') }}</p>
-        <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ metrics?.lowStockMedications ?? 0 }}</p>
-      </Card>
-    </div>
-
     <Card>
       <template #header>
         <div class="flex items-center justify-between gap-3">
@@ -111,32 +96,6 @@
           </div>
         </div>
       </Card>
-
-      <Card>
-        <template #header>
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ t('admin.appointments') }}</h2>
-        </template>
-
-        <div v-if="appointments.length === 0" class="text-sm text-slate-500 dark:text-slate-400">{{ t('admin.noAppointments') }}</div>
-        <div v-else class="space-y-2">
-          <div
-            v-for="appointment in recentAppointments"
-            :key="appointment.id"
-            class="rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-700"
-          >
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ appointment.petName || '-' }}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400">{{ appointment.ownerEmail || '-' }}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400">{{ formatDateTime(appointment.startAt) }}</p>
-              </div>
-              <Badge size="sm" :variant="statusVariant(appointment.status)">
-                {{ appointment.statusLocalized || appointment.status }}
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </Card>
     </div>
   </div>
 </template>
@@ -148,7 +107,7 @@ import { useI18n } from 'vue-i18n'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
-import { adminService, type AdminAppointment, type AdminDashboardMetrics, type AdminSystemHealth, type AdminUser } from '@/services/admin'
+import { adminService, type AdminDashboardMetrics, type AdminSystemHealth, type AdminUser } from '@/services/admin'
 import { useAuthStore } from '@/stores/auth'
 
 const { t, locale } = useI18n()
@@ -160,15 +119,9 @@ const errorMessage = ref('')
 const metrics = ref<AdminDashboardMetrics | null>(null)
 const health = ref<AdminSystemHealth | null>(null)
 const users = ref<AdminUser[]>([])
-const appointments = ref<AdminAppointment[]>([])
 
 const recentUsers = computed(() => users.value.slice(0, 8))
 
-const recentAppointments = computed(() =>
-  [...appointments.value]
-    .sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime())
-    .slice(0, 8)
-)
 
 const healthVariant = computed(() => {
   const status = (health.value?.status || '').toLowerCase()
@@ -220,7 +173,6 @@ const loadDashboardData = async () => {
     metrics.value = metricsData
     health.value = healthData
     users.value = usersData
-    appointments.value = appointmentsData
   } catch (error: any) {
     const status = error?.response?.status
     if (status === 403) {

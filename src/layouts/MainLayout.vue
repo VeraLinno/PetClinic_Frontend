@@ -45,7 +45,7 @@
         >
           <a
             :href="href"
-            @click="navigate"
+            @click="handleMenuClick(item, navigate)"
             :class="[
               'group mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
               isActive
@@ -65,6 +65,16 @@
       </nav>
 
       <div class="absolute bottom-0 w-full border-t border-slate-200 p-3 dark:border-slate-700">
+        <button
+          v-if="showExitViewButton"
+          @click="exitAdminView"
+          class="mb-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-50 hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-300 dark:hover:bg-primary-950/30 dark:hover:text-primary-200"
+          :aria-label="t('admin.exitView')"
+        >
+          <ShieldCheckIcon class="h-5 w-5 text-primary-500" aria-hidden="true" />
+          <span>{{ t('admin.exitView') }}</span>
+        </button>
+
         <button
           @click="logout"
           class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
@@ -328,7 +338,10 @@ const userInitials = computed(() => {
 })
 
 const userRole = computed(() => {
-  if (normalizedRoles.value.includes('Admin')) return t('navigation.admin')
+  const isAdmin = normalizedRoles.value.includes('Admin')
+  if (isAdmin && authStore.adminViewMode === 'vet') return `${t('auth.veterinarian')} (${t('navigation.admin')})`
+  if (isAdmin && authStore.adminViewMode === 'owner') return `${t('auth.petOwner')} (${t('navigation.admin')})`
+  if (isAdmin) return t('navigation.admin')
   if (normalizedRoles.value.includes('Owner')) return t('auth.petOwner')
   if (normalizedRoles.value.includes('Vet')) return t('auth.veterinarian')
   return t('common.home')
@@ -337,10 +350,19 @@ const userRole = computed(() => {
 const menuItems = computed(() => {
   const items: Array<{ path: string; label: string; icon: unknown }> = []
   const isAdmin = normalizedRoles.value.includes('Admin')
+  const adminViewMode = authStore.adminViewMode || 'admin'
 
-  if (normalizedRoles.value.includes('Owner') || isAdmin) {
+  if (isAdmin && adminViewMode === 'admin') {
     items.push(
-      { path: '/owner', label: isAdmin ? `${t('common.view')} ${t('auth.petOwner')}` : t('navigation.dashboard'), icon: HomeIcon },
+      { path: '/vet', label: t('admin.vetView'), icon: UsersIcon },
+      { path: '/owner', label: t('admin.ownerView'), icon: HomeIcon }
+    )
+    return items
+  }
+
+  if (normalizedRoles.value.includes('Owner') || (isAdmin && adminViewMode === 'owner')) {
+    items.push(
+      { path: '/owner', label: t('navigation.dashboard'), icon: HomeIcon },
       { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },
       { path: '/owner/pets', label: t('navigation.pets'), icon: SparklesIcon },
       { path: '/owner/appointments', label: t('navigation.appointments'), icon: ListBulletIcon },
@@ -350,26 +372,22 @@ const menuItems = computed(() => {
     )
   }
 
-  if (normalizedRoles.value.includes('Vet') || isAdmin) {
+  if (normalizedRoles.value.includes('Vet') || (isAdmin && adminViewMode === 'vet')) {
     items.push(
-      { path: '/vet', label: isAdmin ? `${t('common.view')} ${t('auth.veterinarian')}` : t('navigation.dashboard'), icon: HomeIcon },
+      { path: '/vet', label: t('navigation.dashboard'), icon: HomeIcon },
       { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },
       { path: '/vet/appointments', label: t('dashboard.vet.todaySchedule'), icon: CalendarDaysIcon },
        { path: '/vet/availability', label: t('navigation.availability'), icon: CalendarDaysIcon },
       { path: '/vet/inventory', label: t('navigation.inventory'), icon: ShoppingBagIcon },
       { path: '/vet/patients', label: t('navigation.patients'), icon: UsersIcon },
-      { path: '/vet/accounts', label: 'Vet Accounts', icon: IdentificationIcon }
-    )
-  }
-
-  if (normalizedRoles.value.includes('Admin')) {
-    items.push(
-      { path: '/admin', label: t('navigation.admin'), icon: ShieldCheckIcon }
+      { path: '/vet/accounts', label: t('navigation.vetAccounts'), icon: IdentificationIcon }
     )
   }
 
   return items
 })
+
+const showExitViewButton = computed(() => normalizedRoles.value.includes('Admin') && (authStore.adminViewMode || 'admin') !== 'admin')
 
 const loadOwnerProfile = async () => {
   if (ownerProfileLoaded.value || !normalizedRoles.value.includes('Owner')) return
@@ -418,6 +436,23 @@ const toggleSidebar = () => {
 
 const closeSidebar = () => {
   sidebarOpen.value = false
+}
+
+const handleMenuClick = async (item: { path: string }, navigate: () => void) => {
+  if (normalizedRoles.value.includes('Admin')) {
+    if (item.path === '/vet') {
+      authStore.setAdminViewMode('vet')
+    } else if (item.path === '/owner') {
+      authStore.setAdminViewMode('owner')
+    }
+  }
+
+  navigate()
+}
+
+const exitAdminView = async () => {
+  authStore.setAdminViewMode('admin')
+  await router.push('/admin')
 }
 
 const toggleDarkMode = () => {
