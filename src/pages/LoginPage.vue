@@ -68,9 +68,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { useI18n } from 'vue-i18n'
 import { authService } from '@/services/auth'
 import { useAuthStore } from '@/stores/auth'
@@ -88,10 +87,13 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 const handleLogin = async () => {
+  if (loading.value) return
+
   loading.value = true
   error.value = ''
   try {
     await authService.login(email.value, password.value)
+    await nextTick()
 
     const redirectTarget = typeof route.query.redirect === 'string' ? route.query.redirect : null
     if (redirectTarget) {
@@ -107,9 +109,9 @@ const handleLogin = async () => {
     } else {
       router.push('/owner')
     }
-    } catch (err: any) {
-      error.value = err.response?.data?.error || err.response?.data?.message || t('auth.loginFailed')
-    } finally {
+  } catch (err: any) {
+    error.value = err.response?.data?.error || err.response?.data?.message || t('auth.loginFailed')
+  } finally {
     loading.value = false
   }
 }

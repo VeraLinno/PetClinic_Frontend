@@ -4,6 +4,7 @@ import en from './locales/en.json'
 import et from './locales/et.json'
 import ru from './locales/ru.json'
 import api from './services/api'
+import { useAuthStore } from '@/stores/auth'
 
 const messages = {
   en,
@@ -184,9 +185,16 @@ export async function setLanguage(lang: string) {
   // Set the locale with type cast since we've already validated it
   i18n.global.locale.value = lang as keyof typeof messages
   localStorage.setItem('language', lang)
-  
-  // Try to load translations from database
-  await loadDbTranslations(lang)
+
+  // Try to load translations from database only when authenticated.
+  try {
+    const authStore = useAuthStore()
+    if (authStore.isAuthenticated) {
+      await loadDbTranslations(lang)
+    }
+  } catch {
+    // Ignore auth-store access errors here; local bundles already provide translations.
+  }
 }
 
 // Get current language

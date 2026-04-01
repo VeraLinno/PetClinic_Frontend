@@ -5,7 +5,6 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('appointments.bookNew') }}</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $t('common.ok') }}</p>
           </div>
           <div class="text-sm font-medium text-primary-700 dark:text-primary-300">
             {{ $t('appointments.stepIndicator', { current: currentStep + 1, total: steps.length }) }}

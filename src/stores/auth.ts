@@ -40,9 +40,17 @@ export const useAuthStore = defineStore('auth', {
         return
       }
 
-      this.accessToken = token
-      this.user = decodeToken(token)
-      localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token)
+      try {
+        const decoded = decodeToken(token)
+        this.accessToken = token
+        this.user = decoded
+        localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token)
+      } catch {
+        this.accessToken = null
+        this.user = null
+        localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+        throw new Error('Invalid access token')
+      }
     },
     setAccessToken(token: string) {
       this.setAuthenticatedState(token)
@@ -80,10 +88,6 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.initialized = true
       }
-    },
-    async login(email: string, password: string) {
-      const response = await api.post('/auth/login', { email, password })
-      this.setAccessToken(response.data.accessToken)
     },
     async refreshAccessToken() {
       const response = await api.post('/auth/refresh')
