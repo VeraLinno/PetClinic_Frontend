@@ -45,6 +45,28 @@
             required
           />
 
+          <Input
+            v-if="mfaRequired"
+            id="mfaCode"
+            v-model="mfaCode"
+            type="text"
+            :label="$t('auth.mfaCode')"
+            :placeholder="$t('auth.mfaCodePlaceholder')"
+            :disabled="loading"
+            autocomplete="one-time-code"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="6"
+            required
+          />
+
+          <div
+            v-if="mfaRequired"
+            class="rounded-lg border border-warning-300 bg-warning-50 px-3 py-2 text-sm text-warning-800 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-300"
+          >
+            {{ $t('auth.mfaRequired') }}
+          </div>
+
           <div v-if="error" class="rounded-lg border border-danger-300 bg-danger-50 px-3 py-2 text-sm text-danger-700 dark:border-danger-700 dark:bg-danger-950/30 dark:text-danger-300">
             {{ error }}
           </div>
@@ -82,6 +104,8 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 const { t } = useI18n()
 const email = ref('')
 const password = ref('')
+const mfaCode = ref('')
+const mfaRequired = ref(false)
 const loading = ref(false)
 const error = ref('')
 const router = useRouter()
@@ -94,7 +118,16 @@ const handleLogin = async () => {
   loading.value = true
   error.value = ''
   try {
-    await authService.login(email.value, password.value)
+    const response = await authService.login(email.value, password.value, mfaRequired.value ? mfaCode.value : undefined)
+
+    if (response?.mfaRequired) {
+      mfaRequired.value = true
+      mfaCode.value = ''
+      error.value = response.message || t('auth.mfaRequired')
+      return
+    }
+
+    mfaRequired.value = false
     await nextTick()
 
     const redirectTarget = typeof route.query.redirect === 'string' ? route.query.redirect : null

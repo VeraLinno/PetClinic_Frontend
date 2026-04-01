@@ -130,6 +130,9 @@
     "logoutSuccess": "You have been logged out.",
     "platformTagline": "Pet Clinic Platform",
     "loginFailed": "Login failed. Please try again.",
+    "mfaCode": "Authentication code",
+    "mfaCodePlaceholder": "Enter 6-digit code",
+    "mfaRequired": "Multi-factor authentication is required for this account.",
     "acceptTerms": "Please accept the terms to continue.",
     "registrationFailed": "Registration failed. Please try again."
   },

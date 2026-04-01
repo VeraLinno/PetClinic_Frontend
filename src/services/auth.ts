@@ -2,7 +2,7 @@ import api from './api'
 import { useAuthStore } from '@/stores/auth'
 
 interface AuthService {
-  login(email: string, password: string): Promise<any>
+  login(email: string, password: string, mfaCode?: string): Promise<any>
   register(email: string, password: string, firstName: string, lastName: string, roles: string[]): Promise<any>
   createVetAccount(payload: {
     email: string
@@ -17,10 +17,12 @@ interface AuthService {
 }
 
 export const authService: AuthService = {
-  async login(email: string, password: string) {
-    const response = await api.post('/auth/login', { email, password })
+  async login(email: string, password: string, mfaCode?: string) {
+    const response = await api.post('/auth/login', { email, password, mfaCode })
     const authStore = useAuthStore()
-    authStore.setAccessToken(response.data.accessToken)
+    if (response.data?.accessToken) {
+      authStore.setAccessToken(response.data.accessToken)
+    }
     return response.data
   },
   async register(email: string, password: string, firstName: string, lastName: string, roles: string[]) {

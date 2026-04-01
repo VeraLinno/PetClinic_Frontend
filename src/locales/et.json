@@ -130,6 +130,9 @@
     "logoutSuccess": "Olete välja logitud.",
     "platformTagline": "Lemmikloomakliiniku platvorm",
     "loginFailed": "Sisselogimine ebaõnnestus. Palun proovige uuesti.",
+    "mfaCode": "Autentimiskood",
+    "mfaCodePlaceholder": "Sisestage 6-kohaline kood",
+    "mfaRequired": "Selle konto jaoks on vajalik kaheastmeline autentimine.",
     "acceptTerms": "Palun kinnitage tingimused jätkamiseks.",
     "registrationFailed": "Registreerimine ebaõnnestus. Palun proovige uuesti."
   },
