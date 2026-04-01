@@ -229,9 +229,11 @@ import {
   type PendingInventoryReorder,
   type DeliveredInventoryReorder
 } from '@/services/inventory'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const { t } = useI18n()
+const authStore = useAuthStore()
 
 // Data
 const appointments = ref<Appointment[]>([])
@@ -343,18 +345,48 @@ const activeStatusLabel = computed(() => {
 
 // Load data
 onMounted(async () => {
+  if (!canLoadVetData()) {
+    loadingAppointments.value = false
+    return
+  }
+
   await loadAppointments()
   await loadLowStockItems()
   await loadIncomingReorders()
   await loadDeliveredReorders()
 })
 
+const canLoadVetData = () => {
+  if (!authStore.isAuthenticated) {
+    return false
+  }
+
+  const roles = authStore.roles || []
+  return roles.includes('Vet') || roles.includes('Admin')
+}
+
+const shouldIgnoreError = (error: unknown) => {
+  if (!canLoadVetData()) {
+    return true
+  }
+
+  const status = (error as { response?: { status?: number } })?.response?.status
+  return status === 401 || status === 403
+}
+
 const loadAppointments = async () => {
+  if (!canLoadVetData()) {
+    loadingAppointments.value = false
+    return
+  }
+
   try {
     const data = await appointmentsService.getAppointments()
     appointments.value = data
   } catch (error) {
-    console.error('Failed to load appointments', error)
+    if (!shouldIgnoreError(error)) {
+      console.error('Failed to load appointments', error)
+    }
   } finally {
     loadingAppointments.value = false
   }
@@ -369,6 +401,10 @@ const refreshAppointments = async () => {
 }
 
 const loadLowStockItems = async () => {
+  if (!canLoadVetData()) {
+    return
+  }
+
   try {
     const data = await inventoryService.getLowStock()
     lowStockItems.value = data.map((item) => ({
@@ -379,23 +415,37 @@ const loadLowStockItems = async () => {
       unit: item.unit
     }))
   } catch (error) {
-    console.error('Failed to load low stock items', error)
+    if (!shouldIgnoreError(error)) {
+      console.error('Failed to load low stock items', error)
+    }
   }
 }
 
 const loadIncomingReorders = async () => {
+  if (!canLoadVetData()) {
+    return
+  }
+
   try {
     incomingReorders.value = await inventoryService.getIncomingReorders()
   } catch (error) {
-    console.error('Failed to load incoming reorders', error)
+    if (!shouldIgnoreError(error)) {
+      console.error('Failed to load incoming reorders', error)
+    }
   }
 }
 
 const loadDeliveredReorders = async () => {
+  if (!canLoadVetData()) {
+    return
+  }
+
   try {
     deliveredReorders.value = await inventoryService.getDeliveredReorders()
   } catch (error) {
-    console.error('Failed to load delivered reorders', error)
+    if (!shouldIgnoreError(error)) {
+      console.error('Failed to load delivered reorders', error)
+    }
   }
 }
 
