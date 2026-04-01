@@ -130,6 +130,7 @@
     "logoutSuccess": "You have been logged out.",
     "platformTagline": "Pet Clinic Platform",
     "loginFailed": "Login failed. Please try again.",
+    "serverUnavailable": "Server is temporarily unavailable. Please try again in a moment.",
     "mfaCode": "Authentication code",
     "mfaCodePlaceholder": "Enter 6-digit code",
     "mfaRequired": "Multi-factor authentication is required for this account.",

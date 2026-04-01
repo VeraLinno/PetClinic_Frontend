@@ -148,7 +148,15 @@ const handleLogin = async () => {
       router.push('/owner')
     }
   } catch (err: any) {
-    error.value = err.response?.data?.error || err.response?.data?.message || t('auth.loginFailed')
+    const status = err?.response?.status
+    const isTransientServerError = status === 502 || status === 503 || status === 504
+    const isNetworkFailure = !status && err?.request
+
+    if (isTransientServerError || isNetworkFailure) {
+      error.value = t('auth.serverUnavailable')
+    } else {
+      error.value = err.response?.data?.error || err.response?.data?.message || t('auth.loginFailed')
+    }
   } finally {
     loading.value = false
   }

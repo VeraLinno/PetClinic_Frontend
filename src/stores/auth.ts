@@ -36,7 +36,22 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {
     isAuthenticated: (state) => !!state.accessToken,
-    roles: (state) => state.user?.roles || [],
+    roles: (state) => {
+      const roles = [...(state.user?.roles || [])]
+      if (!roles.includes('Admin')) {
+        return roles
+      }
+
+      const mode = state.adminViewMode || 'admin'
+      if (mode === 'vet' && !roles.includes('Vet')) {
+        roles.push('Vet')
+      }
+      if (mode === 'owner' && !roles.includes('Owner')) {
+        roles.push('Owner')
+      }
+
+      return roles
+    },
     tokenExpiresAt: (state) => {
       if (!state.accessToken) return null
       const decoded = decodeToken(state.accessToken)
