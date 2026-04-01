@@ -336,10 +336,11 @@ const userRole = computed(() => {
 
 const menuItems = computed(() => {
   const items: Array<{ path: string; label: string; icon: unknown }> = []
+  const isAdmin = normalizedRoles.value.includes('Admin')
 
-  if (normalizedRoles.value.includes('Owner') || normalizedRoles.value.includes('Admin')) {
+  if (normalizedRoles.value.includes('Owner') || isAdmin) {
     items.push(
-      { path: '/owner', label: t('navigation.dashboard'), icon: HomeIcon },
+      { path: '/owner', label: isAdmin ? `${t('common.view')} ${t('auth.petOwner')}` : t('navigation.dashboard'), icon: HomeIcon },
       { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },
       { path: '/owner/pets', label: t('navigation.pets'), icon: SparklesIcon },
       { path: '/owner/appointments', label: t('navigation.appointments'), icon: ListBulletIcon },
@@ -349,9 +350,9 @@ const menuItems = computed(() => {
     )
   }
 
-  if (normalizedRoles.value.includes('Vet') || normalizedRoles.value.includes('Admin')) {
+  if (normalizedRoles.value.includes('Vet') || isAdmin) {
     items.push(
-      { path: '/vet', label: t('navigation.dashboard'), icon: HomeIcon },
+      { path: '/vet', label: isAdmin ? `${t('common.view')} ${t('auth.veterinarian')}` : t('navigation.dashboard'), icon: HomeIcon },
       { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },
       { path: '/vet/appointments', label: t('dashboard.vet.todaySchedule'), icon: CalendarDaysIcon },
        { path: '/vet/availability', label: t('navigation.availability'), icon: CalendarDaysIcon },

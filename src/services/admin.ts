@@ -61,18 +61,21 @@ const adminGet = async <T>(url: string, params?: Record<string, unknown>): Promi
 
 export const adminService = {
   getMetrics() {
-    return adminGet<AdminDashboardMetrics>('/admin/admindashboard/metrics')
+    return adminGet<AdminDashboardMetrics>('/admin/admindashboard/metrics', { _ts: Date.now() })
   },
 
   getHealth() {
-    return adminGet<AdminSystemHealth>('/admin/admindashboard/health')
+    return adminGet<AdminSystemHealth>('/admin/admindashboard/health', { _ts: Date.now() })
   },
 
   getUsers() {
-    return adminGet<AdminUser[]>('/admin/adminusers/api/list')
+    return adminGet<AdminUser[]>('/admin/adminusers/api/list', { _ts: Date.now() })
   },
 
   getAppointments(params?: { fromDate?: string; toDate?: string; status?: string }) {
-    return adminGet<AdminAppointment[]>('/admin/adminappointments/api/list', params)
+    return adminGet<AdminAppointment[]>('/admin/adminappointments/api/list', {
+      ...(params || {}),
+      _ts: Date.now()
+    })
   }
 }
