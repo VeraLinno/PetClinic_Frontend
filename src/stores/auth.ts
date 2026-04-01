@@ -71,23 +71,28 @@ export const useAuthStore = defineStore('auth', {
       if (this.initialized) return
 
       const storedToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY)
-      if (storedToken && !this.isTokenExpired(storedToken)) {
-        try {
-          this.setAuthenticatedState(storedToken)
-          this.initialized = true
+      if (storedToken) {
+        if (!this.isTokenExpired(storedToken)) {
+          try {
+            this.setAuthenticatedState(storedToken)
+            this.initialized = true
+            return
+          } catch {
+            this.clearAuthState()
+          }
+        } else {
+          try {
+            await this.refreshAccessToken()
+          } catch {
+            this.clearAuthState()
+          } finally {
+            this.initialized = true
+          }
           return
-        } catch {
-          this.clearAuthState()
         }
       }
 
-      try {
-        await this.refreshAccessToken()
-      } catch {
-        this.clearAuthState()
-      } finally {
-        this.initialized = true
-      }
+      this.initialized = true
     },
     async refreshAccessToken() {
       const response = await api.post('/auth/refresh')

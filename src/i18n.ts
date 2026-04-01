@@ -22,6 +22,20 @@ const i18n = createI18n({
   messages
 })
 
+function getMessageByPath(source: unknown, path: string): string | undefined {
+  const parts = path.split('.')
+  let current: unknown = source
+
+  for (const part of parts) {
+    if (!current || typeof current !== 'object' || Array.isArray(current)) {
+      return undefined
+    }
+    current = (current as Record<string, unknown>)[part]
+  }
+
+  return typeof current === 'string' ? current : undefined
+}
+
 // Guard translation calls so a single malformed key/message cannot crash app rendering.
 const originalGlobalT = i18n.global.t.bind(i18n.global) as (...args: any[]) => unknown
 ;(i18n.global as any).t = (...args: any[]) => {
@@ -29,8 +43,20 @@ const originalGlobalT = i18n.global.t.bind(i18n.global) as (...args: any[]) => u
     return originalGlobalT(...args)
   } catch (error) {
     const key = args[0]
-    console.error('i18n translation failed for key:', key, error)
-    return typeof key === 'string' ? key : ''
+    console.debug('i18n translation fallback for key:', key)
+    if (typeof key !== 'string') {
+      return ''
+    }
+
+    const locale = String(i18n.global.locale.value || 'en')
+    const localeMessages = i18n.global.getLocaleMessage(locale as keyof typeof messages)
+    const fallbackLocaleMessages = i18n.global.getLocaleMessage('en')
+
+    return (
+      getMessageByPath(localeMessages, key)
+      || getMessageByPath(fallbackLocaleMessages, key)
+      || key
+    )
   }
 }
 

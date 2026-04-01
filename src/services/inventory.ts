@@ -1,3 +1,4 @@
+import type { Method } from 'axios'
 import api from './api'
 
 export interface InventoryItem {
@@ -42,34 +43,47 @@ export interface DeliveredInventoryReorder {
   receivedAtUtc: string
 }
 
+async function requestWithInventoryFallback<T>(method: Method, path: string, data?: unknown): Promise<T> {
+  try {
+    const response = await api.request<T>({ method, url: path, data })
+    return response.data
+  } catch (error: any) {
+    const status = error?.response?.status
+    const baseUrl = String(api.defaults.baseURL || '')
+    const hasV1Base = /\/v1\/?$/.test(baseUrl)
+
+    if (status !== 404 || !hasV1Base) {
+      throw error
+    }
+
+    const fallbackBaseUrl = baseUrl.replace(/\/v1\/?$/, '')
+    const response = await api.request<T>({ method, baseURL: fallbackBaseUrl, url: path, data })
+    return response.data
+  }
+}
+
 export const inventoryService = {
   async getInventory() {
-    const response = await api.get<InventoryItem[]>('/inventory')
-    return response.data
+    return requestWithInventoryFallback<InventoryItem[]>('GET', '/inventory')
   },
 
   async getLowStock() {
-    const response = await api.get<InventoryItem[]>('/inventory/low-stock')
-    return response.data
+    return requestWithInventoryFallback<InventoryItem[]>('GET', '/inventory/low-stock')
   },
 
   async updateInventoryItem(id: string, payload: UpdateInventoryItemPayload) {
-    const response = await api.put<InventoryItem>(`/inventory/${id}`, payload)
-    return response.data
+    return requestWithInventoryFallback<InventoryItem>('PUT', `/inventory/${id}`, payload)
   },
 
   async reorderMedication(medicationId: string, quantity: number) {
-    const response = await api.post<ReorderResponse>(`/inventory/${medicationId}/reorder`, { quantity })
-    return response.data
+    return requestWithInventoryFallback<ReorderResponse>('POST', `/inventory/${medicationId}/reorder`, { quantity })
   },
 
   async getIncomingReorders() {
-    const response = await api.get<PendingInventoryReorder[]>('/inventory/incoming')
-    return response.data
+    return requestWithInventoryFallback<PendingInventoryReorder[]>('GET', '/inventory/incoming')
   },
 
   async getDeliveredReorders() {
-    const response = await api.get<DeliveredInventoryReorder[]>('/inventory/delivered')
-    return response.data
+    return requestWithInventoryFallback<DeliveredInventoryReorder[]>('GET', '/inventory/delivered')
   }
 }
