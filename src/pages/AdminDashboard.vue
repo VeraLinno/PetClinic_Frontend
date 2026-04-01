@@ -5,6 +5,9 @@
         <div>
           <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ t('admin.title') }}</h1>
           <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ t('admin.subtitle') }}</p>
+          <p v-if="lastUpdatedAt" class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            {{ t('admin.lastUpdated') }}: {{ formatDateTime(lastUpdatedAt) }}
+          </p>
         </div>
         <Button variant="primary" size="sm" :loading="loading" @click="loadDashboardData">
           {{ t('admin.refresh') }}
@@ -173,6 +176,8 @@ const healthVariant = computed(() => {
   if (status.includes('critical')) return 'danger'
   return 'warning'
 })
+
+const lastUpdatedAt = computed(() => health.value?.checkedAt || metrics.value?.generatedAt || '')
 
 const normalizedRoles = computed(() => {
   const rawRoles = authStore.roles as unknown

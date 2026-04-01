@@ -581,6 +581,7 @@
     "title": "Admin Dashboard",
     "subtitle": "System overview and operational control",
     "refresh": "Refresh",
+    "lastUpdated": "Last updated",
     "users": "Users",
     "veterinarians": "Veterinarians",
     "appointments": "Appointments",

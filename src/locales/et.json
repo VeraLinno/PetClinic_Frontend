@@ -546,6 +546,7 @@
     "title": "Administraatori juhtpaneel",
     "subtitle": "Süsteemi ülevaade ja halduse juhtimine",
     "refresh": "Värskenda",
+    "lastUpdated": "Viimati uuendatud",
     "users": "Kasutajad",
     "veterinarians": "Veterinaarspetsialistid",
     "appointments": "Vastuvõtud",
