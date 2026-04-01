@@ -337,7 +337,7 @@ const userRole = computed(() => {
 const menuItems = computed(() => {
   const items: Array<{ path: string; label: string; icon: unknown }> = []
 
-  if (normalizedRoles.value.includes('Owner')) {
+  if (normalizedRoles.value.includes('Owner') || normalizedRoles.value.includes('Admin')) {
     items.push(
       { path: '/owner', label: t('navigation.dashboard'), icon: HomeIcon },
       { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },
@@ -349,7 +349,7 @@ const menuItems = computed(() => {
     )
   }
 
-  if (normalizedRoles.value.includes('Vet')) {
+  if (normalizedRoles.value.includes('Vet') || normalizedRoles.value.includes('Admin')) {
     items.push(
       { path: '/vet', label: t('navigation.dashboard'), icon: HomeIcon },
       { path: '/booking', label: t('appointments.bookNew'), icon: PlusCircleIcon },

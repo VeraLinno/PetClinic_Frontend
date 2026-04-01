@@ -16,13 +16,13 @@ const routes: RouteRecordRaw[] = [
     path: '/owner',
     name: 'OwnerDashboard',
     component: () => import('@/pages/OwnerDashboard.vue'),
-    meta: { requiresAuth: true, roles: ['Owner'] }
+    meta: { requiresAuth: true, roles: ['Owner', 'Admin'] }
   },
   {
     path: '/vet',
     name: 'VetDashboard',
     component: () => import('@/pages/VetDashboard.vue'),
-    meta: { requiresAuth: true, roles: ['Vet'] }
+    meta: { requiresAuth: true, roles: ['Vet', 'Admin'] }
   },
   {
     path: '/admin',
@@ -46,61 +46,61 @@ const routes: RouteRecordRaw[] = [
     path: '/owner/history',
     name: 'VisitHistory',
     component: () => import('@/pages/VisitHistory.vue'),
-    meta: { requiresAuth: true, roles: ['Owner'] }
+    meta: { requiresAuth: true, roles: ['Owner', 'Admin'] }
   },
   {
     path: '/owner/invoices',
     name: 'Invoices',
     component: () => import('@/pages/InvoicesPage.vue'),
-    meta: { requiresAuth: true, roles: ['Owner'] }
+    meta: { requiresAuth: true, roles: ['Owner', 'Admin'] }
   },
   {
     path: '/owner/health',
     name: 'HealthRecords',
     component: () => import('@/pages/HealthRecords.vue'),
-    meta: { requiresAuth: true, roles: ['Owner'] }
+    meta: { requiresAuth: true, roles: ['Owner', 'Admin'] }
   },
   {
     path: '/owner/pets',
     name: 'MyPets',
     component: () => import('@/pages/MyPetsPage.vue'),
-    meta: { requiresAuth: true, roles: ['Owner'] }
+    meta: { requiresAuth: true, roles: ['Owner', 'Admin'] }
   },
   {
     path: '/owner/appointments',
     name: 'OwnerAppointments',
     component: () => import('@/pages/OwnerAppointmentsPage.vue'),
-    meta: { requiresAuth: true, roles: ['Owner'] }
+    meta: { requiresAuth: true, roles: ['Owner', 'Admin'] }
   },
   {
     path: '/vet/appointments',
     name: 'VetAppointments',
     component: () => import('@/pages/VetTodayAppointments.vue'),
-    meta: { requiresAuth: true, roles: ['Vet'] }
+    meta: { requiresAuth: true, roles: ['Vet', 'Admin'] }
   },
   {
     path: '/vet/inventory',
     name: 'Inventory',
     component: () => import('@/pages/InventoryPage.vue'),
-    meta: { requiresAuth: true, roles: ['Vet'] }
+    meta: { requiresAuth: true, roles: ['Vet', 'Admin'] }
   },
   {
     path: '/vet/patients',
     name: 'Patients',
     component: () => import('@/pages/PatientsPage.vue'),
-    meta: { requiresAuth: true, roles: ['Vet'] }
+    meta: { requiresAuth: true, roles: ['Vet', 'Admin'] }
   },
   {
     path: '/vet/accounts',
     name: 'VetAccounts',
     component: () => import('@/pages/VetAccountsPage.vue'),
-    meta: { requiresAuth: true, roles: ['Vet'] }
+    meta: { requiresAuth: true, roles: ['Vet', 'Admin'] }
   },
   {
     path: '/vet/availability',
     name: 'Availability',
     component: () => import('@/pages/VetAvailabilityPage.vue'),
-    meta: { requiresAuth: true, roles: ['Vet'] }
+    meta: { requiresAuth: true, roles: ['Vet', 'Admin'] }
   },
   {
     path: '/',
