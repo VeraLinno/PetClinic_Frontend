@@ -434,8 +434,8 @@ const updateDarkMode = () => {
 }
 
 const logout = async () => {
-  await authStore.logout()
   router.push('/login')
+  await authStore.logout()
 }
 
 // Initialize dark mode from localStorage
