@@ -67,6 +67,7 @@ const selectLanguage = (langCode: string) => {
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.875rem;
+  color: #334155;
 }
 
 .lang-button:hover {
@@ -116,6 +117,7 @@ const selectLanguage = (langCode: string) => {
   text-align: left;
   transition: background-color 0.2s ease;
   font-size: 0.875rem;
+  color: #334155;
 }
 
 .lang-option:hover {
@@ -149,5 +151,39 @@ const selectLanguage = (langCode: string) => {
 .dropdown-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+:global(.dark) .lang-button {
+  border-color: #475569;
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+:global(.dark) .lang-button:hover {
+  border-color: #0ea5e9;
+  background-color: #334155;
+}
+
+:global(.dark) .code {
+  color: #e2e8f0;
+}
+
+:global(.dark) .lang-menu {
+  background: #1e293b;
+  border-color: #475569;
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.6);
+}
+
+:global(.dark) .lang-option {
+  color: #cbd5e1;
+}
+
+:global(.dark) .lang-option:hover {
+  background-color: #334155;
+}
+
+:global(.dark) .lang-option.active {
+  background-color: rgba(14, 165, 233, 0.2);
+  color: #7dd3fc;
 }
 </style>

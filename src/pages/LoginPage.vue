@@ -1,5 +1,18 @@
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 lg:grid lg:grid-cols-2">
+  <div class="relative min-h-screen bg-slate-50 dark:bg-slate-900 lg:grid lg:grid-cols-2">
+    <div class="absolute right-4 top-4 z-20 flex items-center gap-2 sm:right-6 sm:top-6">
+      <LanguageSwitcher />
+      <button
+        type="button"
+        @click="toggleDarkMode"
+        class="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+        :aria-label="isDarkMode ? t('common.switchToLightMode') : t('common.switchToDarkMode')"
+      >
+        <SunIcon v-if="isDarkMode" class="h-5 w-5" aria-hidden="true" />
+        <MoonIcon v-else class="h-5 w-5" aria-hidden="true" />
+      </button>
+    </div>
+
     <section class="relative hidden overflow-hidden bg-gradient-to-br from-primary-500 via-cyan-500 to-secondary-600 p-10 text-white lg:flex lg:flex-col lg:justify-between">
       <div class="absolute -left-12 top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
       <div class="absolute -bottom-10 right-8 h-44 w-44 rounded-full bg-white/10 blur-xl" aria-hidden="true" />
@@ -11,15 +24,13 @@
           </div>
           <h1 class="mt-8 text-4xl font-semibold leading-tight">{{ $t('auth.loginPortalTitle') }}</h1>
         </div>
-        <LanguageSwitcher class="ml-4" />
       </div>
     </section>
 
     <section class="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
       <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-card dark:border-slate-700 dark:bg-slate-800">
-        <div class="mb-8 flex items-center justify-between">
+        <div class="mb-8">
           <h2 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ $t('common.login') }}</h2>
-          <LanguageSwitcher />
         </div>
 
         <form class="space-y-4" @submit.prevent="handleLogin">
@@ -92,9 +103,10 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { MoonIcon, SunIcon } from '@heroicons/vue/24/outline'
 import { authService } from '@/services/auth'
 import { useAuthStore } from '@/stores/auth'
 import Input from '@/components/ui/Input.vue'
@@ -108,9 +120,32 @@ const mfaCode = ref('')
 const mfaRequired = ref(false)
 const loading = ref(false)
 const error = ref('')
+const isDarkMode = ref(false)
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+let mediaQuery: MediaQueryList | null = null
+
+const updateDarkMode = () => {
+  if (isDarkMode.value) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+  localStorage.setItem('darkMode', isDarkMode.value.toString())
+}
+
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value
+  updateDarkMode()
+}
+
+const handleSystemThemeChange = (event: MediaQueryListEvent) => {
+  if (localStorage.getItem('darkMode') === null) {
+    isDarkMode.value = event.matches
+    updateDarkMode()
+  }
+}
 
 const handleLogin = async () => {
   if (loading.value) return
@@ -161,4 +196,29 @@ const handleLogin = async () => {
     loading.value = false
   }
 }
+
+onMounted(() => {
+  const savedDarkMode = localStorage.getItem('darkMode')
+  mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+
+  if (savedDarkMode === 'true') {
+    isDarkMode.value = true
+  } else if (savedDarkMode === 'false') {
+    isDarkMode.value = false
+  } else {
+    isDarkMode.value = mediaQuery.matches
+  }
+
+  if (isDarkMode.value) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+
+  mediaQuery.addEventListener('change', handleSystemThemeChange)
+})
+
+onBeforeUnmount(() => {
+  mediaQuery?.removeEventListener('change', handleSystemThemeChange)
+})
 </script>
