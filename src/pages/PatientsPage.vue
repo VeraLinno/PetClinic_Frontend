@@ -58,10 +58,10 @@
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ getSpeciesLabel(patient.species) }} - {{ getBreedLabel(patient.breed) }}</p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('patients.ownerLabel') }}: {{ patient.ownerName }}</p>
               <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ $t('patients.lastVisitLabel') }}: {{ formatDate(patient.lastVisit) }}</p>
-              <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <div class="mt-3 grid grid-cols-2 gap-2">
                 <Button class="w-full" variant="outline" size="sm" @click="viewHistory(patient)">{{ $t('common.details') }}</Button>
-                <Button class="w-full" variant="primary" size="sm" @click="startVisit(patient)">{{ $t('dashboard.vet.startVisit') }}</Button>
                 <Button class="w-full" variant="danger" size="sm" :loading="deletingPatientId === patient.id" @click="deletePatient(patient)">{{ $t('common.delete') }}</Button>
+                <Button class="col-span-2 w-full" variant="primary" size="sm" @click="startVisit(patient)">{{ $t('dashboard.vet.startVisit') }}</Button>
               </div>
             </div>
           </div>
