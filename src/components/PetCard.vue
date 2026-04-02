@@ -27,11 +27,11 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Button
           variant="primary"
           size="sm"
-          class="col-span-2"
+          class="w-full sm:col-span-2"
           @click="$emit('book-appointment', pet)"
           :aria-label="$t('pets.bookAppointment')"
         >
