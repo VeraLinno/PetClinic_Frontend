@@ -185,7 +185,7 @@ const loadPatients = async () => {
   loading.value = true
   loadError.value = ''
   try {
-    const [appointments, pets] = await Promise.all([
+    const [appointments, pets]: [Appointment[], Pet[]] = await Promise.all([
       appointmentsService.getAppointments(),
       ownersService.getAllPets()
     ])
