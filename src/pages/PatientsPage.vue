@@ -61,7 +61,7 @@
               <div class="mt-3 grid grid-cols-2 gap-2">
                 <Button class="w-full" variant="outline" size="sm" @click="viewHistory(patient)">{{ $t('common.details') }}</Button>
                 <Button class="w-full" variant="danger" size="sm" :loading="deletingPatientId === patient.id" @click="deletePatient(patient)">{{ $t('common.delete') }}</Button>
-                <Button class="col-span-2 w-full" variant="primary" size="sm" @click="startVisit(patient)">{{ $t('pets.bookAppointment') }}</Button>
+                <Button class="col-span-2 w-full" variant="primary" size="sm" @click="bookAppointment(patient)">{{ $t('pets.bookAppointment') }}</Button>
               </div>
             </div>
           </div>
@@ -192,13 +192,6 @@ const loadPatients = async () => {
 
     allAppointments.value = appointments
 
-    const activePetIds = new Set(
-      appointments
-        .filter((appointment) => Boolean(appointment.veterinarianId))
-        .map((appointment) => normalizeId(appointment.petId))
-        .filter(Boolean)
-    )
-
     patients.value = pets.map((pet: Pet) => ({
       id: pet.id,
       name: pet.name,
@@ -206,7 +199,7 @@ const loadPatients = async () => {
       breed: pet.breed,
       ownerName: pet.ownerName || t('common.notAvailable'),
       lastVisit: pet.lastVisitAt || null
-    })).filter((pet) => activePetIds.has(normalizeId(pet.id)))
+    }))
   } catch (error: any) {
     loadError.value = error?.response?.data?.error || t('common.loadFailed')
     patients.value = []
@@ -290,8 +283,9 @@ const viewHistory = (patient: Patient) => {
   showDetailsModal.value = true
 }
 
-const startVisit = (patient: Patient) => {
-  console.log('Start visit for', patient.name)
+const bookAppointment = (patient: Patient) => {
+  sessionStorage.setItem('selectedPet', JSON.stringify(patient))
+  void router.push('/booking')
 }
 
 const startVisitFromDetails = () => {
