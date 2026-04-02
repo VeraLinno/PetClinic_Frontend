@@ -59,8 +59,9 @@
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('patients.ownerLabel') }}: {{ patient.ownerName }}</p>
               <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ $t('patients.lastVisitLabel') }}: {{ formatDate(patient.lastVisit) }}</p>
               <div class="flex gap-2 mt-2">
-                <Button variant="outline" size="sm" @click="viewHistory(patient)">{{ $t('patients.history') }}</Button>
+                <Button variant="outline" size="sm" @click="viewHistory(patient)">{{ $t('common.details') }}</Button>
                 <Button variant="primary" size="sm" @click="startVisit(patient)">{{ $t('dashboard.vet.startVisit') }}</Button>
+                <Button variant="danger" size="sm" :loading="deletingPatientId === patient.id" @click="deletePatient(patient)">{{ $t('common.delete') }}</Button>
               </div>
             </div>
           </div>
@@ -114,6 +115,14 @@
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
+          <Button
+            v-if="selectedPatient"
+            variant="danger"
+            :loading="deletingPatientId === selectedPatient.id"
+            @click="deletePatient(selectedPatient)"
+          >
+            {{ $t('common.delete') }}
+          </Button>
           <Button variant="outline" @click="showDetailsModal = false">{{ $t('common.close') }}</Button>
           <Button variant="primary" @click="startVisitFromDetails">{{ $t('dashboard.vet.startVisit') }}</Button>
         </div>
@@ -160,6 +169,7 @@ const showDetailsModal = ref(false)
 const selectedPatient = ref<Patient | null>(null)
 const patientAppointments = ref<Appointment[]>([])
 const allAppointments = ref<Appointment[]>([])
+const deletingPatientId = ref<string | null>(null)
 
 const filteredPatients = computed(() => {
   return patients.value.filter(patient => {
@@ -185,7 +195,8 @@ const loadPatients = async () => {
     const activePetIds = new Set(
       appointments
         .filter((appointment) => Boolean(appointment.veterinarianId))
-        .map((appointment) => appointment.petId.toLowerCase())
+        .map((appointment) => normalizeId(appointment.petId))
+        .filter(Boolean)
     )
 
     patients.value = pets.map((pet: Pet) => ({
@@ -195,7 +206,7 @@ const loadPatients = async () => {
       breed: pet.breed,
       ownerName: pet.ownerName || t('common.notAvailable'),
       lastVisit: pet.lastVisitAt || null
-    })).filter((pet) => activePetIds.has(pet.id.toLowerCase()))
+    })).filter((pet) => activePetIds.has(normalizeId(pet.id)))
   } catch (error: any) {
     loadError.value = error?.response?.data?.error || t('common.loadFailed')
     patients.value = []
@@ -263,10 +274,19 @@ const getBreedLabel = (breed: string) => {
 
 const viewHistory = (patient: Patient) => {
   selectedPatient.value = patient
-  patientAppointments.value = allAppointments.value
-    .filter((appointment) => appointment.petId.toLowerCase() === patient.id.toLowerCase())
+  const detailsAppointments = allAppointments.value
+    .filter((appointment) => normalizeId(appointment.petId) === normalizeId(patient.id))
     .filter((appointment) => Boolean(appointment.veterinarianId))
     .sort((left, right) => new Date(right.startAt).getTime() - new Date(left.startAt).getTime())
+
+  patientAppointments.value = detailsAppointments
+
+  const latestAppointment = detailsAppointments[0]
+  if (latestAppointment?.id) {
+    void router.push(`/visit/${latestAppointment.id}`)
+    return
+  }
+
   showDetailsModal.value = true
 }
 
@@ -281,6 +301,30 @@ const startVisitFromDetails = () => {
 
 const formatAppointmentDate = (date: string) => {
   return new Date(date).toLocaleString()
+}
+
+const normalizeId = (value?: string | null) => {
+  return typeof value === 'string' ? value.toLowerCase() : ''
+}
+
+const deletePatient = async (patient: Patient) => {
+  const confirmed = window.confirm(`Delete patient ${patient.name}?`)
+  if (!confirmed) return
+
+  deletingPatientId.value = patient.id
+  try {
+    await ownersService.deletePetForVet(patient.id)
+    if (selectedPatient.value?.id === patient.id) {
+      showDetailsModal.value = false
+      selectedPatient.value = null
+      patientAppointments.value = []
+    }
+    await loadPatients()
+  } catch {
+    loadError.value = t('common.error')
+  } finally {
+    deletingPatientId.value = null
+  }
 }
 
 const formatDate = (date?: string | null) => {

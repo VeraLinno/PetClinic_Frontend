@@ -229,6 +229,7 @@
           v-model="newPet.dateOfBirth"
           :label="$t('pets.dateOfBirth')"
           type="date"
+          :max="todayIsoDate"
           required
           :error="petErrors.dateOfBirth"
         />
@@ -389,6 +390,13 @@ const profileForm = ref({
   firstName: '',
   lastName: '',
   email: ''
+})
+const todayIsoDate = computed(() => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 })
 
 // Toast
@@ -598,6 +606,10 @@ const submitPet = async () => {
   }
   if (!newPet.value.dateOfBirth) {
     petErrors.value.dateOfBirth = t('pets.validation.dateOfBirthRequired')
+    return
+  }
+  if (new Date(newPet.value.dateOfBirth) > new Date()) {
+    petErrors.value.dateOfBirth = t('pets.validation.dateOfBirthFuture')
     return
   }
   

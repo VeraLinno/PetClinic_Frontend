@@ -304,7 +304,8 @@
       "nameRequired": "Имя питомца обязательно",
       "speciesRequired": "Вид питомца обязателен",
       "breedRequired": "Порода обязательна",
-      "dateOfBirthRequired": "Дата рождения обязательна"
+      "dateOfBirthRequired": "Дата рождения обязательна",
+      "dateOfBirthFuture": "Дата рождения не может быть в будущем"
     },
     "ageYears": "{count} лет",
     "ageYearsOld": "{count} лет",

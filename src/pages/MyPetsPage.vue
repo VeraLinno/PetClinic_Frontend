@@ -121,7 +121,7 @@
         <Input v-model="newPet.name" :label="$t('pets.name')" />
         <Input v-model="newPet.species" :label="$t('pets.type')" />
         <Input v-model="newPet.breed" :label="$t('pets.breed')" />
-        <Input v-model="newPet.dateOfBirth" type="date" :label="$t('pets.dateOfBirth')" />
+        <Input v-model="newPet.dateOfBirth" type="date" :label="$t('pets.dateOfBirth')" :max="todayIsoDate" />
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
@@ -149,6 +149,13 @@ const router = useRouter()
 const route = useRoute()
 const { t, locale } = useI18n()
 const breadcrumbItems = computed(() => [{ label: t('pets.title') }])
+const todayIsoDate = computed(() => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+})
 
 const pets = ref<Pet[]>([])
 const loading = ref(true)
@@ -251,6 +258,11 @@ const bookForPet = (pet: Pet) => {
 
 const addPet = async () => {
   if (!newPet.value.name || !newPet.value.species || !newPet.value.breed || !newPet.value.dateOfBirth) return
+  const birthDate = new Date(newPet.value.dateOfBirth)
+  if (birthDate > new Date()) {
+    addPetError.value = t('pets.validation.dateOfBirthFuture')
+    return
+  }
   addPetError.value = ''
   try {
     const created = await ownersService.createPet(newPet.value)

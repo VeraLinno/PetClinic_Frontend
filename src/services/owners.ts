@@ -106,6 +106,14 @@ export const ownersService = {
     await api.delete(`/owners/me/pets/${petId}`)
   },
 
+  async deletePetForVet(petId: string): Promise<void> {
+    if (isAdminSandboxMode()) {
+      adminSandbox.deletePet(petId)
+      return
+    }
+    await api.delete(`/owners/pets/${petId}`)
+  },
+
   async getPetHealthRecords(petId: string): Promise<any> {
     const response = await api.get(`/owners/me/pets/${petId}/health-records`)
     return response.data

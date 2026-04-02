@@ -370,7 +370,8 @@
       "nameRequired": "Pet name is required",
       "speciesRequired": "Species is required",
       "breedRequired": "Breed is required",
-      "dateOfBirthRequired": "Date of birth is required"
+      "dateOfBirthRequired": "Date of birth is required",
+      "dateOfBirthFuture": "Date of birth cannot be in the future"
     }
   },
   "invoices": {

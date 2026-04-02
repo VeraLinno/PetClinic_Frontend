@@ -370,7 +370,8 @@
       "nameRequired": "Lemmiklooma nimi on kohustuslik",
       "speciesRequired": "Liik on kohustuslik",
       "breedRequired": "Tõug on kohustuslik",
-      "dateOfBirthRequired": "Sünnikuupäev on kohustuslik"
+      "dateOfBirthRequired": "Sünnikuupäev on kohustuslik",
+      "dateOfBirthFuture": "Sünnikuupäev ei tohi olla tulevikus"
     }
   },
   "invoices": {
