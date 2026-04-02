@@ -67,6 +67,58 @@
         </div>
       </div>
     </Card>
+
+    <Modal :is-open="showDetailsModal" :title="selectedPatient?.name || $t('common.details')" @close="showDetailsModal = false">
+      <div v-if="selectedPatient" class="space-y-4 text-sm">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+            <p class="text-slate-500 dark:text-slate-400">{{ $t('patients.ownerLabel') }}</p>
+            <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ selectedPatient.ownerName }}</p>
+          </div>
+          <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+            <p class="text-slate-500 dark:text-slate-400">{{ $t('patients.lastVisitLabel') }}</p>
+            <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ formatDate(selectedPatient.lastVisit) }}</p>
+          </div>
+          <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+            <p class="text-slate-500 dark:text-slate-400">{{ $t('pets.type') }}</p>
+            <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ getSpeciesLabel(selectedPatient.species) }}</p>
+          </div>
+          <div class="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+            <p class="text-slate-500 dark:text-slate-400">{{ $t('pets.breed') }}</p>
+            <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ getBreedLabel(selectedPatient.breed) }}</p>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
+          <p class="text-slate-500 dark:text-slate-400">{{ $t('visits.title') }}</p>
+          <p class="mt-1 font-medium text-slate-900 dark:text-slate-100">{{ patientAppointments.length }} appointments</p>
+        </div>
+
+        <div v-if="patientAppointments.length > 0" class="space-y-2">
+          <div
+            v-for="appointment in patientAppointments"
+            :key="appointment.id"
+            class="rounded-lg border border-slate-200 p-3 dark:border-slate-700"
+          >
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="font-medium text-slate-900 dark:text-slate-100">{{ formatAppointmentDate(appointment.startAt) }}</p>
+                <p class="text-slate-500 dark:text-slate-400">{{ appointment.veterinarianName || $t('visits.assignedVet') }}</p>
+              </div>
+              <span class="rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+                {{ appointment.statusLocalized || appointment.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button variant="outline" @click="showDetailsModal = false">{{ $t('common.close') }}</Button>
+          <Button variant="primary" @click="startVisitFromDetails">{{ $t('dashboard.vet.startVisit') }}</Button>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -75,9 +127,11 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ownersService, type Pet } from '@/services/owners'
+import { appointmentsService, type Appointment } from '@/services/appointments'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
+import Modal from '@/components/ui/Modal.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 
 interface Patient {
@@ -102,6 +156,10 @@ const loading = ref(true)
 const loadError = ref('')
 const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '')
 const speciesFilter = ref('')
+const showDetailsModal = ref(false)
+const selectedPatient = ref<Patient | null>(null)
+const patientAppointments = ref<Appointment[]>([])
+const allAppointments = ref<Appointment[]>([])
 
 const filteredPatients = computed(() => {
   return patients.value.filter(patient => {
@@ -117,7 +175,19 @@ const loadPatients = async () => {
   loading.value = true
   loadError.value = ''
   try {
-    const pets = await ownersService.getAllPets()
+    const [appointments, pets] = await Promise.all([
+      appointmentsService.getAppointments(),
+      ownersService.getAllPets()
+    ])
+
+    allAppointments.value = appointments
+
+    const activePetIds = new Set(
+      appointments
+        .filter((appointment) => Boolean(appointment.veterinarianId))
+        .map((appointment) => appointment.petId.toLowerCase())
+    )
+
     patients.value = pets.map((pet: Pet) => ({
       id: pet.id,
       name: pet.name,
@@ -125,7 +195,7 @@ const loadPatients = async () => {
       breed: pet.breed,
       ownerName: pet.ownerName || t('common.notAvailable'),
       lastVisit: pet.lastVisitAt || null
-    }))
+    })).filter((pet) => activePetIds.has(pet.id.toLowerCase()))
   } catch (error: any) {
     loadError.value = error?.response?.data?.error || t('common.loadFailed')
     patients.value = []
@@ -192,11 +262,25 @@ const getBreedLabel = (breed: string) => {
 }
 
 const viewHistory = (patient: Patient) => {
-  router.push(`/owner/history?petId=${patient.id}`)
+  selectedPatient.value = patient
+  patientAppointments.value = allAppointments.value
+    .filter((appointment) => appointment.petId.toLowerCase() === patient.id.toLowerCase())
+    .filter((appointment) => Boolean(appointment.veterinarianId))
+    .sort((left, right) => new Date(right.startAt).getTime() - new Date(left.startAt).getTime())
+  showDetailsModal.value = true
 }
 
 const startVisit = (patient: Patient) => {
   console.log('Start visit for', patient.name)
+}
+
+const startVisitFromDetails = () => {
+  if (!selectedPatient.value) return
+  startVisit(selectedPatient.value)
+}
+
+const formatAppointmentDate = (date: string) => {
+  return new Date(date).toLocaleString()
 }
 
 const formatDate = (date?: string | null) => {
