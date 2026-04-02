@@ -61,7 +61,7 @@
               <div class="mt-3 grid grid-cols-2 gap-2">
                 <Button class="w-full" variant="outline" size="sm" @click="viewHistory(patient)">{{ $t('common.details') }}</Button>
                 <Button class="w-full" variant="danger" size="sm" :loading="deletingPatientId === patient.id" @click="deletePatient(patient)">{{ $t('common.delete') }}</Button>
-                <Button class="col-span-2 w-full" variant="primary" size="sm" @click="startVisit(patient)">{{ $t('dashboard.vet.startVisit') }}</Button>
+                <Button class="col-span-2 w-full" variant="primary" size="sm" @click="startVisit(patient)">{{ $t('pets.bookAppointment') }}</Button>
               </div>
             </div>
           </div>
