@@ -3,11 +3,14 @@ import { decodeToken } from './jwt'
 
 describe('decodeToken', () => {
   it('should decode a valid JWT token', () => {
-    // Mock JWT token with valid base64url encoded payload
-    // Payload: { "userId": "123", "roles": ["Owner"] }
-    // Using a properly formatted token with base64url encoding
-    // Third part is properly padded base64 for "test"
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjMiLCJyb2xlcyI6WyJPd25lciJdfQ.dGVzdA=='
+    const payload = { userId: '123', roles: ['Owner'] }
+    const encodedPayload = Buffer.from(JSON.stringify(payload), 'utf-8')
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/g, '')
+    const token = `header.${encodedPayload}.signature`
+
     const decoded = decodeToken(token)
     expect(decoded.userId).toBe('123')
     expect(decoded.roles).toEqual(['Owner'])

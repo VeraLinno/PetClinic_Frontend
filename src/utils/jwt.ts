@@ -13,12 +13,22 @@ export function decodeToken(token: string): any {
   }
 
   try {
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    )
+    let jsonPayload = ''
+
+    if (typeof Buffer !== 'undefined') {
+      jsonPayload = Buffer.from(base64, 'base64').toString('utf-8')
+    } else if (typeof atob === 'function') {
+      const binary = atob(base64)
+      if (typeof TextDecoder !== 'undefined') {
+        const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+        jsonPayload = new TextDecoder().decode(bytes)
+      } else {
+        jsonPayload = binary
+      }
+    } else {
+      throw new Error('No base64 decoder available')
+    }
+
     const payload = JSON.parse(jsonPayload)
 
     const roleClaimKeys = [
