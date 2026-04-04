@@ -138,6 +138,20 @@
           </div>
         </Card>
 
+        <Card v-if="canEdit && !isCompleted">
+          <template #header>
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Invoice Amount</h2>
+          </template>
+          <Input
+            label="Total Visit Amount"
+            v-model="invoiceAmount"
+            type="number"
+            min="0.01"
+            step="0.01"
+            placeholder="e.g., 120.00"
+          />
+        </Card>
+
         <Card v-if="visit?.invoice">
           <template #header>
             <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Invoice</h2>
@@ -301,6 +315,7 @@ const completionSuccess = ref('')
 const visitNotes = ref('')
 const treatments = ref<Array<{ name: string; description: string }>>([])
 const prescriptions = ref<Prescription[]>([])
+const invoiceAmount = ref('50')
 
 const showTreatmentModal = ref(false)
 const showPrescriptionModal = ref(false)
@@ -524,6 +539,12 @@ const removePrescription = (index: number) => {
 
 const completeVisit = async () => {
   const targetId = visit.value?.id || appointment.value?.id || visitId
+  const parsedInvoiceAmount = Number.parseFloat(invoiceAmount.value)
+
+  if (!Number.isFinite(parsedInvoiceAmount) || parsedInvoiceAmount <= 0) {
+    completionError.value = 'Invoice amount must be greater than 0.'
+    return
+  }
 
   completing.value = true
   completionError.value = ''
@@ -531,7 +552,8 @@ const completeVisit = async () => {
   try {
     await appointmentsService.completeVisit(targetId, {
       notes: visitNotes.value,
-      prescriptions: prescriptions.value
+      prescriptions: prescriptions.value,
+      invoiceAmount: parsedInvoiceAmount
     })
     await loadDetails()
     completionSuccess.value = 'Visit completed successfully.'

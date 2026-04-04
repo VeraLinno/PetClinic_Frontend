@@ -98,7 +98,7 @@ export const appointmentsService = {
     const response = await api.get(`/visits/${id}`)
     return response.data
   },
-  async completeVisit(id: string, data: { notes?: string, diagnosis?: string, treatments?: string[], prescriptions?: Prescription[] }) {
+  async completeVisit(id: string, data: { notes?: string, diagnosis?: string, treatments?: string[], prescriptions?: Prescription[], invoiceAmount?: number }) {
     if (isAdminSandboxMode()) {
       return adminSandbox.completeVisit(id, data)
     }
