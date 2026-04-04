@@ -41,6 +41,17 @@ export interface VeterinarianOption {
   email: string
 }
 
+export interface OwnerInvoice {
+  id: string
+  visitId: string
+  petName?: string | null
+  amount: number
+  issuedAt: string
+  status: 'Paid' | 'Pending' | 'Overdue'
+  paidAt?: string | null
+  dueDate?: string | null
+}
+
 export const ownersService = {
   async getMe(): Promise<Owner> {
     if (isAdminSandboxMode()) {
@@ -116,6 +127,22 @@ export const ownersService = {
 
   async getPetHealthRecords(petId: string): Promise<any> {
     const response = await api.get(`/owners/me/pets/${petId}/health-records`)
+    return response.data
+  },
+
+  async getMyInvoices(): Promise<OwnerInvoice[]> {
+    if (isAdminSandboxMode()) {
+      return []
+    }
+    const response = await api.get('/owners/me/invoices')
+    return response.data
+  },
+
+  async markInvoicePaid(invoiceId: string): Promise<OwnerInvoice> {
+    if (isAdminSandboxMode()) {
+      throw new Error('Marking invoices as paid is not available in admin sandbox mode.')
+    }
+    const response = await api.post(`/owners/me/invoices/${invoiceId}/mark-paid`)
     return response.data
   }
 }

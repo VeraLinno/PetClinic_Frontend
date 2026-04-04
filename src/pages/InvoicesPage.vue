@@ -84,8 +84,14 @@
               <p class="font-bold" :class="invoice.status === 'overdue' ? 'text-danger-700 dark:text-danger-300' : 'text-gray-900 dark:text-white'">${{ invoice.total }}</p>
               <Badge :variant="getStatusVariant(invoice.status)" size="sm">{{ getStatusLabel(invoice.status) }}</Badge>
             </div>
-            <Button v-if="invoice.status !== 'paid'" variant="primary" size="sm" @click="payInvoice(invoice)">
-              {{ $t('invoices.payNow') }}
+            <Button
+              v-if="invoice.status !== 'paid'"
+              variant="primary"
+              size="sm"
+              :disabled="markAsPaidLoadingId === invoice.id"
+              @click="payInvoice(invoice)"
+            >
+              {{ $t('invoices.markAsPaid') }}
             </Button>
             <Button variant="outline" size="sm" @click="downloadInvoice(invoice)">
               {{ $t('invoices.download') }}
@@ -104,6 +110,7 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
+import { ownersService, type OwnerInvoice } from '@/services/owners'
 
 const { t } = useI18n()
 
@@ -123,6 +130,7 @@ type InvoiceStatusFilter = 'all' | 'pending' | 'paid' | 'overdue'
 
 const invoices = ref<Invoice[]>([])
 const loading = ref(true)
+const markAsPaidLoadingId = ref<string | null>(null)
 const statusOptions = computed<{ value: InvoiceStatusFilter; label: string }[]>(() => [
   { value: 'all', label: t('appointments.status_all') },
   { value: 'pending', label: t('invoices.status_pending') },
@@ -169,15 +177,37 @@ const paidThisMonth = computed(() => {
     .reduce((acc, cur) => acc + cur.total, 0)
 })
 
-onMounted(() => {
-  // Mock data
-  invoices.value = [
-    { id: 'INV001', petName: 'Buddy', date: '2024-02-20', total: 200, status: 'pending' },
-    { id: 'INV002', petName: 'Buddy', date: '2024-01-15', total: 150, status: 'paid' },
-    { id: 'INV003', petName: 'Whiskers', date: '2024-01-08', total: 340, status: 'overdue' }
-  ]
-  loading.value = false
+onMounted(async () => {
+  await loadInvoices()
 })
+
+const mapInvoiceStatus = (status: OwnerInvoice['status']): Invoice['status'] => {
+  const normalizedStatus = status.toLowerCase()
+  if (normalizedStatus === 'paid') return 'paid'
+  if (normalizedStatus === 'overdue') return 'overdue'
+  return 'pending'
+}
+
+const mapOwnerInvoice = (invoice: OwnerInvoice): Invoice => ({
+  id: invoice.id,
+  petName: invoice.petName || `Visit ${invoice.visitId.slice(0, 8)}`,
+  date: invoice.issuedAt,
+  total: Number(invoice.amount),
+  status: mapInvoiceStatus(invoice.status)
+})
+
+const loadInvoices = async () => {
+  loading.value = true
+  try {
+    const ownerInvoices = await ownersService.getMyInvoices()
+    invoices.value = ownerInvoices.map(mapOwnerInvoice)
+  } catch (error) {
+    console.error('Failed to load invoices', error)
+    invoices.value = []
+  } finally {
+    loading.value = false
+  }
+}
 
 const formatDate = (date: string) => new Date(date).toLocaleDateString()
 
@@ -189,8 +219,25 @@ const getStatusVariant = (status: string) => {
 
 const getStatusLabel = (status: 'paid' | 'pending' | 'overdue') => t(`invoices.status_${status}`)
 
-const payInvoice = (invoice: Invoice) => {
-  console.log('Pay', invoice.id)
+const payInvoice = async (invoice: Invoice) => {
+  markAsPaidLoadingId.value = invoice.id
+  try {
+    const updatedInvoice = await ownersService.markInvoicePaid(invoice.id)
+    const updatedStatus = mapInvoiceStatus(updatedInvoice.status)
+    invoices.value = invoices.value.map((currentInvoice) => {
+      if (currentInvoice.id !== invoice.id) {
+        return currentInvoice
+      }
+      return {
+        ...currentInvoice,
+        status: updatedStatus
+      }
+    })
+  } catch (error) {
+    console.error('Failed to mark invoice as paid', error)
+  } finally {
+    markAsPaidLoadingId.value = null
+  }
 }
 
 const downloadInvoice = (invoice: Invoice) => {

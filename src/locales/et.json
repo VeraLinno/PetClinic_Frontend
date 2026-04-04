@@ -396,6 +396,7 @@
     "total": "Kokku",
     "pay": "Maksa arve",
     "payNow": "Maksa kohe",
+    "markAsPaid": "Märgi makstuks",
     "download": "Laadi PDF",
     "noInvoices": "Arveid ei leitud"
   },

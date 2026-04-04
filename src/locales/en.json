@@ -396,6 +396,7 @@
     "total": "Total",
     "pay": "Pay Invoice",
     "payNow": "Pay Now",
+    "markAsPaid": "Mark as paid",
     "download": "Download PDF",
     "noInvoices": "No invoices found"
   },
