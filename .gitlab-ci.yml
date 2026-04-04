@@ -9,8 +9,31 @@ deploy_frontend:
     - petclinic-runner
   script:
     - docker info
+    - docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
     - docker build -t petclinic-frontend:latest .
     - docker rm -f petclinic-frontend || true
-    - docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
     - docker run -d --name petclinic-frontend --restart unless-stopped --network petclinic_default -p 80:80 petclinic-frontend:latest
     - docker ps --filter name=petclinic-frontend
+    - |
+      wait_for_url() {
+        local url="$1"
+        local name="$2"
+        local retries=30
+        local delay=2
+
+        for i in $(seq 1 $retries); do
+          if curl -fsS "$url" >/dev/null; then
+            echo "$name is healthy: $url"
+            return 0
+          fi
+          echo "Waiting for $name ($i/$retries): $url"
+          sleep "$delay"
+        done
+
+        echo "ERROR: $name failed health check: $url"
+        docker logs petclinic-frontend --tail 200 || true
+        return 1
+      }
+
+      wait_for_url "http://localhost/" "frontend"
+      wait_for_url "http://localhost/api/v1/health" "frontend->api proxy"
