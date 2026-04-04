@@ -315,7 +315,7 @@ const completionSuccess = ref('')
 const visitNotes = ref('')
 const treatments = ref<Array<{ name: string; description: string }>>([])
 const prescriptions = ref<Prescription[]>([])
-const invoiceAmount = ref('50')
+const invoiceAmount = ref('')
 
 const showTreatmentModal = ref(false)
 const showPrescriptionModal = ref(false)

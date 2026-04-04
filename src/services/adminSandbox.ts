@@ -264,7 +264,7 @@ export const adminSandbox = {
     return state.visits.find((v) => v.appointmentId === id) || null
   },
 
-  completeVisit(appointmentOrVisitId: string, payload: { notes?: string; diagnosis?: string; treatments?: string[]; invoiceAmount?: number }) {
+  completeVisit(appointmentOrVisitId: string, payload: { notes?: string; diagnosis?: string; treatments?: string[]; invoiceAmount: number }) {
     const state = readState()
     const appointment = state.appointments.find((a) => a.id === appointmentOrVisitId)
     if (!appointment) {
@@ -282,9 +282,7 @@ export const adminSandbox = {
     }
     state.visits.push(visit)
 
-    const invoiceAmount = typeof payload.invoiceAmount === 'number' && payload.invoiceAmount > 0
-      ? payload.invoiceAmount
-      : 50
+    const invoiceAmount = payload.invoiceAmount
 
     const invoice: SandboxInvoice = {
       id: makeId('inv'),

@@ -75,7 +75,7 @@
               </svg>
             </div>
             <div>
-              <h3 class="font-medium text-gray-900 dark:text-white">{{ $t('invoices.invoiceNumber') }}{{ invoice.id }}</h3>
+              <h3 class="font-medium text-gray-900 dark:text-white">{{ $t('invoices.invoiceNumber') }}{{ invoice.invoiceNumber }}</h3>
               <p class="text-sm text-gray-500">{{ invoice.petName }} - {{ formatDate(invoice.date) }}</p>
             </div>
           </div>
@@ -120,6 +120,7 @@ const breadcrumbItems = [
 
 interface Invoice {
   id: string
+  invoiceNumber: string
   petName: string
   date: string
   total: number
@@ -190,6 +191,7 @@ const mapInvoiceStatus = (status: OwnerInvoice['status']): Invoice['status'] => 
 
 const mapOwnerInvoice = (invoice: OwnerInvoice): Invoice => ({
   id: invoice.id,
+  invoiceNumber: invoice.id.slice(0, 6).toUpperCase(),
   petName: invoice.petName || `Visit ${invoice.visitId.slice(0, 8)}`,
   date: invoice.issuedAt,
   total: Number(invoice.amount),
