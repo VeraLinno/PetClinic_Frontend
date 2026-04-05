@@ -265,7 +265,7 @@
           >
             <option value="">{{ inventoryLoading ? 'Loading medications...' : 'Select medication from inventory' }}</option>
             <option v-for="item in inventoryMedications" :key="item.id" :value="item.id">
-              {{ item.name }} (Stock: {{ item.quantity }})
+              {{ item.name }} (Stock: {{ getAvailableQuantity(item) }})
             </option>
           </select>
           <p v-if="inventoryLoadError" class="text-sm text-danger-600 dark:text-danger-400">{{ inventoryLoadError }}</p>
@@ -557,6 +557,17 @@ const addPrescription = () => {
   showPrescriptionModal.value = true
 }
 
+const getReservedQuantity = (medicationId: string) => {
+  return prescriptions.value
+    .filter((item) => item.medicationId === medicationId)
+    .reduce((total, item) => total + item.quantity, 0)
+}
+
+const getAvailableQuantity = (item: InventoryItem) => {
+  const available = item.quantity - getReservedQuantity(item.id)
+  return available > 0 ? available : 0
+}
+
 const savePrescription = () => {
   const quantity = Number.parseInt(newPrescription.value.quantity, 10)
   const selectedMedication = inventoryMedications.value.find((item: InventoryItem) => item.id === newPrescription.value.medicationId)
@@ -576,8 +587,9 @@ const savePrescription = () => {
     return
   }
 
-  if (quantity > selectedMedication.quantity) {
-    prescriptionFormError.value = `Only ${selectedMedication.quantity} unit(s) available in inventory.`
+  const availableQuantity = getAvailableQuantity(selectedMedication)
+  if (quantity > availableQuantity) {
+    prescriptionFormError.value = `Only ${availableQuantity} unit(s) available in inventory.`
     return
   }
 
@@ -613,6 +625,7 @@ const completeVisit = async () => {
       prescriptions: prescriptions.value,
       invoiceAmount: parsedInvoiceAmount
     })
+    await loadInventoryMedications()
     await loadDetails()
     completionSuccess.value = 'Visit completed successfully.'
   } catch (error) {
