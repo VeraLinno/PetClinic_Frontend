@@ -256,11 +256,20 @@
         <h3 class="text-lg font-medium text-gray-900">Add Prescription</h3>
       </template>
       <div class="space-y-4">
-        <Input
-          label="Medication"
-          v-model="newPrescription.medication"
-          placeholder="e.g., Amoxicillin"
-        />
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Medication</label>
+          <select
+            v-model="newPrescription.medicationId"
+            class="block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            :disabled="inventoryLoading || inventoryMedications.length === 0"
+          >
+            <option value="">{{ inventoryLoading ? 'Loading medications...' : 'Select medication from inventory' }}</option>
+            <option v-for="item in inventoryMedications" :key="item.id" :value="item.id">
+              {{ item.name }} (Stock: {{ item.quantity }})
+            </option>
+          </select>
+          <p v-if="inventoryLoadError" class="text-sm text-danger-600 dark:text-danger-400">{{ inventoryLoadError }}</p>
+        </div>
         <Input
           label="Dosage"
           v-model="newPrescription.dosage"
@@ -272,6 +281,7 @@
           type="number"
           placeholder="e.g., 30"
         />
+        <p v-if="prescriptionFormError" class="text-sm text-danger-600 dark:text-danger-400">{{ prescriptionFormError }}</p>
       </div>
       <template #footer>
         <Button variant="secondary" @click="showPrescriptionModal = false">
@@ -290,6 +300,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { appointmentsService, type Appointment, type Visit, type Prescription } from '@/services/appointments'
+import { inventoryService, type InventoryItem } from '@/services/inventory'
 import { ownersService, type Pet } from '@/services/owners'
 import { useAuthStore } from '@/stores/auth'
 import Card from '@/components/ui/Card.vue'
@@ -311,16 +322,20 @@ const loading = ref(true)
 const completing = ref(false)
 const completionError = ref('')
 const completionSuccess = ref('')
+const prescriptionFormError = ref('')
 
 const visitNotes = ref('')
 const treatments = ref<Array<{ name: string; description: string }>>([])
 const prescriptions = ref<Prescription[]>([])
 const invoiceAmount = ref('')
+const inventoryMedications = ref<InventoryItem[]>([])
+const inventoryLoading = ref(false)
+const inventoryLoadError = ref('')
 
 const showTreatmentModal = ref(false)
 const showPrescriptionModal = ref(false)
 const newTreatment = ref({ name: '', description: '' })
-const newPrescription = ref({ medication: '', dosage: '', quantity: '' })
+const newPrescription = ref({ medicationId: '', dosage: '', quantity: '' })
 
 const visitId = route.params.id as string
 
@@ -416,8 +431,28 @@ const timelineEvents = computed(() => {
 })
 
 onMounted(async () => {
-  await loadDetails()
+  await Promise.all([
+    loadDetails(),
+    loadInventoryMedications()
+  ])
 })
+
+const loadInventoryMedications = async () => {
+  inventoryLoading.value = true
+  inventoryLoadError.value = ''
+
+  try {
+    const items: InventoryItem[] = await inventoryService.getInventory()
+    inventoryMedications.value = items
+      .filter((item: InventoryItem) => item.quantity > 0)
+      .sort((a: InventoryItem, b: InventoryItem) => a.name.localeCompare(b.name))
+  } catch {
+    inventoryMedications.value = []
+    inventoryLoadError.value = 'Failed to load medications from inventory.'
+  } finally {
+    inventoryLoading.value = false
+  }
+}
 
 const loadDetails = async () => {
   try {
@@ -466,7 +501,7 @@ const loadPet = async () => {
     const pets = canEdit.value
       ? await ownersService.getAllPets()
       : await ownersService.getPets()
-    const match = pets.find((item) => item.id.toLowerCase() === appointment.value?.petId.toLowerCase())
+    const match = pets.find((item: Pet) => item.id.toLowerCase() === appointment.value?.petId.toLowerCase())
     pet.value = match || null
   } catch {
     pet.value = null
@@ -517,20 +552,43 @@ const removeTreatment = (index: number) => {
 }
 
 const addPrescription = () => {
-  newPrescription.value = { medication: '', dosage: '', quantity: '' }
+  prescriptionFormError.value = ''
+  newPrescription.value = { medicationId: '', dosage: '', quantity: '' }
   showPrescriptionModal.value = true
 }
 
 const savePrescription = () => {
-  const quantity = parseInt(newPrescription.value.quantity)
-  if (newPrescription.value.medication && newPrescription.value.dosage && quantity > 0) {
-    prescriptions.value.push({
-      medication: newPrescription.value.medication,
-      dosage: newPrescription.value.dosage,
-      quantity: quantity
-    })
-    showPrescriptionModal.value = false
+  const quantity = Number.parseInt(newPrescription.value.quantity, 10)
+  const selectedMedication = inventoryMedications.value.find((item: InventoryItem) => item.id === newPrescription.value.medicationId)
+
+  if (!selectedMedication) {
+    prescriptionFormError.value = 'Please select a medication from inventory.'
+    return
   }
+
+  if (!newPrescription.value.dosage.trim()) {
+    prescriptionFormError.value = 'Dosage is required.'
+    return
+  }
+
+  if (!Number.isInteger(quantity) || quantity <= 0) {
+    prescriptionFormError.value = 'Quantity must be greater than 0.'
+    return
+  }
+
+  if (quantity > selectedMedication.quantity) {
+    prescriptionFormError.value = `Only ${selectedMedication.quantity} unit(s) available in inventory.`
+    return
+  }
+
+  prescriptions.value.push({
+    medicationId: selectedMedication.id,
+    medication: selectedMedication.name,
+    dosage: newPrescription.value.dosage.trim(),
+    quantity
+  })
+  prescriptionFormError.value = ''
+  showPrescriptionModal.value = false
 }
 
 const removePrescription = (index: number) => {

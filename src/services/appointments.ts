@@ -45,6 +45,7 @@ export interface InvoiceItem {
 }
 
 export interface Prescription {
+  medicationId?: string
   medication: string
   dosage: string
   quantity: number

@@ -288,6 +288,23 @@ const bookAppointment = (patient: Patient) => {
   void router.push('/booking')
 }
 
+const startVisit = (patient: Patient) => {
+  const upcomingStatuses = new Set(['Confirmed', 'Scheduled', 'Pending'])
+  const matchingAppointments = allAppointments.value
+    .filter((appointment) => normalizeId(appointment.petId) === normalizeId(patient.id))
+    .filter((appointment) => upcomingStatuses.has(appointment.status))
+    .sort((left, right) => new Date(left.startAt).getTime() - new Date(right.startAt).getTime())
+
+  const targetAppointment = matchingAppointments[0]
+  if (targetAppointment?.id) {
+    showDetailsModal.value = false
+    void router.push(`/visit/${targetAppointment.id}`)
+    return
+  }
+
+  bookAppointment(patient)
+}
+
 const startVisitFromDetails = () => {
   if (!selectedPatient.value) return
   startVisit(selectedPatient.value)
