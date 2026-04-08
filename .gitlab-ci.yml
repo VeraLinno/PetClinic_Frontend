@@ -42,20 +42,26 @@ frontend_container_smoke:
   script:
     - docker info
     - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA "$WORKDIR"
-    - docker rm -f petclinic-frontend-smoke || true
-    - docker run -d --name petclinic-frontend-smoke -p 18081:80 petclinic-frontend:$CI_COMMIT_SHORT_SHA
+    - export SMOKE_NET="petclinic-frontend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
+    - export SMOKE_FE="petclinic-frontend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
+    - docker network create "$SMOKE_NET"
     - |
-      for i in $(seq 1 45); do
-        if docker run --rm --network container:petclinic-frontend-smoke curlimages/curl:8.8.0 -fsS http://localhost/ >/dev/null 2>&1; then
+      cleanup() {
+        docker rm -f "$SMOKE_FE" >/dev/null 2>&1 || true
+        docker network rm "$SMOKE_NET" >/dev/null 2>&1 || true
+      }
+      trap cleanup EXIT
+    - docker run -d --name "$SMOKE_FE" --network "$SMOKE_NET" petclinic-frontend:$CI_COMMIT_SHORT_SHA
+    - |
+      for i in $(seq 1 60); do
+        if docker run --rm --network "$SMOKE_NET" curlimages/curl:8.8.0 -fsS "http://$SMOKE_FE/" >/dev/null 2>&1; then
           echo "Frontend container smoke check passed"
-          docker rm -f petclinic-frontend-smoke >/dev/null 2>&1 || true
           exit 0
         fi
         sleep 2
       done
       echo "ERROR: Frontend container smoke check failed"
-      docker logs petclinic-frontend-smoke --tail 200 || true
-      docker rm -f petclinic-frontend-smoke >/dev/null 2>&1 || true
+      docker logs "$SMOKE_FE" --tail 200 || true
       exit 1
 
 deploy_frontend:

@@ -45,18 +45,26 @@ jobs:
       - name: Run and verify frontend
         run: |
           set -e
-          docker run -d --name petclinic-frontend-smoke -p 18081:80 petclinic-frontend:${{ github.sha }}
-          for i in $(seq 1 45); do
-            if docker run --rm --network container:petclinic-frontend-smoke curlimages/curl:8.8.0 -fsS http://localhost/ >/dev/null 2>&1; then
+          SMOKE_NET="petclinic-frontend-smoke-${{ github.run_id }}-${{ github.run_attempt }}"
+          SMOKE_FE="petclinic-frontend-smoke-${{ github.run_id }}-${{ github.run_attempt }}"
+          docker network create "$SMOKE_NET"
+          cleanup() {
+            docker rm -f "$SMOKE_FE" >/dev/null 2>&1 || true
+            docker network rm "$SMOKE_NET" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          docker run -d --name "$SMOKE_FE" --network "$SMOKE_NET" petclinic-frontend:${{ github.sha }}
+
+          for i in $(seq 1 60); do
+            if docker run --rm --network "$SMOKE_NET" curlimages/curl:8.8.0 -fsS "http://$SMOKE_FE/" >/dev/null 2>&1; then
               echo "Frontend container is healthy"
-              docker rm -f petclinic-frontend-smoke >/dev/null 2>&1 || true
               exit 0
             fi
             sleep 2
           done
           echo "ERROR: Frontend container health check failed"
-          docker logs petclinic-frontend-smoke --tail 200 || true
-          docker rm -f petclinic-frontend-smoke >/dev/null 2>&1 || true
+          docker logs "$SMOKE_FE" --tail 200 || true
           exit 1
 
   deploy:
