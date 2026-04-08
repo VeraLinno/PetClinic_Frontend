@@ -7,6 +7,10 @@ default:
   tags:
     - petclinic-runner
 
+variables:
+  GIT_STRATEGY: clone
+  GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH_SLUG/$CI_PIPELINE_ID/$CI_JOB_ID"
+
 frontend_verify:
   stage: verify
   rules:
