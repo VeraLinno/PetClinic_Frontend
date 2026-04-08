@@ -8,15 +8,13 @@ default:
     - petclinic-runner
 
 variables:
-  GIT_CLEAN_FLAGS: none
+  GIT_STRATEGY: none
 
-hooks:
-  pre_get_sources_script:
-    - |
-      if command -v sudo >/dev/null 2>&1; then
-        sudo -n chown -R "$(id -u):$(id -g)" "$CI_PROJECT_DIR" || true
-        sudo -n rm -rf "$CI_PROJECT_DIR/node_modules" "$CI_PROJECT_DIR/dist" || true
-      fi
+before_script:
+  - set -e
+  - export WORKDIR="$(mktemp -d -p /tmp petclinic-frontend-XXXXXX)"
+  - git clone --branch "$CI_COMMIT_REF_NAME" --depth 1 "$CI_REPOSITORY_URL" "$WORKDIR"
+  - cd "$WORKDIR"
 
 frontend_verify:
   stage: verify
@@ -28,7 +26,7 @@ frontend_verify:
     - docker info
     - >
       docker run --rm
-      -v "$CI_PROJECT_DIR":/src
+      -v "$WORKDIR":/src
       -w /src
       node:20-alpine
       sh -lc "npm ci && npm run build && npm run test"
@@ -43,7 +41,7 @@ frontend_container_smoke:
     - job: frontend_verify
   script:
     - docker info
-    - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA .
+    - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA "$WORKDIR"
     - docker rm -f petclinic-frontend-smoke || true
     - docker run -d --name petclinic-frontend-smoke -p 18081:80 petclinic-frontend:$CI_COMMIT_SHORT_SHA
     - |
@@ -70,7 +68,7 @@ deploy_frontend:
   script:
     - docker info
     - docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
-    - docker build -t petclinic-frontend:latest .
+    - docker build -t petclinic-frontend:latest "$WORKDIR"
     - docker rm -f petclinic-frontend || true
     - docker run -d --name petclinic-frontend --restart unless-stopped --network petclinic_default -p 80:80 petclinic-frontend:latest
     - docker ps --filter name=petclinic-frontend
