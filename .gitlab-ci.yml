@@ -44,13 +44,18 @@ frontend_container_smoke:
     - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA "$WORKDIR"
     - export SMOKE_NET="petclinic-frontend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
     - export SMOKE_FE="petclinic-frontend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
+    - export SMOKE_API_STUB="petclinic-api-stub-${CI_PIPELINE_ID}-${CI_JOB_ID}"
     - docker network create "$SMOKE_NET"
     - |
       cleanup() {
-        docker rm -f "$SMOKE_FE" >/dev/null 2>&1 || true
+        docker rm -f "$SMOKE_FE" "$SMOKE_API_STUB" >/dev/null 2>&1 || true
         docker network rm "$SMOKE_NET" >/dev/null 2>&1 || true
       }
       trap cleanup EXIT
+    - >
+      docker run -d --name "$SMOKE_API_STUB" --network "$SMOKE_NET" --network-alias api
+      python:3.12-alpine
+      sh -lc "python -m http.server 5000"
     - docker run -d --name "$SMOKE_FE" --network "$SMOKE_NET" petclinic-frontend:$CI_COMMIT_SHORT_SHA
     - |
       for i in $(seq 1 60); do
