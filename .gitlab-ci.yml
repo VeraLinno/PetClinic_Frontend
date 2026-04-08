@@ -1,12 +1,61 @@
 stages:
+  - verify
+  - package
   - deploy
+
+default:
+  tags:
+    - petclinic-runner
+
+frontend_verify:
+  stage: verify
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  script:
+    - docker info
+    - >
+      docker run --rm
+      -v "$CI_PROJECT_DIR":/src
+      -w /src
+      node:20-alpine
+      sh -lc "npm ci && npm run build && npm run test"
+
+frontend_container_smoke:
+  stage: package
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  needs:
+    - job: frontend_verify
+  script:
+    - docker info
+    - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA .
+    - docker rm -f petclinic-frontend-smoke || true
+    - docker run -d --name petclinic-frontend-smoke -p 18081:80 petclinic-frontend:$CI_COMMIT_SHORT_SHA
+    - |
+      for i in $(seq 1 30); do
+        if curl -fsS http://localhost:18081/ >/dev/null; then
+          echo "Frontend container smoke check passed"
+          docker rm -f petclinic-frontend-smoke >/dev/null 2>&1 || true
+          exit 0
+        fi
+        sleep 2
+      done
+      echo "ERROR: Frontend container smoke check failed"
+      docker logs petclinic-frontend-smoke --tail 200 || true
+      docker rm -f petclinic-frontend-smoke >/dev/null 2>&1 || true
+      exit 1
 
 deploy_frontend:
   stage: deploy
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-  tags:
-    - petclinic-runner
+  needs:
+    - job: frontend_verify
+    - job: frontend_container_smoke
   script:
     - docker info
     - docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
