@@ -46,8 +46,8 @@ jobs:
         run: |
           set -e
           docker run -d --name petclinic-frontend-smoke -p 18081:80 petclinic-frontend:${{ github.sha }}
-          for i in $(seq 1 30); do
-            if curl -fsS http://localhost:18081/ >/dev/null; then
+          for i in $(seq 1 45); do
+            if docker run --rm --network container:petclinic-frontend-smoke curlimages/curl:8.8.0 -fsS http://localhost/ >/dev/null 2>&1; then
               echo "Frontend container is healthy"
               docker rm -f petclinic-frontend-smoke >/dev/null 2>&1 || true
               exit 0

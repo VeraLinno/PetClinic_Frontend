@@ -36,8 +36,8 @@ frontend_container_smoke:
     - docker rm -f petclinic-frontend-smoke || true
     - docker run -d --name petclinic-frontend-smoke -p 18081:80 petclinic-frontend:$CI_COMMIT_SHORT_SHA
     - |
-      for i in $(seq 1 30); do
-        if curl -fsS http://localhost:18081/ >/dev/null; then
+      for i in $(seq 1 45); do
+        if docker run --rm --network container:petclinic-frontend-smoke curlimages/curl:8.8.0 -fsS http://localhost/ >/dev/null 2>&1; then
           echo "Frontend container smoke check passed"
           docker rm -f petclinic-frontend-smoke >/dev/null 2>&1 || true
           exit 0
@@ -71,9 +71,16 @@ deploy_frontend:
         local delay=2
 
         for i in $(seq 1 $retries); do
-          if curl -fsS "$url" >/dev/null; then
-            echo "$name is healthy: $url"
-            return 0
+          if command -v curl >/dev/null 2>&1; then
+            if curl -fsS "$url" >/dev/null; then
+              echo "$name is healthy: $url"
+              return 0
+            fi
+          else
+            if wget -qO- "$url" >/dev/null; then
+              echo "$name is healthy: $url"
+              return 0
+            fi
           fi
           echo "Waiting for $name ($i/$retries): $url"
           sleep "$delay"
