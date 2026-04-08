@@ -65,9 +65,22 @@ jobs:
     needs:
       - verify
       - container-smoke
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.DEPLOY_HOST != '' && secrets.DEPLOY_USER != '' && secrets.DEPLOY_SSH_KEY != '' && secrets.FRONTEND_DEPLOY_PATH != ''
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
     steps:
+      - name: Validate deploy secrets
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          FRONTEND_DEPLOY_PATH: ${{ secrets.FRONTEND_DEPLOY_PATH }}
+        run: |
+          set -e
+          if [ -z "$DEPLOY_HOST" ] || [ -z "$DEPLOY_USER" ] || [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$FRONTEND_DEPLOY_PATH" ]; then
+            echo "Missing one or more frontend deploy secrets"
+            exit 1
+          fi
+
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -86,9 +99,16 @@ jobs:
             docker rm -f petclinic-frontend || true
             docker run -d --name petclinic-frontend --restart unless-stopped --network petclinic_default -p 80:80 petclinic-frontend:latest
             for i in $(seq 1 30); do
-              if curl -fsS http://localhost/ >/dev/null; then
-                echo "Frontend deploy smoke check passed"
-                exit 0
+              if command -v curl >/dev/null 2>&1; then
+                if curl -fsS http://localhost/ >/dev/null; then
+                  echo "Frontend deploy smoke check passed"
+                  exit 0
+                fi
+              else
+                if wget -qO- http://localhost/ >/dev/null; then
+                  echo "Frontend deploy smoke check passed"
+                  exit 0
+                fi
               fi
               sleep 2
             done
