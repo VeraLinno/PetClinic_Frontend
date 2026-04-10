@@ -30,6 +30,12 @@ frontend_verify:
       -w /src
       node:20-alpine
       sh -lc "npm ci && npm run build && npm run test"
+    - >
+      docker run --rm
+      -v "$WORKDIR":/src
+      -w /src
+      mcr.microsoft.com/playwright:v1.52.0-jammy
+      sh -lc "npm ci && npm run e2e"
 
 frontend_container_smoke:
   stage: package

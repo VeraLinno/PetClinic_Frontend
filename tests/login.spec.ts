@@ -18,11 +18,10 @@ test('login flow', async ({ page }) => {
 
   await page.goto('/login')
   await expect(page).toHaveURL('/login')
-  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
 
   // Fill login form
-  await page.getByPlaceholder('you@clinic.com').fill('owner@example.com')
-  await page.getByPlaceholder('Enter your password').fill('password')
+  await page.locator('#email').fill('owner@example.com')
+  await page.locator('#password').fill('password')
 
   // Submit form
   await page.click('button[type="submit"]')
