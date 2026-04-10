@@ -34,7 +34,7 @@ frontend_verify:
       docker run --rm
       -v "$WORKDIR":/src
       -w /src
-      mcr.microsoft.com/playwright:v1.52.0-jammy
+      mcr.microsoft.com/playwright:v1.58.2-jammy
       sh -lc "npm ci && npm run e2e"
 
 frontend_container_smoke:
