@@ -31,6 +31,30 @@ frontend_verify:
       node:20-alpine
         sh -lc "npm ci && npm run build && npm run test"
 
+frontend_e2e_tests:
+  stage: verify
+  timeout: 30m
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+      allow_failure: true
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
+      allow_failure: true
+  script:
+    - docker info
+    - >
+      docker run --rm
+      -v "$WORKDIR":/src
+      -w /src
+      mcr.microsoft.com/playwright:v1.58.2-jammy
+      sh -lc "npm ci && npm run e2e"
+
 frontend_container_smoke:
   stage: package
   rules:
