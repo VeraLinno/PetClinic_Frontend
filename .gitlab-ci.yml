@@ -12,9 +12,11 @@ variables:
 
 before_script:
   - set -e
+  - echo "Git clone starting for branch $CI_COMMIT_REF_NAME"
   - export WORKDIR="$(mktemp -d -p /tmp petclinic-frontend-XXXXXX)"
-  - git clone --branch "$CI_COMMIT_REF_NAME" --depth 1 "$CI_REPOSITORY_URL" "$WORKDIR"
+  - timeout 60 git clone --branch "$CI_COMMIT_REF_NAME" --depth 1 "$CI_REPOSITORY_URL" "$WORKDIR" || (echo "Git clone failed or timed out"; exit 1)
   - cd "$WORKDIR"
+  - echo "Clone successful, in directory: $PWD"
 
 frontend_verify:
   stage: verify
