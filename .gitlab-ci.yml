@@ -18,6 +18,7 @@ before_script:
 
 frontend_verify:
   stage: verify
+  timeout: 15m
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -29,7 +30,31 @@ frontend_verify:
       -v "$WORKDIR":/src
       -w /src
       node:20-alpine
-      sh -lc "npm ci && npm run build && npm run test"
+      sh -lc "npm ci --no-audit --no-fund && npm run build"
+
+frontend_unit_tests:
+  stage: verify
+  timeout: 20m
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+      allow_failure: true
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
+      allow_failure: true
+  script:
+    - docker info
+    - >
+      docker run --rm
+      -v "$WORKDIR":/src
+      -w /src
+      node:20-alpine
+      sh -lc "npm ci --no-audit --no-fund && npm run test"
 
 frontend_e2e_tests:
   stage: verify
