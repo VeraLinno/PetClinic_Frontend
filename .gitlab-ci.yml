@@ -29,7 +29,7 @@ frontend_verify:
       -v "$WORKDIR":/src
       -w /src
       node:20-alpine
-        sh -lc "npm ci && npm run build && npm run test"
+      sh -lc "npm ci && npm run build && npm run test"
 
 frontend_e2e_tests:
   stage: verify
