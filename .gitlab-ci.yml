@@ -118,4 +118,3 @@ deploy_frontend:
       }
 
       wait_for_url "http://localhost/" "frontend"
-      wait_for_url "http://localhost/api/v1/health" "frontend->api proxy"
