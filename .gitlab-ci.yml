@@ -8,13 +8,6 @@ default:
     - petclinic-frontend
 
 variables:
-  GIT_STRATEGY: none
-
-before_script:
-  - set -e
-  - export WORKDIR="$(mktemp -d -p /tmp petclinic-frontend-XXXXXX)"
-  - git clone --branch "$CI_COMMIT_REF_NAME" --depth 1 "$CI_REPOSITORY_URL" "$WORKDIR"
-  - cd "$WORKDIR"
 
 frontend_verify:
   stage: verify
@@ -27,7 +20,7 @@ frontend_verify:
     - docker info
     - >
       docker run --rm
-      -v "$WORKDIR":/src
+      -v "$CI_PROJECT_DIR":/src
       -w /src
       node:20-alpine
       sh -lc "npm ci --no-audit --no-fund && npm run build"
@@ -51,7 +44,7 @@ frontend_unit_tests:
     - docker info
     - >
       docker run --rm
-      -v "$WORKDIR":/src
+      -v "$CI_PROJECT_DIR":/src
       -w /src
       node:20-alpine
       sh -lc "npm ci --no-audit --no-fund && npm run test"
@@ -75,7 +68,7 @@ frontend_e2e_tests:
     - docker info
     - >
       docker run --rm
-      -v "$WORKDIR":/src
+      -v "$CI_PROJECT_DIR":/src
       -w /src
       mcr.microsoft.com/playwright:v1.58.2-jammy
       sh -lc "npm ci && npm run e2e"
@@ -90,7 +83,7 @@ frontend_container_smoke:
     - job: frontend_verify
   script:
     - docker info
-    - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA "$WORKDIR"
+    - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA "$CI_PROJECT_DIR"
     - export SMOKE_NET="petclinic-frontend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
     - export SMOKE_FE="petclinic-frontend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
     - export SMOKE_API_STUB="petclinic-api-stub-${CI_PIPELINE_ID}-${CI_JOB_ID}"
@@ -128,7 +121,7 @@ deploy_frontend:
   script:
     - docker info
     - docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
-    - docker build -t petclinic-frontend:latest "$WORKDIR"
+    - docker build -t petclinic-frontend:latest "$CI_PROJECT_DIR"
     - docker rm -f petclinic-frontend || true
     - docker run -d --name petclinic-frontend --restart unless-stopped --network petclinic_default -p 80:80 petclinic-frontend:latest
     - docker ps --filter name=petclinic-frontend
