@@ -5,13 +5,19 @@ stages:
 
 default:
   tags:
-    - petclinic-frontend
+    - petclinic-runner
 
 variables:
+  GIT_STRATEGY: none
+
+before_script:
+  - set -e
+  - export WORKDIR="$(mktemp -d -p /tmp petclinic-frontend-XXXXXX)"
+  - git clone --branch "$CI_COMMIT_REF_NAME" --depth 1 "$CI_REPOSITORY_URL" "$WORKDIR"
+  - cd "$WORKDIR"
 
 frontend_verify:
   stage: verify
-  timeout: 15m
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -20,55 +26,13 @@ frontend_verify:
     - docker info
     - >
       docker run --rm
-      -v "$CI_PROJECT_DIR":/src
+      -v "$WORKDIR":/src
       -w /src
       node:20-alpine
-      sh -lc "npm ci --no-audit --no-fund && npm run build"
-
-frontend_unit_tests:
-  stage: verify
-  timeout: 20m
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-      allow_failure: true
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      when: manual
-      allow_failure: true
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-      when: manual
-      allow_failure: true
-  script:
-    - docker info
+      sh -lc "npm ci && npm run build && npm run test"
     - >
       docker run --rm
-      -v "$CI_PROJECT_DIR":/src
-      -w /src
-      node:20-alpine
-      sh -lc "npm ci --no-audit --no-fund && npm run test"
-
-frontend_e2e_tests:
-  stage: verify
-  timeout: 30m
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: on_success
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-      allow_failure: true
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      when: manual
-      allow_failure: true
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-      when: manual
-      allow_failure: true
-  script:
-    - docker info
-    - >
-      docker run --rm
-      -v "$CI_PROJECT_DIR":/src
+      -v "$WORKDIR":/src
       -w /src
       mcr.microsoft.com/playwright:v1.58.2-jammy
       sh -lc "npm ci && npm run e2e"
@@ -83,7 +47,7 @@ frontend_container_smoke:
     - job: frontend_verify
   script:
     - docker info
-    - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA "$CI_PROJECT_DIR"
+    - docker build -t petclinic-frontend:$CI_COMMIT_SHORT_SHA "$WORKDIR"
     - export SMOKE_NET="petclinic-frontend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
     - export SMOKE_FE="petclinic-frontend-smoke-${CI_PIPELINE_ID}-${CI_JOB_ID}"
     - export SMOKE_API_STUB="petclinic-api-stub-${CI_PIPELINE_ID}-${CI_JOB_ID}"
@@ -121,7 +85,7 @@ deploy_frontend:
   script:
     - docker info
     - docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
-    - docker build -t petclinic-frontend:latest "$CI_PROJECT_DIR"
+    - docker build -t petclinic-frontend:latest "$WORKDIR"
     - docker rm -f petclinic-frontend || true
     - docker run -d --name petclinic-frontend --restart unless-stopped --network petclinic_default -p 80:80 petclinic-frontend:latest
     - docker ps --filter name=petclinic-frontend
@@ -154,3 +118,4 @@ deploy_frontend:
       }
 
       wait_for_url "http://localhost/" "frontend"
+      wait_for_url "http://localhost/api/v1/health" "frontend->api proxy"
