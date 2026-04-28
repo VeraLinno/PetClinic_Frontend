@@ -133,6 +133,7 @@
     "serverUnavailable": "Server is temporarily unavailable. Please try again in a moment.",
     "mfaCode": "Authentication code",
     "mfaCodePlaceholder": "Enter 6-digit code",
+    "mfaHint": "Admin login requires a multi-factor authentication code.",
     "mfaRequired": "Multi-factor authentication is required for this account.",
     "acceptTerms": "Please accept the terms to continue.",
     "registrationFailed": "Registration failed. Please try again."

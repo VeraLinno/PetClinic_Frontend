@@ -133,6 +133,7 @@
     "serverUnavailable": "Server ei ole hetkel saadaval. Palun proovige mõne hetke pärast uuesti.",
     "mfaCode": "Autentimiskood",
     "mfaCodePlaceholder": "Sisestage 6-kohaline kood",
+    "mfaHint": "Admini sisselogimisel on vajalik mitmeastmeline autentimiskood.",
     "mfaRequired": "Selle konto jaoks on vajalik kaheastmeline autentimine.",
     "acceptTerms": "Palun kinnitage tingimused jätkamiseks.",
     "registrationFailed": "Registreerimine ebaõnnestus. Palun proovige uuesti."

@@ -56,20 +56,24 @@
             required
           />
 
-          <Input
-            v-if="mfaRequired"
-            id="mfaCode"
-            v-model="mfaCode"
-            type="text"
-            :label="$t('auth.mfaCode')"
-            :placeholder="$t('auth.mfaCodePlaceholder')"
-            :disabled="loading"
-            autocomplete="one-time-code"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            maxlength="6"
-            required
-          />
+          <template v-if="showMfaField">
+            <Input
+              id="mfaCode"
+              v-model="mfaCode"
+              type="text"
+              :label="$t('auth.mfaCode')"
+              :placeholder="$t('auth.mfaCodePlaceholder')"
+              :disabled="loading"
+              autocomplete="one-time-code"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="6"
+            />
+
+            <p class="-mt-2 text-sm text-slate-500 dark:text-slate-400">
+              {{ $t('auth.mfaHint') }}
+            </p>
+          </template>
 
           <div
             v-if="mfaRequired"
@@ -103,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { MoonIcon, SunIcon } from '@heroicons/vue/24/outline'
@@ -124,6 +128,9 @@ const isDarkMode = ref(false)
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL?.trim().toLowerCase() || 'admin@petclinic.com')
+const normalizedEmail = computed(() => email.value.trim().toLowerCase())
+const showMfaField = computed(() => mfaRequired.value || normalizedEmail.value === adminEmail)
 let mediaQuery: MediaQueryList | null = null
 
 const updateDarkMode = () => {
@@ -147,13 +154,24 @@ const handleSystemThemeChange = (event: MediaQueryListEvent) => {
   }
 }
 
+watch(normalizedEmail, (currentEmail) => {
+  if (currentEmail !== adminEmail) {
+    mfaRequired.value = false
+    mfaCode.value = ''
+  }
+})
+
 const handleLogin = async () => {
   if (loading.value) return
 
   loading.value = true
   error.value = ''
   try {
-    const response = await authService.login(email.value, password.value, mfaRequired.value ? mfaCode.value : undefined)
+    const response = await authService.login(
+      email.value,
+      password.value,
+      mfaCode.value.trim() || undefined,
+    )
 
     if (response?.mfaRequired) {
       mfaRequired.value = true
