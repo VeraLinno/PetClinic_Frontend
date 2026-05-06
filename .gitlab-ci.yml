@@ -55,6 +55,10 @@ frontend_container_smoke:
     - export SMOKE_API_STUB="petclinic-api-stub-${CI_PIPELINE_ID}-${CI_JOB_ID}"
     - docker network create "$SMOKE_NET"
     - |
+      # ensure network exists (sometimes docker reports 'not found' immediately)
+      docker network create "$SMOKE_NET" >/dev/null 2>&1 || true
+      docker network inspect "$SMOKE_NET" >/dev/null 2>&1 || (echo "Network $SMOKE_NET missing, recreating" && docker network create "$SMOKE_NET")
+    - |
       cleanup() {
         docker rm -f "$SMOKE_FE" "$SMOKE_API_STUB" >/dev/null 2>&1 || true
         docker network rm "$SMOKE_NET" >/dev/null 2>&1 || true
@@ -64,7 +68,19 @@ frontend_container_smoke:
       docker run -d --name "$SMOKE_API_STUB" --network "$SMOKE_NET" --network-alias api
       python:3.12-alpine
       sh -lc "python -m http.server 5000"
-    - docker run -d --name "$SMOKE_FE" --network "$SMOKE_NET" petclinic-frontend:$CI_COMMIT_SHORT_SHA
+    - |
+      # Try running frontend container; recreate network and retry up to 3 times if it fails
+      attempt=0
+      until docker run -d --name "$SMOKE_FE" --network "$SMOKE_NET" petclinic-frontend:$CI_COMMIT_SHORT_SHA; do
+        attempt=$((attempt+1))
+        echo "docker run failed for $SMOKE_FE (attempt $attempt). Recreating network and retrying..."
+        docker network create "$SMOKE_NET" >/dev/null 2>&1 || true
+        sleep 1
+        if [ "$attempt" -ge 3 ]; then
+          echo "Failed to start $SMOKE_FE after $attempt attempts"
+          exit 1
+        fi
+      done
     - |
       for i in $(seq 1 60); do
         if docker run --rm --network "$SMOKE_NET" curlimages/curl:8.8.0 -fsS "http://$SMOKE_FE/" >/dev/null 2>&1; then
