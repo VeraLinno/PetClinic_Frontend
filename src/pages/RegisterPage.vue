@@ -93,7 +93,7 @@
               :disabled="loading"
             />
             <span>
-              {{ $t('auth.registrationSuccess') }}
+              {{ $t('auth.acceptTerms') }}
             </span>
           </label>
 
