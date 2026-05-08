@@ -7,7 +7,6 @@ declare module '@heroicons/vue/24/outline' {
 
   export const ArrowRightOnRectangleIcon: IconComponent
   export const ArrowPathIcon: IconComponent
-  export const ArrowRightStartOnRectangleIcon: IconComponent
   export const Bars3Icon: IconComponent
   export const CheckBadgeIcon: IconComponent
   export const CheckCircleIcon: IconComponent
@@ -16,12 +15,13 @@ declare module '@heroicons/vue/24/outline' {
   export const CreditCardIcon: IconComponent
   export const DocumentTextIcon: IconComponent
   export const ExclamationCircleIcon: IconComponent
-  export const ExclamationTriangleIcon: IconComponent
   export const HeartIcon: IconComponent
   export const HomeIcon: IconComponent
   export const IdentificationIcon: IconComponent
   export const InformationCircleIcon: IconComponent
   export const ListBulletIcon: IconComponent
+  export const CalendarDaysIcon: IconComponent
+  export const PencilSquareIcon: IconComponent
   export const MagnifyingGlassIcon: IconComponent
   export const MoonIcon: IconComponent
   export const PlusCircleIcon: IconComponent
