@@ -40,7 +40,7 @@
     <Card v-if="visibleAlerts.length > 0">
       <template #header>
         <div class="flex items-center gap-2">
-          <ExclamationTriangleIcon class="h-5 w-5 text-danger-500" aria-hidden="true" />
+          <ExclamationCircleIcon class="h-5 w-5 text-danger-500" aria-hidden="true" />
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.vet.lowStockAlerts') }}</h2>
           <Badge variant="danger" size="sm">{{ visibleAlerts.length }}</Badge>
         </div>
@@ -213,7 +213,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
   ArrowPathIcon,
-  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
   PlusCircleIcon,
   UsersIcon
 } from '@heroicons/vue/24/outline'

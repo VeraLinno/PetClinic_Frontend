@@ -80,7 +80,7 @@
           class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
           :aria-label="$t('common.logout')"
         >
-          <ArrowRightStartOnRectangleIcon class="h-5 w-5 text-slate-400" aria-hidden="true" />
+          <ArrowRightOnRectangleIcon class="h-5 w-5 text-slate-400" aria-hidden="true" />
           <span>{{ $t('common.logout') }}</span>
         </button>
       </div>
@@ -170,7 +170,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ownersService, type Owner, type VeterinarianOption } from '@/services/owners'
 import {
-  ArrowRightStartOnRectangleIcon,
+  ArrowRightOnRectangleIcon,
   Bars3Icon,
   CalendarDaysIcon,
   CreditCardIcon,
