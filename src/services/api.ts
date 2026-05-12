@@ -3,7 +3,21 @@ import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || ''
-const apiBaseUrl = configuredBaseUrl ? configuredBaseUrl.replace(/\/+$/, '') : '/api/v1'
+
+const resolveDefaultApiBaseUrl = () => {
+  if (import.meta.env.DEV) {
+    return '/api/v1'
+  }
+
+  const { protocol, hostname } = window.location
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return '/api/v1'
+  }
+
+  return `${protocol}//api.${hostname}/api/v1`
+}
+
+const apiBaseUrl = configuredBaseUrl ? configuredBaseUrl.replace(/\/+$/, '') : resolveDefaultApiBaseUrl()
 const ACCESS_TOKEN_STORAGE_KEY = 'petclinic.accessToken'
 
 const api = axios.create({
