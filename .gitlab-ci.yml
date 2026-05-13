@@ -132,6 +132,7 @@ deploy_frontend:
       docker run -d --name api --network petclinic_charp_default --network-alias api \
         -v /tmp/stub_server.py:/app/stub_server.py:ro \
         python:3.12-alpine python3 /app/stub_server.py
+      trap 'docker rm -f api >/dev/null 2>&1 || true' EXIT
 
       for i in $(seq 1 30); do
         if docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/api/v1/health >/dev/null 2>&1; then
