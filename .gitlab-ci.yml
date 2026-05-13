@@ -105,6 +105,28 @@ deploy_frontend:
     - docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
     - docker build -t petclinic-frontend:latest "$WORKDIR"
     - docker rm -f petclinic-charp-frontend || true
+    - |
+      # Ensure shared network exists
+      docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
+
+      # If there's no 'api' service reachable on the shared network, try to start a lightweight API container
+      if ! docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/api/v1/health >/dev/null 2>&1; then
+        echo "No existing 'api' service found on petclinic_charp_default — attempting to start temporary api container"
+        docker pull petclinic-api:latest >/dev/null 2>&1 || true
+        docker rm -f api || true
+        docker run -d --name api --network petclinic_charp_default -e ASPNETCORE_URLS=http://+:5000 petclinic-api:latest || true
+        # wait for api health
+        for i in $(seq 1 60); do
+          if docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/api/v1/health >/dev/null 2>&1; then
+            echo "Temporary api is healthy"
+            break
+          fi
+          sleep 2
+        done
+      else
+        echo "Found existing 'api' service on petclinic_charp_default"
+      fi
+
     - docker run -d --name petclinic-charp-frontend --restart unless-stopped --network petclinic_charp_default -p 8081:80 petclinic-frontend:latest
     - docker ps --filter name=petclinic-charp-frontend
     - |
