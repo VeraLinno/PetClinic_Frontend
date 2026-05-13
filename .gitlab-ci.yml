@@ -105,7 +105,7 @@ deploy_frontend:
     - docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
     - docker build -t petclinic-frontend:latest "$WORKDIR"
     - docker rm -f petclinic-charp-frontend || true
-    - docker run -d --name petclinic-charp-frontend --restart unless-stopped --network petclinic_charp_default -p 80:80 petclinic-frontend:latest
+    - docker run -d --name petclinic-charp-frontend --restart unless-stopped --network petclinic_charp_default -p 8081:80 petclinic-frontend:latest
     - docker ps --filter name=petclinic-charp-frontend
     - |
       wait_for_url() {
@@ -135,5 +135,5 @@ deploy_frontend:
         return 1
       }
 
-      wait_for_url "http://localhost/" "frontend"
-      wait_for_url "http://localhost/api/v1/health" "frontend->api proxy"
+      wait_for_url "http://localhost:8081/" "frontend"
+      wait_for_url "http://localhost:8081/api/v1/health" "frontend->api proxy"
