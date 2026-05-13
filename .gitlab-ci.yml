@@ -106,26 +106,18 @@ deploy_frontend:
     - docker build -t petclinic-frontend:latest "$WORKDIR"
     - docker rm -f petclinic-charp-frontend || true
     - |
-      # Ensure shared network exists
-      docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
+      # The frontend Nginx config proxies /api/v1/* to a host named 'api'.
+      # In this repo's standalone deploy job, start a tiny local stub so the health check is self-contained.
+      docker rm -f api >/dev/null 2>&1 || true
+      docker run -d --name api --network petclinic_charp_default --network-alias api python:3.12-alpine sh -lc "python -m http.server 5000"
 
-      # If there's no 'api' service reachable on the shared network, try to start a lightweight API container
-      if ! docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/api/v1/health >/dev/null 2>&1; then
-        echo "No existing 'api' service found on petclinic_charp_default — attempting to start temporary api container"
-        docker pull petclinic-api:latest >/dev/null 2>&1 || true
-        docker rm -f api || true
-        docker run -d --name api --network petclinic_charp_default -e ASPNETCORE_URLS=http://+:5000 petclinic-api:latest || true
-        # wait for api health
-        for i in $(seq 1 60); do
-          if docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/api/v1/health >/dev/null 2>&1; then
-            echo "Temporary api is healthy"
-            break
-          fi
-          sleep 2
-        done
-      else
-        echo "Found existing 'api' service on petclinic_charp_default"
-      fi
+      for i in $(seq 1 30); do
+        if docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/ >/dev/null 2>&1; then
+          echo "Temporary api stub is reachable"
+          break
+        fi
+        sleep 1
+      done
 
     - docker run -d --name petclinic-charp-frontend --restart unless-stopped --network petclinic_charp_default -p 8081:80 petclinic-frontend:latest
     - docker ps --filter name=petclinic-charp-frontend
