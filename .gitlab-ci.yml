@@ -102,11 +102,11 @@ deploy_frontend:
     - job: frontend_container_smoke
   script:
     - docker info
-    - docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
+    - docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
     - docker build -t petclinic-frontend:latest "$WORKDIR"
-    - docker rm -f petclinic-frontend || true
-    - docker run -d --name petclinic-frontend --restart unless-stopped --network petclinic_default -p 80:80 petclinic-frontend:latest
-    - docker ps --filter name=petclinic-frontend
+    - docker rm -f petclinic-charp-frontend || true
+    - docker run -d --name petclinic-charp-frontend --restart unless-stopped --network petclinic_charp_default -p 80:80 petclinic-frontend:latest
+    - docker ps --filter name=petclinic-charp-frontend
     - |
       wait_for_url() {
         local url="$1"
@@ -131,14 +131,9 @@ deploy_frontend:
         done
 
         echo "ERROR: $name failed health check: $url"
-        docker logs petclinic-frontend --tail 200 || true
+        docker logs petclinic-charp-frontend --tail 200 || true
         return 1
       }
 
       wait_for_url "http://localhost/" "frontend"
-
-      if docker ps --format '{{.Names}}' | grep -qx 'petclinic-api'; then
-        wait_for_url "http://localhost/api/v1/health" "frontend->api proxy"
-      else
-        echo "Skipping frontend->api proxy check because petclinic-api is not running on this host"
-      fi
+      wait_for_url "http://localhost/api/v1/health" "frontend->api proxy"

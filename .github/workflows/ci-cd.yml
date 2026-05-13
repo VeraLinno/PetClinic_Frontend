@@ -117,10 +117,10 @@ jobs:
             git fetch origin main
             git checkout main
             git pull --ff-only origin main
-            docker network inspect petclinic_default >/dev/null 2>&1 || docker network create petclinic_default
+            docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
             docker build -t petclinic-frontend:latest .
-            docker rm -f petclinic-frontend || true
-            docker run -d --name petclinic-frontend --restart unless-stopped --network petclinic_default -p 80:80 petclinic-frontend:latest
+            docker rm -f petclinic-charp-frontend || true
+            docker run -d --name petclinic-charp-frontend --restart unless-stopped --network petclinic_charp_default -p 80:80 petclinic-frontend:latest
             for i in $(seq 1 30); do
               if command -v curl >/dev/null 2>&1; then
                 if curl -fsS http://localhost/ >/dev/null; then
@@ -136,5 +136,5 @@ jobs:
               sleep 2
             done
             echo "ERROR: Frontend deploy smoke check failed"
-            docker logs petclinic-frontend --tail 200 || true
+            docker logs petclinic-charp-frontend --tail 200 || true
             exit 1
