@@ -107,12 +107,34 @@ deploy_frontend:
     - docker rm -f petclinic-charp-frontend || true
     - |
       # The frontend Nginx config proxies /api/v1/* to a host named 'api'.
-      # In this repo's standalone deploy job, start a tiny local stub so the health check is self-contained.
+      # Create a stub server that responds 200 to any request for health checks.
       docker rm -f api >/dev/null 2>&1 || true
-      docker run -d --name api --network petclinic_charp_default --network-alias api python:3.12-alpine sh -lc "python -m http.server 5000"
+      # Create a simple script that acts as HTTP server for any endpoint
+      cat > /tmp/stub_server.py << 'STUB_EOF'
+      from http.server import HTTPServer, BaseHTTPRequestHandler
+      import sys
+
+      class StubHandler(BaseHTTPRequestHandler):
+          def do_GET(self):
+              self.send_response(200)
+              self.send_header('Content-Type', 'application/json')
+              self.end_headers()
+              self.wfile.write(b'{"status":"healthy"}')
+          
+          def log_message(self, format, *args):
+              pass  # Suppress logging
+
+      server = HTTPServer(('0.0.0.0', 5000), StubHandler)
+      print("Stub server listening on port 5000")
+      server.serve_forever()
+      STUB_EOF
+
+      docker run -d --name api --network petclinic_charp_default --network-alias api \
+        -v /tmp/stub_server.py:/app/stub_server.py:ro \
+        python:3.12-alpine python3 /app/stub_server.py
 
       for i in $(seq 1 30); do
-        if docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/ >/dev/null 2>&1; then
+        if docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/api/v1/health >/dev/null 2>&1; then
           echo "Temporary api stub is reachable"
           break
         fi
