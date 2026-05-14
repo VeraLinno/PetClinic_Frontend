@@ -103,7 +103,7 @@ deploy_frontend:
   script:
     - docker info
     - docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
-    - docker build -t petclinic-frontend:latest "$WORKDIR"
+    - docker build --build-arg VITE_API_BASE_URL= -t petclinic-frontend:latest "$WORKDIR"
     - docker rm -f petclinic-charp-frontend || true
     - |
       # The frontend Nginx config proxies /api/v1/* to a host named 'api'.
