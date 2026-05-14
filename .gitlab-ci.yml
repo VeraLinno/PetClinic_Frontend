@@ -105,38 +105,9 @@ deploy_frontend:
     - docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
     - docker build --build-arg VITE_API_BASE_URL= -t petclinic-frontend:latest "$WORKDIR"
     - docker rm -f petclinic-charp-frontend || true
-    - |
-      # The frontend Nginx config proxies /api/v1/* to a host named 'api'.
-      # Create a stub server that responds 200 to any request for health checks.
-      docker rm -f api >/dev/null 2>&1 || true
-      # Start a lightweight stub server inside a container (no host file needed).
-      # This avoids permission issues when creating files under /tmp on the runner.
-      docker run -d --name api --network petclinic_charp_default --network-alias api \
-        python:3.12-alpine sh -lc "python3 - <<'PY'
-      from http.server import HTTPServer, BaseHTTPRequestHandler
-
-      class StubHandler(BaseHTTPRequestHandler):
-          def do_GET(self):
-              self.send_response(200)
-              self.send_header('Content-Type', 'application/json')
-              self.end_headers()
-              self.wfile.write(b'{"status":"healthy"}')
-
-          def log_message(self, format, *args):
-              pass
-
-      HTTPServer(('0.0.0.0', 5000), StubHandler).serve_forever()
-      PY"
-      trap 'docker rm -f api >/dev/null 2>&1 || true' EXIT
-
-      for i in $(seq 1 30); do
-        if docker run --rm --network petclinic_charp_default curlimages/curl:8.8.0 -fsS http://api:5000/api/v1/health >/dev/null 2>&1; then
-          echo "Temporary api stub is reachable"
-          break
-        fi
-        sleep 1
-      done
-
+    # Frontend deploy does NOT touch the `api` container.
+    # The real API is deployed by velinn-petclinic_charp; killing it here (as the
+    # previous stub-based smoke check did) leaves vera-linno-charp-clean serving 502.
     - docker run -d --name petclinic-charp-frontend --restart unless-stopped --network petclinic_charp_default -p 8081:80 petclinic-frontend:latest
     - docker ps --filter name=petclinic-charp-frontend
     - |
@@ -168,4 +139,12 @@ deploy_frontend:
       }
 
       wait_for_url "http://localhost:8081/" "frontend"
-      wait_for_url "http://localhost:8081/api/v1/health" "frontend->api proxy"
+
+      # Best-effort check that the frontend can reach the real API. Non-fatal,
+      # because the API is owned by velinn-petclinic_charp; if it is temporarily
+      # down we still want the frontend deploy to succeed.
+      if curl -fsS "http://localhost:8081/api/v1/health" >/dev/null; then
+        echo "frontend->api proxy is healthy"
+      else
+        echo "WARN: frontend->api proxy is not reachable (api may be redeploying)"
+      fi
