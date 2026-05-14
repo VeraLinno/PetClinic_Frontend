@@ -109,24 +109,24 @@ deploy_frontend:
       # The frontend Nginx config proxies /api/v1/* to a host named 'api'.
       # Create a stub server that responds 200 to any request for health checks.
       docker rm -f api >/dev/null 2>&1 || true
-        # Start a lightweight stub server inside a container (no host file needed).
-        # This avoids permission issues when creating files under /tmp on the runner.
-        docker run -d --name api --network petclinic_charp_default --network-alias api \
+      # Start a lightweight stub server inside a container (no host file needed).
+      # This avoids permission issues when creating files under /tmp on the runner.
+      docker run -d --name api --network petclinic_charp_default --network-alias api \
         python:3.12-alpine sh -lc "python3 - <<'PY'
-    from http.server import HTTPServer, BaseHTTPRequestHandler
+      from http.server import HTTPServer, BaseHTTPRequestHandler
 
-    class StubHandler(BaseHTTPRequestHandler):
-      def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
-        self.wfile.write(b'{"status":"healthy"}')
+      class StubHandler(BaseHTTPRequestHandler):
+          def do_GET(self):
+              self.send_response(200)
+              self.send_header('Content-Type', 'application/json')
+              self.end_headers()
+              self.wfile.write(b'{"status":"healthy"}')
 
-      def log_message(self, format, *args):
-        pass
+          def log_message(self, format, *args):
+              pass
 
-    HTTPServer(('0.0.0.0', 5000), StubHandler).serve_forever()
-    PY"
+      HTTPServer(('0.0.0.0', 5000), StubHandler).serve_forever()
+      PY"
       trap 'docker rm -f api >/dev/null 2>&1 || true' EXIT
 
       for i in $(seq 1 30); do
