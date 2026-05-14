@@ -103,15 +103,14 @@ deploy_frontend:
   script:
     - docker info
     - docker network inspect petclinic_charp_default >/dev/null 2>&1 || docker network create petclinic_charp_default
-    - docker build --build-arg VITE_API_BASE_URL= -t petclinic-frontend:latest "$WORKDIR"
+    - docker build -t petclinic-frontend:latest "$WORKDIR"
     - docker rm -f petclinic-charp-frontend || true
     - |
       # The frontend Nginx config proxies /api/v1/* to a host named 'api'.
       # Create a stub server that responds 200 to any request for health checks.
       docker rm -f api >/dev/null 2>&1 || true
       # Create a simple script that acts as HTTP server for any endpoint
-      STUB_SERVER_PATH="$WORKDIR/stub_server.py"
-      cat > "$STUB_SERVER_PATH" << 'STUB_EOF'
+      cat > /tmp/stub_server.py << 'STUB_EOF'
       from http.server import HTTPServer, BaseHTTPRequestHandler
       import sys
 
@@ -131,7 +130,7 @@ deploy_frontend:
       STUB_EOF
 
       docker run -d --name api --network petclinic_charp_default --network-alias api \
-        -v "$STUB_SERVER_PATH":/app/stub_server.py:ro \
+        -v /tmp/stub_server.py:/app/stub_server.py:ro \
         python:3.12-alpine python3 /app/stub_server.py
       trap 'docker rm -f api >/dev/null 2>&1 || true' EXIT
 

@@ -5,16 +5,9 @@ import router from '@/router'
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || ''
 
 const resolveDefaultApiBaseUrl = () => {
-  if (import.meta.env.DEV) {
-    return '/api/v1'
-  }
-
-  const { protocol, hostname } = window.location
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return '/api/v1'
-  }
-
-  return `${protocol}//api.${hostname}/api/v1`
+  // Prefer same-origin API route unless explicitly overridden via VITE_API_BASE_URL.
+  // This avoids broken api.<host> assumptions on LAN/IP deployments and shared reverse proxies.
+  return '/api/v1'
 }
 
 const apiBaseUrl = configuredBaseUrl ? configuredBaseUrl.replace(/\/+$/, '') : resolveDefaultApiBaseUrl()
