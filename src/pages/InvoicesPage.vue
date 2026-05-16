@@ -221,6 +221,84 @@ const getStatusVariant = (status: string) => {
 
 const getStatusLabel = (status: 'paid' | 'pending' | 'overdue') => t(`invoices.status_${status}`)
 
+const escapePdfText = (text: string) =>
+  text
+    .replace(/\\/g, '\\\\')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/[^\x20-\x7E]/g, '?')
+
+const buildInvoicePdf = (invoice: Invoice) => {
+  const issuedDate = new Date(invoice.date).toLocaleDateString()
+  const lines = [
+    'PetClinic Invoice',
+    `Invoice number: ${invoice.invoiceNumber}`,
+    `Pet name: ${invoice.petName}`,
+    `Issued date: ${issuedDate}`,
+    `Status: ${invoice.status.toUpperCase()}`,
+    `Amount due: $${invoice.total.toFixed(2)}`
+  ]
+
+  const contentLines = [
+    'BT',
+    '/F1 20 Tf',
+    '72 740 Td',
+    `(${escapePdfText(lines[0])}) Tj`,
+    '/F1 12 Tf',
+    '0 -36 Td',
+    ...lines.slice(1).flatMap((line, index) => [
+      `(${escapePdfText(line)}) Tj`,
+      ...(index < lines.length - 2 ? ['0 -22 Td'] : [])
+    ]),
+    'ET'
+  ].join('\n')
+
+  const pdfObjects = [
+    '1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj',
+    '2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj',
+    '3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj',
+    '4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj',
+    `5 0 obj << /Length ${contentLines.length} >> stream\n${contentLines}\nendstream endobj`
+  ]
+
+  const header = '%PDF-1.4\n'
+  const body = pdfObjects.map((object) => `${object}\n`).join('')
+  const offsets = [0]
+
+  let currentOffset = header.length
+  for (const object of pdfObjects) {
+    offsets.push(currentOffset)
+    currentOffset += `${object}\n`.length
+  }
+
+  const xrefOffset = header.length + body.length
+  const xref = [
+    'xref',
+    '0 6',
+    '0000000000 65535 f ',
+    ...offsets.slice(1).map((offset) => `${offset.toString().padStart(10, '0')} 00000 n `),
+    'trailer',
+    '<< /Size 6 /Root 1 0 R >>',
+    'startxref',
+    `${xrefOffset}`,
+    '%%EOF'
+  ].join('\n')
+
+  return new Blob([header, body, `${xref}\n`], { type: 'application/pdf' })
+}
+
+const triggerDownload = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.rel = 'noopener'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
 const payInvoice = async (invoice: Invoice) => {
   markAsPaidLoadingId.value = invoice.id
   try {
@@ -243,6 +321,8 @@ const payInvoice = async (invoice: Invoice) => {
 }
 
 const downloadInvoice = (invoice: Invoice) => {
-  console.log('Download', invoice.id)
+  const pdfBlob = buildInvoicePdf(invoice)
+  const safeInvoiceNumber = invoice.invoiceNumber.replace(/[^a-zA-Z0-9_-]/g, '_')
+  triggerDownload(pdfBlob, `invoice-${safeInvoiceNumber}.pdf`)
 }
 </script>
